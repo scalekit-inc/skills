@@ -1,5 +1,5 @@
 ---
-name: custom-provider
+name: sk-actions-custom-provider
 description: Create or review Scalekit custom providers/connectors for proxy-only usage. Use this skill when the task is to gather API docs, infer whether a connector is OAuth, Basic, Bearer, or API Key, determine required tracked fields like domain or version, generate provider JSON, check for existing custom providers, show update diffs, run approved create or update curls, and print resolved delete curls.
 ---
 
