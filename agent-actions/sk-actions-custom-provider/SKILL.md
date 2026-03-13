@@ -65,8 +65,6 @@ curl --location '{{SCALEKIT_ENVIRONMENT_URL}}/oauth/token' \
 
 ```bash
 curl --location '{{SCALEKIT_ENVIRONMENT_URL}}/api/v1/providers?filter.provider_type=CUSTOM&page_size=1000' \
---header 'X-SK-Auth-Canary: Yes' \
---header 'X-SK-UI-Canary: Yes' \
 --header 'Authorization: Bearer {{env_access_token}}'
 ```
 
@@ -477,8 +475,6 @@ Use this list providers curl when checking for existing custom providers:
 
 ```bash
 curl --location '{{SCALEKIT_ENVIRONMENT_URL}}/api/v1/providers?filter.provider_type=CUSTOM&page_size=1000' \
---header 'X-SK-Auth-Canary: Yes' \
---header 'X-SK-UI-Canary: Yes' \
 --header 'Authorization: Bearer {{env_access_token}}'
 ```
 
