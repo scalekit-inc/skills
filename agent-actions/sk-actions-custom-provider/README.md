@@ -17,46 +17,46 @@ It helps with:
 ### Claude Code
 
 Copy this folder to either:
-- `~/.claude/skills/custom-provider/`
-- `.claude/skills/custom-provider/` inside your repo
+- `~/.claude/skills/sk-actions-custom-provider/`
+- `.claude/skills/sk-actions-custom-provider/` inside your repo
 
 Make sure the file exists at:
-- `~/.claude/skills/custom-provider/SKILL.md`
-- or `.claude/skills/custom-provider/SKILL.md`
+- `~/.claude/skills/sk-actions-custom-provider/SKILL.md`
+- or `.claude/skills/sk-actions-custom-provider/SKILL.md`
 
 ### Codex
 
 Copy this folder to:
-- `$CODEX_HOME/skills/custom-provider/`
+- `$CODEX_HOME/skills/sk-actions-custom-provider/`
 
 Make sure the file exists at:
-- `$CODEX_HOME/skills/custom-provider/SKILL.md`
+- `$CODEX_HOME/skills/sk-actions-custom-provider/SKILL.md`
 
 ### GitHub Copilot
 
 Copy this folder to either:
-- `~/.copilot/skills/custom-provider/`
-- `.github/skills/custom-provider/` inside your repo
-- `.claude/skills/custom-provider/` inside your repo
+- `~/.copilot/skills/sk-actions-custom-provider/`
+- `.github/skills/sk-actions-custom-provider/` inside your repo
+- `.claude/skills/sk-actions-custom-provider/` inside your repo
 
 Make sure the file exists at:
-- `~/.copilot/skills/custom-provider/SKILL.md`
-- or `.github/skills/custom-provider/SKILL.md`
+- `~/.copilot/skills/sk-actions-custom-provider/SKILL.md`
+- or `.github/skills/sk-actions-custom-provider/SKILL.md`
 
 ## How To Use
 
 Ask the agent to use the skill directly. Example prompts:
 
 ```text
-Use $custom-provider to create a custom provider for <provider-name>.
+Use $sk-actions-custom-provider to create a custom provider for <provider-name>.
 ```
 
 ```text
-Use $custom-provider to review this existing custom provider.
+Use $sk-actions-custom-provider to review this existing custom provider.
 ```
 
 ```text
-Use $custom-provider to update the custom provider for <provider-name>.
+Use $sk-actions-custom-provider to update the custom provider for <provider-name>.
 ```
 
 Then share:
