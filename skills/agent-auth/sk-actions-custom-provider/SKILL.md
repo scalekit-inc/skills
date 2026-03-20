@@ -25,7 +25,7 @@ Help the user:
 - define a valid custom provider JSON
 - identify the correct auth type
 - discover required auth details from docs when possible
-- determine whether extra tracked fields like `domain`, `version`, or named `path_variables` are needed
+- determine whether extra tracked fields like `domain`, `version`, or named path parameters are needed
 - run create only after explicit user approval
 - run update only after diff review and explicit confirmation
 - print the correct delete curl after resolving the provider identifier from the list providers response
@@ -106,8 +106,8 @@ curl --location '{{SCALEKIT_ENVIRONMENT_URL}}/api/v1/providers?filter.provider_t
    - `password`
    - `domain`
    - `version`
-   - `path_variables`
-17. For `path_variables`, ask for exact names if they are not clear from docs.
+   - named path parameters stored as provider fields with `is_path_param: true`
+17. For named path parameters, ask for exact field names if they are not clear from docs.
 18. Determine the correct `proxy_url`.
 19. Generate the final provider JSON.
 20. If the user asks to leave `proxy_url` empty or set `proxy_enabled` to `false`, tell them that tool calling will not work in that configuration because custom providers support tool calling only through the tool proxy feature.
@@ -140,7 +140,7 @@ Ask later only if needed:
 - I believe this auth type is `X` because of `Y`. Confirm or correct me.
 - I could not find `authorize_uri` or `token_uri`. Please provide the missing OAuth endpoints.
 - I see the API host is tenant-specific. What field should be tracked for that host value?
-- I see a required URL placeholder like `cloud_id`. Confirm that `path_variables.cloud_id` should be tracked.
+- I see a required path placeholder in the API URL. Confirm the exact field name that should be stored on the connected account and substituted into `proxy_url`.
 
 Do not ask broad, open-ended questions when the docs already imply the answer.
 
@@ -374,7 +374,7 @@ Work from this known set first:
 - `password`
 - `domain`
 - `version`
-- `path_variables`
+- named path parameters stored as provider fields with `is_path_param: true`
 
 Use only the fields the provider actually needs.
 
@@ -386,12 +386,26 @@ Examples:
   - track `version`
   - use `proxy_url` like `https://api.example.com/{{version}}`
 - path placeholders discovered from docs:
-  - track named `path_variables`
-  - example keys: `cloud_id`, `tenant`, `workspace_id`
+  - add one provider field per placeholder
+  - set `is_path_param` to `true` on that field
+  - use the same field name in `proxy_url`
 
-For `path_variables`, be concrete:
-- `path_variables.cloud_id`
-- `path_variables.workspace_id`
+Example provider field for a path placeholder:
+
+```json
+{
+  "field_name": "path_param_1",
+  "hint": "Path Param 1",
+  "input_type": "text",
+  "is_path_param": true,
+  "label": "Path Param 1",
+  "required": true
+}
+```
+
+If a path parameter appears in `proxy_url`, tell the user where to send its runtime value when creating or updating a connected account:
+- for static auth (`BASIC`, `BEARER`, `API_KEY`), put it in `connected_account.authorization_details.static_auth.details.path_variables`
+- for `OAUTH`, put it in `connected_account.api_config.path_variables`
 
 If the exact key names are unclear, ask the user to confirm them.
 
@@ -400,7 +414,7 @@ If the exact key names are unclear, ask the user to confirm them.
 The backend supports:
 - `{{domain}}`
 - `{{version}}`
-- named placeholders for path variables like `{{cloud_id}}` or `{{tenant}}`
+- named placeholders for path parameters, where the placeholder name matches a provider field marked with `is_path_param: true`
 
 Use placeholders only when the API contract requires them.
 
@@ -426,13 +440,56 @@ Pick one of these patterns:
 "proxy_url": "https://api.example.com/{{version}}"
 ```
 
-4. URL with named path variable
+4. URL with named path parameter
 
 ```json
-"proxy_url": "https://api.atlassian.com/ex/{{cloud_id}}"
+"proxy_url": "https://api.example.com/resources/{{path_param_1}}"
 ```
 
 When responding, state why the chosen shape is correct.
+
+If you use named path placeholders in `proxy_url`, also tell the user how to pass `path_variables` during connected account create or update.
+
+For static auth, the structure is:
+
+```json
+{
+  "identifier": "some-identifier",
+  "connector": "mycustomprovider",
+  "connected_account": {
+    "authorization_details": {
+      "static_auth": {
+        "details": {
+          "...": "...",
+          "path_variables": {
+            "path_param_1": "value_1"
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+For OAuth, the structure is:
+
+```json
+{
+  "identifier": "some-identifier",
+  "connector": "myoauthcustomconnector",
+  "connected_account": {
+    "authorization_details": {
+      "oauth_token": {}
+    },
+    "api_config": {
+      "...": "...",
+      "path_variables": {
+        "path_param_1": "value_1"
+      }
+    }
+  }
+}
+```
 
 ## Missing Info And Assumptions
 
