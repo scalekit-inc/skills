@@ -47,25 +47,14 @@ Follow this sequence.
 ```text
 Share:
 - Is this Scalekit environment Dev or Production?
-- SCALEKIT_ENVIRONMENT_URL
-- SCALEKIT_CLIENT_ID
-- SCALEKIT_CLIENT_SECRET
-- Custom provider name
-- API docs link
-- Auth docs link if separate
-- Base API URL if you already know it
-
-If this is Production and you already have the matching Dev environment, also share:
-- DEV_SCALEKIT_ENVIRONMENT_URL
-- DEV_SCALEKIT_CLIENT_ID
-- DEV_SCALEKIT_CLIENT_SECRET
 
 This skill is only for proxy-only connectors.
 ```
 
 Do not restate or paraphrase this startup request again in the same reply.
 2. Read the user's answer and branch:
-   - if target is `Dev`, continue with the normal flow below
+   - if target is `Dev`, ask for `SCALEKIT_ENVIRONMENT_URL`, `SCALEKIT_CLIENT_ID`, `SCALEKIT_CLIENT_SECRET`, custom provider name, API docs link, auth docs link if separate, and base API URL if already known
+   - if target is `Production`, ask for `SCALEKIT_ENVIRONMENT_URL`, `SCALEKIT_CLIENT_ID`, `SCALEKIT_CLIENT_SECRET`, `DEV_SCALEKIT_ENVIRONMENT_URL`, `DEV_SCALEKIT_CLIENT_ID`, `DEV_SCALEKIT_CLIENT_SECRET`, and custom provider name
    - if target is `Production`, do not generate provider JSON from scratch for production; first fetch the matching provider JSON from `Dev` and use that as the source of truth
 3. Use `SCALEKIT_ENVIRONMENT_URL` as `env_url`.
 4. In `Dev`, generate `env_access_token` with:
@@ -174,7 +163,6 @@ Ask later only if needed:
 - This provider already exists. Do you want me to update the existing provider, or create a new one?
 - Carefully verify the scope changes. Some earlier scopes were removed or new scopes were added. Do you want to proceed with these updated values?
 - If you leave `proxy_url` empty or set `proxy_enabled` to `false`, tool calling will not work because custom providers support tool calling only through the tool proxy feature.
-- This is Production, so I will not execute create, update, or delete curls. Please share the Production environment URL, client ID, and client secret, and also the Dev environment URL, client ID, and client secret, so I can fetch the Dev provider JSON, inspect Production providers, and prepare the final curl.
 - I believe this auth type is `X` because of `Y`. Confirm or correct me.
 - I could not find `authorize_uri` or `token_uri`. Please provide the missing OAuth endpoints.
 - I see the API host is tenant-specific. What field should be tracked for that host value?
@@ -211,6 +199,7 @@ Common `auth_patterns[]` fields:
 - `display_name`
 - `description`
 - `fields`
+- `account_fields` for account-scoped values when needed
 - `oauth_config` for OAuth only
 - `auth_header_key_override` when the upstream auth header key is not `Authorization`
 - `auth_field_mutations` when the upstream requires a prefix, suffix, or default on `api_key`, `token`, `username`, or `password`
@@ -251,6 +240,9 @@ Optional OAuth config fields supported by the backend:
 
 OAuth `fields` are usually auth-time options, not long-lived secrets.
 
+For OAuth providers:
+- path parameters that must be stored on the connected account should go in `account_fields`, not `fields`
+
 OAuth auth patterns may still use:
 - `auth_header_key_override` if the upstream expects the token in a different header name
 - `auth_field_mutations.token` if the docs require prefix, suffix, or default handling before the proxy adds `Bearer `
@@ -265,6 +257,7 @@ Example:
     {
       "description": "Authenticate with Asana using OAuth 2.0",
       "display_name": "OAuth 2.0",
+      "account_fields": [],
       "fields": [],
       "oauth_config": {
         "authorize_uri": "https://app.asana.com/-/oauth_authorize",
@@ -444,7 +437,7 @@ Work from this known set first:
 - `password`
 - `domain`
 - `version`
-- named path parameters stored as provider fields with `is_path_param: true`
+- named path parameters stored with `is_path_param: true`
 
 Use only the fields the provider actually needs.
 
@@ -456,11 +449,13 @@ Examples:
   - track `version`
   - use `proxy_url` like `https://api.example.com/{{version}}`
 - path placeholders discovered from docs:
-  - add one provider field per placeholder
+  - add one field per placeholder
   - set `is_path_param` to `true` on that field
+  - for `OAUTH`, put that field in `account_fields`
+  - for static auth (`BASIC`, `BEARER`, `API_KEY`), put that field in `fields`
   - use the same field name in `proxy_url`
 
-Example provider field for a path placeholder:
+Example field for a path placeholder:
 
 ```json
 {
@@ -662,7 +657,7 @@ When ready, respond in this order:
    - in `Production`, a tabular diff covering only `display_name`, `description`, `auth_patterns`, `proxy_url`, and `proxy_enabled` with columns `Dev`, `Current Production`, and `Proposed`
 4. action
    - in `Dev`, say whether you will run create or update after approval
-   - in `Production`, print the create or update curl and tell the user to run it themselves; mention that you used Production credentials only for token generation, provider lookup, and curl construction
+   - in `Production`, print the create or update curl and tell the user to run it themselves; mention that you used Production credentials only for token generation, provider lookup, and curl construction, and that the printed curl includes the Production access token after `Bearer `
 5. short note about assumptions, placeholders, or missing Dev access
 
 ## Curl Instructions
@@ -699,7 +694,7 @@ curl --location '{{SCALEKIT_ENVIRONMENT_URL}}/api/v1/custom-providers' \
 
 After create, tell the user: Refresh the page on Scalekit Dashboard to see the new provider.
 
-In `Production`, never run the create curl. Print the fully resolved curl and tell the user to run it from their terminal.
+In `Production`, never run the create curl. Print the fully resolved curl and tell the user to run it from their terminal. The printed curl must use the Production access token in `Authorization: Bearer <production-env-access-token>`.
 
 ### Update
 
@@ -734,6 +729,7 @@ In `Production`:
 - if update is needed, resolve the provider identifier from `providers[] -> matching object -> identifier`
 - if update is needed, show a tabular diff with columns `Dev`, `Current Production`, and `Proposed` for `display_name`, `description`, `auth_patterns`, `proxy_url`, and `proxy_enabled`
 - print the fully resolved create or update curl only and never execute it
+- ensure the printed create or update curl uses the Production access token in `Authorization: Bearer <production-env-access-token>`
 - tell the user to review the provider JSON and run the printed curl from their terminal
 
 Do not fabricate identifiers.
@@ -747,6 +743,7 @@ If the user asks to delete the custom provider:
 - use its `identifier` field, not its `id` field
 - print the delete curl only and never execute it
 - when printing it, replace `SCALEKIT_ENVIRONMENT_URL` and `env_access_token` with the actual values already available in the conversation
+- for Production deletes, use the Production access token in `Authorization: Bearer <production-env-access-token>`
 - ask the user to run that delete curl from their terminal
 - tell the user: Refresh the page on Scalekit Dashboard to see the provider removed.
 - if the delete API fails due to existing connections, tell the user:
@@ -780,6 +777,7 @@ Before finalizing:
 - in `Production`, the skill fetches the matching Dev provider before preparing the Production curl
 - in `Production`, the skill does not regenerate the provider JSON from scratch when the Dev provider exists
 - in `Production`, the skill may run token and list-provider curls but never create, update, or delete curls
+- printed Production create, update, and delete curls include the Production access token after `Bearer `
 - create runs only after explicit user approval
 - update runs only after explicit user confirmation
 - in `Production`, create and update curls are printed but never executed
