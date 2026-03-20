@@ -11,24 +11,31 @@ This skill is only for proxy-only connectors.
 
 ## Execution Policy
 
-- The skill may run the token curl to generate `env_access_token`.
-- The skill may run the read-only list providers curl to check existing custom providers.
-- The skill may run the create curl only after explicit user approval.
-- The skill may run the update curl only after the required diff review and explicit user confirmation.
+- The skill must ask whether the target Scalekit environment is `Dev` or `Production` before doing anything else.
+- In `Dev`, the skill may run the token curl to generate `env_access_token`.
+- In `Dev`, the skill may run the read-only list providers curl to check existing custom providers.
+- In `Dev`, the skill may run the create curl only after explicit user approval.
+- In `Dev`, the skill may run the update curl only after the required diff review and explicit user confirmation.
+- In `Production`, the skill may run the token curl to generate `env_access_token`.
+- In `Production`, the skill may run read-only list providers curls.
+- In `Production`, the skill must never run create, update, or delete curls.
+- In `Production`, the skill may give the user resolved curls to run themselves after review.
 - The skill must never run the delete curl. It should only print the resolved delete command and ask the user to run it from their terminal.
 - Whenever the skill executes a curl, label the result with `✅` for success or `❌` for failure.
 
 ## Goal
 
 Help the user:
+- determine whether they are targeting `Dev` or `Production`
 - collect the required Scalekit environment and client credentials before any provider action
 - define a valid custom provider JSON
 - identify the correct auth type
 - discover required auth details from docs when possible
 - determine whether extra tracked fields like `domain`, `version`, or named path parameters are needed
 - determine whether auth header customization is needed through `auth_header_key_override` or `auth_field_mutations`
-- run create only after explicit user approval
-- run update only after diff review and explicit confirmation
+- run create only after explicit user approval in `Dev`
+- run update only after diff review and explicit confirmation in `Dev`
+- reuse the `Dev` provider JSON as the source of truth when the user wants a `Production` provider
 - print the correct delete curl after resolving the provider identifier from the list providers response
 
 ## Interaction Flow
@@ -39,6 +46,7 @@ Follow this sequence.
 
 ```text
 Share:
+- Is this Scalekit environment Dev or Production?
 - SCALEKIT_ENVIRONMENT_URL
 - SCALEKIT_CLIENT_ID
 - SCALEKIT_CLIENT_SECRET
@@ -47,12 +55,20 @@ Share:
 - Auth docs link if separate
 - Base API URL if you already know it
 
+If this is Production and you already have the matching Dev environment, also share:
+- DEV_SCALEKIT_ENVIRONMENT_URL
+- DEV_SCALEKIT_CLIENT_ID
+- DEV_SCALEKIT_CLIENT_SECRET
+
 This skill is only for proxy-only connectors.
 ```
 
 Do not restate or paraphrase this startup request again in the same reply.
-2. Use `SCALEKIT_ENVIRONMENT_URL` as `env_url`.
-3. Generate `env_access_token` with:
+2. Read the user's answer and branch:
+   - if target is `Dev`, continue with the normal flow below
+   - if target is `Production`, do not generate provider JSON from scratch for production; first fetch the matching provider JSON from `Dev` and use that as the source of truth
+3. Use `SCALEKIT_ENVIRONMENT_URL` as `env_url`.
+4. In `Dev`, generate `env_access_token` with:
 
 ```bash
 curl --location '{{SCALEKIT_ENVIRONMENT_URL}}/oauth/token' \
@@ -62,15 +78,30 @@ curl --location '{{SCALEKIT_ENVIRONMENT_URL}}/oauth/token' \
 --data-urlencode 'client_secret={{SCALEKIT_CLIENT_SECRET}}'
 ```
 
-4. After the user provides the custom provider name, list existing custom providers with:
+5. In `Dev`, after the user provides the custom provider name, list existing custom providers with:
 
 ```bash
 curl --location '{{SCALEKIT_ENVIRONMENT_URL}}/api/v1/providers?filter.provider_type=CUSTOM&page_size=1000' \
 --header 'Authorization: Bearer {{env_access_token}}'
 ```
 
-5. Compare the provided name against the returned custom providers.
-6. If the user says they want to delete the custom provider at any point, switch to delete mode:
+6. In `Dev`, compare the provided name against the returned custom providers.
+7. If target is `Production`:
+   - ask for `SCALEKIT_ENVIRONMENT_URL`, `SCALEKIT_CLIENT_ID`, and `SCALEKIT_CLIENT_SECRET` if the user did not already provide them for Production
+   - ask for `DEV_SCALEKIT_ENVIRONMENT_URL`, `DEV_SCALEKIT_CLIENT_ID`, and `DEV_SCALEKIT_CLIENT_SECRET` if the user did not already provide them
+   - generate a Dev `env_access_token`
+   - list Dev custom providers
+   - find the provider that matches the requested provider name
+   - if no matching Dev provider exists, stop and tell the user you cannot safely prepare a Production curl without the Dev provider JSON
+   - use the Dev provider JSON as the source of truth instead of regenerating it from scratch
+   - ask the user to review that provider JSON
+   - generate a Production `env_access_token`
+   - list Production custom providers to determine whether the action is create or update
+   - if the provider already exists in Production, resolve its `identifier`, build a tabular diff with columns `Dev`, `Current Production`, and `Proposed`, and then print the update curl only
+   - if the provider does not exist in Production, print the create curl only
+   - tell the user to run the printed curl from their terminal
+   - stop and do not execute create, update, or delete
+8. If the user says they want to delete the custom provider at any point, switch to delete mode:
    - read `providers[]`
    - find the matching provider object
    - use its `identifier` field, not its `id` field
@@ -78,29 +109,29 @@ curl --location '{{SCALEKIT_ENVIRONMENT_URL}}/api/v1/providers?filter.provider_t
    - ask the user to run that delete curl from their terminal
    - if delete fails due to existing connections, tell the user to go to Scalekit Dashboard, delete associated connections and connected accounts if any, and then retry deleting the custom provider
    - stop and do not continue into create or update
-7. If a provider with the same name already exists, ask:
+9. If a provider with the same name already exists, ask:
    - This provider already exists. Do you want me to update the existing provider, or create a new one?
-8. If the user wants to update the existing provider, continue in update mode and reuse that provider.
-9. If the user wants to create a new provider, continue in create mode.
-10. Tell the user this skill is for proxy-only connectors.
-11. Read the docs and infer which auth type it is:
+10. If the user wants to update the existing provider, continue in update mode and reuse that provider.
+11. If the user wants to create a new provider, continue in create mode.
+12. Tell the user this skill is for proxy-only connectors.
+13. Read the docs and infer which auth type it is:
    - `OAUTH`
    - `BASIC`
    - `BEARER`
    - `API_KEY`
-12. If auth type is unclear, ask the user to choose one.
-13. Give a one-line explanation for the auth type:
+14. If auth type is unclear, ask the user to choose one.
+15. Give a one-line explanation for the auth type:
    - `OAUTH`: standard OAuth 2.0 flow with authorize/token endpoints and user authorization
    - `BASIC`: proxy sends `Authorization: Basic base64(username:password)`
    - `BEARER`: proxy sends `Authorization: Bearer <token>`
    - `API_KEY`: proxy sends `Authorization: <api_key>` as-is
-14. If auth type is `OAUTH`, try to discover:
+16. If auth type is `OAUTH`, try to discover:
    - `authorize_uri`
    - `token_uri`
    - `user_info_uri`
    - visible scopes
-15. If any required OAuth values are missing, ask only for the missing values.
-16. Inspect docs for concrete extra tracked fields from this known set:
+17. If any required OAuth values are missing, ask only for the missing values.
+18. Inspect docs for concrete extra tracked fields from this known set:
    - `token`
    - `api_key`
    - `username`
@@ -108,16 +139,16 @@ curl --location '{{SCALEKIT_ENVIRONMENT_URL}}/api/v1/providers?filter.provider_t
    - `domain`
    - `version`
    - named path parameters stored as provider fields with `is_path_param: true`
-17. Inspect docs for auth header behavior:
+19. Inspect docs for auth header behavior:
    - if the upstream uses a header key other than `Authorization`, set `auth_header_key_override`
    - if the upstream requires a prefix, suffix, or fallback value on `api_key`, `token`, `username`, or `password`, set `auth_field_mutations`
    - apply those mutations only when the docs clearly require them
-18. For named path parameters, ask for exact field names if they are not clear from docs.
-19. Determine the correct `proxy_url`.
-20. Generate the final provider JSON.
-21. If the user asks to leave `proxy_url` empty or set `proxy_enabled` to `false`, tell them that tool calling will not work in that configuration because custom providers support tool calling only through the tool proxy feature.
-22. Do not leave `proxy_url` empty and do not set `proxy_enabled` to `false`.
-23. If the workflow is in update mode:
+20. For named path parameters, ask for exact field names if they are not clear from docs.
+21. Determine the correct `proxy_url`.
+22. Generate the final provider JSON.
+23. If the user asks to leave `proxy_url` empty or set `proxy_enabled` to `false`, tell them that tool calling will not work in that configuration because custom providers support tool calling only through the tool proxy feature.
+24. Do not leave `proxy_url` empty and do not set `proxy_enabled` to `false`.
+25. If the workflow is in update mode:
    - compare the previous provider JSON and the new provider JSON in a table that includes only `display_name`, `description`, `auth_patterns`, `proxy_url`, and `proxy_enabled`
    - if OAuth scopes were removed or added, tell the user to carefully verify those scope changes
    - tell the user this update might require creating a new connection because older connections will not have the new settings
@@ -126,7 +157,7 @@ curl --location '{{SCALEKIT_ENVIRONMENT_URL}}/api/v1/providers?filter.provider_t
    - ask the user to confirm the updated values
    - only after explicit confirmation, run the update curl
    - after update, tell the user: Refresh the page on Scalekit Dashboard to see the new provider.
-24. If the workflow is in create mode:
+26. If the workflow is in create mode:
    - ask for explicit approval before running the create curl
    - only after explicit approval, run the create curl
    - after create, tell the user: Refresh the page on Scalekit Dashboard to see the new provider.
@@ -138,16 +169,19 @@ Prefer short, concrete questions.
 The initial request for required inputs is defined in `Interaction Flow` step 1. Do not repeat that opening block again.
 
 Ask later only if needed:
+- Is this Scalekit environment `Dev` or `Production`?
 - I found this custom provider in the list response. Do you want me to delete it?
 - This provider already exists. Do you want me to update the existing provider, or create a new one?
 - Carefully verify the scope changes. Some earlier scopes were removed or new scopes were added. Do you want to proceed with these updated values?
 - If you leave `proxy_url` empty or set `proxy_enabled` to `false`, tool calling will not work because custom providers support tool calling only through the tool proxy feature.
+- This is Production, so I will not execute create, update, or delete curls. Please share the Production environment URL, client ID, and client secret, and also the Dev environment URL, client ID, and client secret, so I can fetch the Dev provider JSON, inspect Production providers, and prepare the final curl.
 - I believe this auth type is `X` because of `Y`. Confirm or correct me.
 - I could not find `authorize_uri` or `token_uri`. Please provide the missing OAuth endpoints.
 - I see the API host is tenant-specific. What field should be tracked for that host value?
 - I see a required path placeholder in the API URL. Confirm the exact field name that should be stored on the connected account and substituted into `proxy_url`.
 - The docs use a non-standard auth header key. Confirm that I should set `auth_header_key_override` to `X`.
 - The docs show the credential needs a prefix, suffix, or fallback value before it is sent. Confirm that I should add `auth_field_mutations` for `X`.
+- I found this provider in Dev. Review this provider JSON carefully. If this is a Production update, I will also show a table comparing Dev, current Production, and the proposed payload before printing the curl for you to run yourself.
 
 Do not ask broad, open-ended questions when the docs already imply the answer.
 
@@ -618,13 +652,18 @@ If the provided docs are too vague, say so directly and ask for the API auth ref
 When ready, respond in this order:
 
 1. short summary
+   - target environment: `Dev` or `Production`
    - inferred auth type
    - tracked fields
    - proxy URL choice
-2. for create or update, provider JSON
-3. for updates, a field diff table covering only `display_name`, `description`, `auth_patterns`, `proxy_url`, and `proxy_enabled`
-4. create, update, or delete action
-5. short note about assumptions or placeholders
+2. for `Dev`, the generated provider JSON; for `Production`, the provider JSON fetched from `Dev`
+3. for updates:
+   - in `Dev`, a field diff table covering only `display_name`, `description`, `auth_patterns`, `proxy_url`, and `proxy_enabled`
+   - in `Production`, a tabular diff covering only `display_name`, `description`, `auth_patterns`, `proxy_url`, and `proxy_enabled` with columns `Dev`, `Current Production`, and `Proposed`
+4. action
+   - in `Dev`, say whether you will run create or update after approval
+   - in `Production`, print the create or update curl and tell the user to run it themselves; mention that you used Production credentials only for token generation, provider lookup, and curl construction
+5. short note about assumptions, placeholders, or missing Dev access
 
 ## Curl Instructions
 
@@ -647,7 +686,7 @@ curl --location '{{SCALEKIT_ENVIRONMENT_URL}}/api/v1/providers?filter.provider_t
 
 ### Create
 
-Only after explicit user approval, run:
+In `Dev`, only after explicit user approval, run:
 
 ```bash
 curl --location '{{SCALEKIT_ENVIRONMENT_URL}}/api/v1/custom-providers' \
@@ -660,9 +699,11 @@ curl --location '{{SCALEKIT_ENVIRONMENT_URL}}/api/v1/custom-providers' \
 
 After create, tell the user: Refresh the page on Scalekit Dashboard to see the new provider.
 
+In `Production`, never run the create curl. Print the fully resolved curl and tell the user to run it from their terminal.
+
 ### Update
 
-Before running the update curl:
+In `Dev`, before running the update curl:
 - read `providers[]`
 - find the matching provider object
 - use its `identifier` field, not its `id` field
@@ -684,6 +725,16 @@ curl --location '{{SCALEKIT_ENVIRONMENT_URL}}/api/v1/custom-providers/{{identifi
 ```
 
 After update, tell the user: Refresh the page on Scalekit Dashboard to see the new provider.
+
+In `Production`:
+- never regenerate the provider JSON from scratch when the matching `Dev` provider exists
+- fetch the matching provider from `Dev` and use that provider JSON as the payload
+- use Production credentials to generate a Production token and list Production providers
+- list Production providers to determine whether the action is create or update
+- if update is needed, resolve the provider identifier from `providers[] -> matching object -> identifier`
+- if update is needed, show a tabular diff with columns `Dev`, `Current Production`, and `Proposed` for `display_name`, `description`, `auth_patterns`, `proxy_url`, and `proxy_enabled`
+- print the fully resolved create or update curl only and never execute it
+- tell the user to review the provider JSON and run the printed curl from their terminal
 
 Do not fabricate identifiers.
 
@@ -721,10 +772,17 @@ Before finalizing:
 - `proxy_enabled` is `true`
 - if the user requested empty `proxy_url` or `proxy_enabled: false`, they were told tool calling would not work because custom providers support tool calling only through the tool proxy feature
 - for updates, a diff table exists for `display_name`, `description`, `auth_patterns`, `proxy_url`, and `proxy_enabled`
+- for `Production` updates, the diff table includes `Dev`, `Current Production`, and `Proposed` columns
 - for updates, OAuth scope removals or additions are called out explicitly when present
 - for updates, the user is warned that existing connections may need to be recreated and connected accounts may need reauthorization
+- in `Production`, the skill asks for Dev credentials if they were not provided
+- in `Production`, the skill asks for Production credentials if they were not provided
+- in `Production`, the skill fetches the matching Dev provider before preparing the Production curl
+- in `Production`, the skill does not regenerate the provider JSON from scratch when the Dev provider exists
+- in `Production`, the skill may run token and list-provider curls but never create, update, or delete curls
 - create runs only after explicit user approval
 - update runs only after explicit user confirmation
+- in `Production`, create and update curls are printed but never executed
 - after create or update, the user is told to refresh the Scalekit Dashboard page to see the new provider
 - for updates, the provider identifier comes from `providers[] -> matching object -> identifier`
 - for deletes, the provider identifier comes from `providers[] -> matching object -> identifier`
