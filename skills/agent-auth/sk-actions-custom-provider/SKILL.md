@@ -26,6 +26,7 @@ Help the user:
 - identify the correct auth type
 - discover required auth details from docs when possible
 - determine whether extra tracked fields like `domain`, `version`, or named path parameters are needed
+- determine whether auth header customization is needed through `auth_header_key_override` or `auth_field_mutations`
 - run create only after explicit user approval
 - run update only after diff review and explicit confirmation
 - print the correct delete curl after resolving the provider identifier from the list providers response
@@ -107,12 +108,16 @@ curl --location '{{SCALEKIT_ENVIRONMENT_URL}}/api/v1/providers?filter.provider_t
    - `domain`
    - `version`
    - named path parameters stored as provider fields with `is_path_param: true`
-17. For named path parameters, ask for exact field names if they are not clear from docs.
-18. Determine the correct `proxy_url`.
-19. Generate the final provider JSON.
-20. If the user asks to leave `proxy_url` empty or set `proxy_enabled` to `false`, tell them that tool calling will not work in that configuration because custom providers support tool calling only through the tool proxy feature.
-21. Do not leave `proxy_url` empty and do not set `proxy_enabled` to `false`.
-22. If the workflow is in update mode:
+17. Inspect docs for auth header behavior:
+   - if the upstream uses a header key other than `Authorization`, set `auth_header_key_override`
+   - if the upstream requires a prefix, suffix, or fallback value on `api_key`, `token`, `username`, or `password`, set `auth_field_mutations`
+   - apply those mutations only when the docs clearly require them
+18. For named path parameters, ask for exact field names if they are not clear from docs.
+19. Determine the correct `proxy_url`.
+20. Generate the final provider JSON.
+21. If the user asks to leave `proxy_url` empty or set `proxy_enabled` to `false`, tell them that tool calling will not work in that configuration because custom providers support tool calling only through the tool proxy feature.
+22. Do not leave `proxy_url` empty and do not set `proxy_enabled` to `false`.
+23. If the workflow is in update mode:
    - compare the previous provider JSON and the new provider JSON in a table that includes only `display_name`, `description`, `auth_patterns`, `proxy_url`, and `proxy_enabled`
    - if OAuth scopes were removed or added, tell the user to carefully verify those scope changes
    - tell the user this update might require creating a new connection because older connections will not have the new settings
@@ -121,7 +126,7 @@ curl --location '{{SCALEKIT_ENVIRONMENT_URL}}/api/v1/providers?filter.provider_t
    - ask the user to confirm the updated values
    - only after explicit confirmation, run the update curl
    - after update, tell the user: Refresh the page on Scalekit Dashboard to see the new provider.
-23. If the workflow is in create mode:
+24. If the workflow is in create mode:
    - ask for explicit approval before running the create curl
    - only after explicit approval, run the create curl
    - after create, tell the user: Refresh the page on Scalekit Dashboard to see the new provider.
@@ -141,6 +146,8 @@ Ask later only if needed:
 - I could not find `authorize_uri` or `token_uri`. Please provide the missing OAuth endpoints.
 - I see the API host is tenant-specific. What field should be tracked for that host value?
 - I see a required path placeholder in the API URL. Confirm the exact field name that should be stored on the connected account and substituted into `proxy_url`.
+- The docs use a non-standard auth header key. Confirm that I should set `auth_header_key_override` to `X`.
+- The docs show the credential needs a prefix, suffix, or fallback value before it is sent. Confirm that I should add `auth_field_mutations` for `X`.
 
 Do not ask broad, open-ended questions when the docs already imply the answer.
 
@@ -171,6 +178,8 @@ Common `auth_patterns[]` fields:
 - `description`
 - `fields`
 - `oauth_config` for OAuth only
+- `auth_header_key_override` when the upstream auth header key is not `Authorization`
+- `auth_field_mutations` when the upstream requires a prefix, suffix, or default on `api_key`, `token`, `username`, or `password`
 
 Supported field input types:
 - `text`
@@ -180,6 +189,8 @@ Supported field input types:
 Default assumptions:
 - `proxy_enabled` should be `true`
 - `proxy_url` must not be empty
+- the auth header key should stay `Authorization` unless docs require an override
+- do not add `auth_field_mutations` unless docs require them
 
 If a user asks to leave `proxy_url` empty or set `proxy_enabled` to `false`, tell them that tool calling will not work because custom providers support tool calling only through the tool proxy feature.
 
@@ -205,6 +216,10 @@ Optional OAuth config fields supported by the backend:
 - `pkce_enabled`
 
 OAuth `fields` are usually auth-time options, not long-lived secrets.
+
+OAuth auth patterns may still use:
+- `auth_header_key_override` if the upstream expects the token in a different header name
+- `auth_field_mutations.token` if the docs require prefix, suffix, or default handling before the proxy adds `Bearer `
 
 Example:
 
@@ -253,6 +268,7 @@ Typical fields:
 
 Runtime behavior:
 - proxy sends `Authorization: Basic base64(username:password)`
+- `auth_field_mutations.username` and `auth_field_mutations.password` are applied before the Basic value is base64-encoded
 
 Example:
 
@@ -280,6 +296,14 @@ Example:
           "required": true
         }
       ],
+      "auth_field_mutations": {
+        "password": {
+          "default": "X"
+        },
+        "username": {
+          "suffix": "/token"
+        }
+      },
       "type": "BASIC"
     }
   ],
@@ -299,6 +323,10 @@ Authorization: Bearer <token>
 Required shape:
 - `auth_patterns[].type = "BEARER"`
 - `fields` usually includes `token`
+
+Runtime behavior:
+- proxy applies `auth_field_mutations.token` first if present
+- proxy then sends `<header key>: Bearer <mutated token>`
 
 Example:
 
@@ -337,6 +365,8 @@ Required shape:
 
 Runtime behavior:
 - proxy sends `Authorization: <api_key>`
+- proxy applies `auth_field_mutations.api_key` first if present
+- if `auth_header_key_override` is set, proxy sends that header key instead of `Authorization`
 
 Example:
 
@@ -357,6 +387,12 @@ Example:
           "required": true
         }
       ],
+      "auth_header_key_override": "x-api-key",
+      "auth_field_mutations": {
+        "api_key": {
+          "prefix": "Klaviyo-API-Key "
+        }
+      },
       "type": "API_KEY"
     }
   ],
@@ -408,6 +444,80 @@ If a path parameter appears in `proxy_url`, tell the user where to send its runt
 - for `OAUTH`, put it in `connected_account.api_config.path_variables`
 
 If the exact key names are unclear, ask the user to confirm them.
+
+## Auth Header Customization
+
+Only add these fields when the upstream docs require them.
+
+### `auth_header_key_override`
+
+Use this when the upstream expects the auth credential in a header other than `Authorization`.
+
+Example:
+
+```json
+"auth_header_key_override": "x-api-key"
+```
+
+### `auth_field_mutations`
+
+Use this when the upstream expects the raw credential to be transformed before proxy formatting:
+- `prefix`: prepend text to the stored value
+- `suffix`: append text to the stored value
+- `default`: use this value when the stored value is empty
+
+Supported mutation targets:
+- `api_key`
+- `token`
+- `username`
+- `password`
+
+Mutation order:
+- apply `default` if the stored value is empty
+- then prepend `prefix`
+- then append `suffix`
+- for `BEARER`, the proxy adds `Bearer ` after mutation
+- for `BASIC`, the proxy base64-encodes `username:password` after mutation
+
+Examples:
+
+Zendesk-style Basic auth:
+
+```json
+"auth_field_mutations": {
+  "username": {
+    "suffix": "/token"
+  }
+}
+```
+
+Freshdesk-style Basic auth:
+
+```json
+"auth_field_mutations": {
+  "password": {
+    "default": "X"
+  }
+}
+```
+
+Klaviyo-style API key auth:
+
+```json
+"auth_field_mutations": {
+  "api_key": {
+    "prefix": "Klaviyo-API-Key "
+  }
+}
+```
+
+Harvest-style API key auth:
+
+```json
+{
+  "auth_header_key_override": "x-api-key"
+}
+```
 
 ## Supported Placeholders
 
