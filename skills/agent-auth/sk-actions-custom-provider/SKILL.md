@@ -662,6 +662,12 @@ When ready, respond in this order:
 
 ## Curl Instructions
 
+HTTP method rules:
+- create is always `POST`
+- update is always `PUT`
+- get or list is always `GET`
+- delete is always `DELETE`
+
 Before listing, creating, updating, or deleting providers, generate `env_access_token` with:
 
 ```bash
@@ -675,7 +681,7 @@ curl --location '{{SCALEKIT_ENVIRONMENT_URL}}/oauth/token' \
 Use this list providers curl when checking for existing custom providers:
 
 ```bash
-curl --location '{{SCALEKIT_ENVIRONMENT_URL}}/api/v1/providers?filter.provider_type=CUSTOM&page_size=1000' \
+curl --location --request GET '{{SCALEKIT_ENVIRONMENT_URL}}/api/v1/providers?filter.provider_type=CUSTOM&page_size=1000' \
 --header 'Authorization: Bearer {{env_access_token}}'
 ```
 
@@ -684,7 +690,7 @@ curl --location '{{SCALEKIT_ENVIRONMENT_URL}}/api/v1/providers?filter.provider_t
 In `Dev`, only after explicit user approval, run:
 
 ```bash
-curl --location '{{SCALEKIT_ENVIRONMENT_URL}}/api/v1/custom-providers' \
+curl --location --request POST '{{SCALEKIT_ENVIRONMENT_URL}}/api/v1/custom-providers' \
 --header 'Content-Type: application/json' \
 --header 'Authorization: Bearer {{env_access_token}}' \
 --data '{
@@ -711,7 +717,7 @@ In `Dev`, before running the update curl:
 After confirmation, run:
 
 ```bash
-curl --location '{{SCALEKIT_ENVIRONMENT_URL}}/api/v1/custom-providers/{{identifier}}' \
+curl --location --request PUT '{{SCALEKIT_ENVIRONMENT_URL}}/api/v1/custom-providers/{{identifier}}' \
 --header 'Content-Type: application/json' \
 --header 'Authorization: Bearer {{env_access_token}}' \
 --data '{
@@ -778,6 +784,7 @@ Before finalizing:
 - in `Production`, the skill does not regenerate the provider JSON from scratch when the Dev provider exists
 - in `Production`, the skill may run token and list-provider curls but never create, update, or delete curls
 - printed Production create, update, and delete curls include the Production access token after `Bearer `
+- printed create curls use `POST`, printed update curls use `PUT`, printed list curls use `GET`, and printed delete curls use `DELETE`
 - create runs only after explicit user approval
 - update runs only after explicit user confirmation
 - in `Production`, create and update curls are printed but never executed
