@@ -54,9 +54,9 @@ This skill is only for proxy-only connectors.
 Do not restate or paraphrase this startup request again in the same reply.
 2. Read the user's answer and branch:
    - if target is `Dev`, ask for `SCALEKIT_ENVIRONMENT_URL`, `SCALEKIT_CLIENT_ID`, `SCALEKIT_CLIENT_SECRET`, custom provider name, API docs link, auth docs link if separate, and base API URL if already known
-   - if target is `Production`, ask for `SCALEKIT_ENVIRONMENT_URL`, `SCALEKIT_CLIENT_ID`, `SCALEKIT_CLIENT_SECRET`, `DEV_SCALEKIT_ENVIRONMENT_URL`, `DEV_SCALEKIT_CLIENT_ID`, `DEV_SCALEKIT_CLIENT_SECRET`, and custom provider name
+   - if target is `Production`, ask for `PROD_SCALEKIT_ENVIRONMENT_URL`, `PROD_SCALEKIT_CLIENT_ID`, `PROD_SCALEKIT_CLIENT_SECRET`, `DEV_SCALEKIT_ENVIRONMENT_URL`, `DEV_SCALEKIT_CLIENT_ID`, `DEV_SCALEKIT_CLIENT_SECRET`, and the provider name they want to replicate in Production
    - if target is `Production`, do not generate provider JSON from scratch for production; first fetch the matching provider JSON from `Dev` and use that as the source of truth
-3. Use `SCALEKIT_ENVIRONMENT_URL` as `env_url`.
+3. Use `SCALEKIT_ENVIRONMENT_URL` as `env_url` in `Dev`.
 4. In `Dev`, generate `env_access_token` with:
 
 ```bash
@@ -76,8 +76,9 @@ curl --location '{{SCALEKIT_ENVIRONMENT_URL}}/api/v1/providers?filter.provider_t
 
 6. In `Dev`, compare the provided name against the returned custom providers.
 7. If target is `Production`:
-   - ask for `SCALEKIT_ENVIRONMENT_URL`, `SCALEKIT_CLIENT_ID`, and `SCALEKIT_CLIENT_SECRET` if the user did not already provide them for Production
+   - ask for `PROD_SCALEKIT_ENVIRONMENT_URL`, `PROD_SCALEKIT_CLIENT_ID`, and `PROD_SCALEKIT_CLIENT_SECRET` if the user did not already provide them for Production
    - ask for `DEV_SCALEKIT_ENVIRONMENT_URL`, `DEV_SCALEKIT_CLIENT_ID`, and `DEV_SCALEKIT_CLIENT_SECRET` if the user did not already provide them
+   - ask which provider name should be replicated in Production if the user did not already provide it
    - generate a Dev `env_access_token`
    - list Dev custom providers
    - find the provider that matches the requested provider name
@@ -163,6 +164,7 @@ Ask later only if needed:
 - This provider already exists. Do you want me to update the existing provider, or create a new one?
 - Carefully verify the scope changes. Some earlier scopes were removed or new scopes were added. Do you want to proceed with these updated values?
 - If you leave `proxy_url` empty or set `proxy_enabled` to `false`, tool calling will not work because custom providers support tool calling only through the tool proxy feature.
+- This is `Production`. Please share `PROD_SCALEKIT_ENVIRONMENT_URL`, `PROD_SCALEKIT_CLIENT_ID`, `PROD_SCALEKIT_CLIENT_SECRET`, `DEV_SCALEKIT_ENVIRONMENT_URL`, `DEV_SCALEKIT_CLIENT_ID`, `DEV_SCALEKIT_CLIENT_SECRET`, and the provider name you want to replicate in Production.
 - I believe this auth type is `X` because of `Y`. Confirm or correct me.
 - I could not find `authorize_uri` or `token_uri`. Please provide the missing OAuth endpoints.
 - I see the API host is tenant-specific. What field should be tracked for that host value?
