@@ -15,14 +15,34 @@ Then follow the matching section below.
 
 ---
 
+## Step 2 — Choose your auth plugin
+
+Ask the user what they're building if it isn't clear, then recommend:
+
+| Plugin name | When to use |
+|-------------|-------------|
+| `agent-auth` | AI agent needs OAuth access to third-party services (Gmail, Slack, Notion, etc.) |
+| `full-stack-auth` | Web app needs login, signup, sessions, and RBAC |
+| `mcp-auth` | Building an MCP server that needs OAuth 2.1 to secure its tools |
+| `modular-sso` | Adding enterprise SSO to an existing app without replacing its auth |
+| `modular-scim` | Automated user provisioning and deprovisioning via directory sync |
+
+Use the chosen plugin name in the install commands below.
+
+---
+
 ## Claude Code
 
 ```bash
 claude marketplace add scalekit-inc/claude-code-authstack
-claude plugin install agent-auth
-```
 
-Replace `agent-auth` with the chosen plugin name (see [Step 2](#step-2--choose-your-auth-plugin)).
+# Pick one:
+claude plugin install agent-auth
+claude plugin install full-stack-auth
+claude plugin install mcp-auth
+claude plugin install modular-sso
+claude plugin install modular-scim
+```
 
 ---
 
@@ -30,10 +50,14 @@ Replace `agent-auth` with the chosen plugin name (see [Step 2](#step-2--choose-y
 
 ```bash
 copilot plugin marketplace add scalekit-inc/github-copilot-authstack
-copilot plugin install agent-auth@scalekit-auth-stack
-```
 
-Replace `agent-auth` with the chosen plugin name.
+# Pick one:
+copilot plugin install agent-auth@scalekit-auth-stack
+copilot plugin install full-stack-auth@scalekit-auth-stack
+copilot plugin install mcp-auth@scalekit-auth-stack
+copilot plugin install modular-sso@scalekit-auth-stack
+copilot plugin install modular-scim@scalekit-auth-stack
+```
 
 ---
 
@@ -74,23 +98,16 @@ For OpenCode, Windsurf, Cline, Gemini CLI, and 35+ other agents — use the Verc
 # See all available Scalekit skills
 npx skills add scalekit-inc/skills --list
 
-# Install a specific skill
-npx skills add scalekit-inc/skills --skill agent-auth
+# Pick one based on your auth type:
+npx skills add scalekit-inc/skills --skill integrating-agent-auth
+npx skills add scalekit-inc/skills --skill implementing-scalekit-fsa
+npx skills add scalekit-inc/skills --skill adding-mcp-oauth
+npx skills add scalekit-inc/skills --skill modular-sso
+npx skills add scalekit-inc/skills --skill implementing-scim-provisioning
+
+# Or install everything at once:
+npx skills add scalekit-inc/skills --all
 ```
-
----
-
-## Step 2 — Choose your auth plugin
-
-Ask the user what they're building if it isn't clear, then recommend:
-
-| Plugin | When to use |
-|--------|-------------|
-| `agent-auth` | AI agent needs OAuth access to third-party services (Gmail, Slack, Notion, etc.) |
-| `full-stack-auth` | Web app needs login, signup, sessions, and RBAC |
-| `mcp-auth` | Building an MCP server that needs OAuth 2.1 to secure its tools |
-| `modular-sso` | Adding enterprise SSO to an existing app without replacing its auth |
-| `modular-scim` | Automated user provisioning and deprovisioning via directory sync |
 
 ---
 
