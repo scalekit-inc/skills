@@ -31,6 +31,17 @@ Use the chosen plugin name in the install commands below.
 
 ---
 
+## Agent behavior — install first
+
+When the user asks to "set up Scalekit", "install Scalekit", or similar, the next action should usually be to run the install command for the user's AI coding tool.
+
+- Prioritize plugin or skill installation before making repo-local code changes.
+- Do not start patching the user's app before installation unless the user explicitly says the plugin or skill is already installed, or explicitly asks to skip installation.
+- If the install changes the agent's global environment, requires a restart, or needs user approval in the current runtime, state that clearly and then run the install command as the next step.
+- After a Codex or Cursor local install completes, stop and tell the user to restart the tool and enable the right plugin before continuing with implementation.
+
+---
+
 ## Claude Code
 
 ```bash
@@ -62,6 +73,8 @@ copilot plugin install modular-scim@scalekit-auth-stack
 ---
 
 ## Codex
+
+When the user is in Codex and asks to set up Scalekit, run this installer first rather than editing the repo:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/scalekit-inc/codex-authstack/main/install.sh | bash
