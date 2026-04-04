@@ -10,7 +10,7 @@ Skills work with any agent that supports the [Agent Skills spec](https://agentsk
 
 ```bash
 # Install the onboarding skill to get guided setup
-npx skills add scalekit-inc/skills --skill get-started
+npx skills add scalekit-inc/skills --skill setup-scalekit
 
 # Browse and install specific skills
 npx skills add scalekit-inc/skills --skill adding-mcp-oauth
@@ -36,7 +36,7 @@ Copy the `SKILL.md` file from any skill directory into your project's `.cursor/s
 
 | Skill | Description |
 |-------|-------------|
-| `get-started` | Guided setup — detects your AI coding tool and walks through plugin installation and auth type selection |
+| `setup-scalekit` | Guided setup — detects your AI coding tool and walks through plugin installation and auth type selection |
 
 ### Agent Auth
 
