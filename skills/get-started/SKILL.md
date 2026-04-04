@@ -1,6 +1,6 @@
 ---
 name: get-started
-description: Use when a developer wants to get started with Scalekit, install the Scalekit plugin or skill, or set up an AI coding tool (Claude Code, Codex, Copilot CLI, Cursor, or other agents) to implement Scalekit authentication.
+description: Use when a developer is new to Scalekit and needs guidance on where to start, doesn't know which auth plugin or skill to choose, wants to connect an AI agent or agentic workflow to third-party services (Gmail, Slack, Notion, Google Calendar), needs OAuth or tool-calling auth for agents, wants to add authentication to a project but hasn't chosen an approach yet, or needs to install the Scalekit plugin for their AI coding tool (Claude Code, Codex, Copilot CLI, Cursor, or other agents).
 ---
 
 # Installing Scalekit Auth Stack
