@@ -53,20 +53,20 @@ The AI assistant can:
 
 ## Claude Code
 
-Run these commands in your terminal:
+Run these commands inside Claude Code (the REPL prompt, not the terminal):
 
-```bash
-claude marketplace add scalekit-inc/claude-code-authstack
+```
+/plugin marketplace add scalekit-inc/claude-code-authstack
 
 # Pick one based on your auth needs:
-claude plugin install agent-auth
-claude plugin install full-stack-auth
-claude plugin install mcp-auth
-claude plugin install modular-sso
-claude plugin install modular-scim
+/plugin install agent-auth@scalekit-auth-stack
+/plugin install full-stack-auth@scalekit-auth-stack
+/plugin install mcp-auth@scalekit-auth-stack
+/plugin install modular-sso@scalekit-auth-stack
+/plugin install modular-scim@scalekit-auth-stack
 ```
 
-After running the commands, the plugin will be installed and ready to use.
+After running the commands, restart Claude Code for the plugin to take effect.
 
 ---
 
