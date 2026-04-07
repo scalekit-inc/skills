@@ -5,19 +5,19 @@ description: Use when a developer is new to Scalekit and needs guidance on where
 
 # Installing Scalekit Auth Stack
 
-Guide the user through installing the Scalekit Auth Stack for their AI coding tool, then help them choose the right auth plugin and start implementing.
+**Important**: This skill guides you through installing Scalekit yourself. You'll execute the commands and make the choices — the AI assistant is here to provide clear instructions and answer questions along the way.
 
-## Step 1 — Identify the user's AI coding tool
+## Step 1 — Identify your AI coding tool
 
-If not already clear from context, ask: **"Which AI coding tool are you using?"**
+First, identify which AI coding tool you're using. If you're not sure, check your current environment or tell the assistant what tool you're working in.
 
-Then follow the matching section below.
+Then find the matching section below for your tool.
 
 ---
 
 ## Step 2 — Choose your auth plugin
 
-Ask the user what they're building if it isn't clear, then recommend:
+Review the table below and select the plugin that matches what you're building:
 
 | Plugin name | When to use |
 |-------------|-------------|
@@ -27,27 +27,38 @@ Ask the user what they're building if it isn't clear, then recommend:
 | `modular-sso` | Adding enterprise SSO to an existing app without replacing its auth |
 | `modular-scim` | Automated user provisioning and deprovisioning via directory sync |
 
-Use the chosen plugin name in the install commands below.
+You'll use this plugin name in the install commands in the next step.
 
 ---
 
-## Agent behavior — install first
+## User-driven setup process
 
-When the user asks to "set up Scalekit", "install Scalekit", or similar, the next action should usually be to run the install command for the user's AI coding tool.
+When setting up Scalekit, you (the user) should:
 
-- Prioritize plugin or skill installation before making repo-local code changes.
-- Do not start patching the user's app before installation unless the user explicitly says the plugin or skill is already installed, or explicitly asks to skip installation.
-- If the install changes the agent's global environment, requires a restart, or needs user approval in the current runtime, state that clearly and then run the install command as the next step.
-- After a Codex or Cursor local install completes, stop and tell the user to restart the tool and enable the right plugin before continuing with implementation.
+1. **Review the instructions** for your AI coding tool below
+2. **Execute the install commands yourself** in your terminal
+3. **Restart your tool** if required
+4. **Enable the plugin** for your chosen auth type
+5. **Ask questions** if anything is unclear
+
+The AI assistant can:
+- Explain what each command does
+- Help you troubleshoot errors
+- Guide you to the next step
+- Answer questions about auth types and plugins
+
+**You remain in control** of executing commands and making changes to your environment.
 
 ---
 
 ## Claude Code
 
+Run these commands in your terminal:
+
 ```bash
 claude marketplace add scalekit-inc/claude-code-authstack
 
-# Pick one:
+# Pick one based on your auth needs:
 claude plugin install agent-auth
 claude plugin install full-stack-auth
 claude plugin install mcp-auth
@@ -55,14 +66,18 @@ claude plugin install modular-sso
 claude plugin install modular-scim
 ```
 
+After running the commands, the plugin will be installed and ready to use.
+
 ---
 
 ## GitHub Copilot CLI
 
+Run these commands in your terminal:
+
 ```bash
 copilot plugin marketplace add scalekit-inc/github-copilot-authstack
 
-# Pick one:
+# Pick one based on your auth needs:
 copilot plugin install agent-auth@scalekit-auth-stack
 copilot plugin install full-stack-auth@scalekit-auth-stack
 copilot plugin install mcp-auth@scalekit-auth-stack
@@ -70,82 +85,101 @@ copilot plugin install modular-sso@scalekit-auth-stack
 copilot plugin install modular-scim@scalekit-auth-stack
 ```
 
+After running the commands, the plugin will be installed and ready to use.
+
 ---
 
 ## Codex
 
-When the user is in Codex and asks to set up Scalekit, run this installer first rather than editing the repo:
+Run this installer script in your terminal:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/scalekit-inc/codex-authstack/main/install.sh | bash
 ```
 
-After the script completes:
+After the script completes, you'll need to:
 1. Restart Codex
 2. Open Plugin Directory
 3. Select **Scalekit Auth Stack**
 4. Enable the plugin for your auth type
 
+These manual steps are required to activate the plugin in Codex.
+
 ---
 
 ## Cursor
 
-Cursor marketplace review is pending — install locally:
+Cursor marketplace review is pending — install locally by running this script in your terminal:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/scalekit-inc/cursor-authstack/main/install.sh | bash
 ```
 
-After the script completes:
+After the script completes, you'll need to:
 1. Restart Cursor
 2. Go to **Settings → Cursor Settings → Plugins**
 3. Enable the plugin for your auth type
+
+These manual steps are required to activate the plugin in Cursor.
 
 ---
 
 ## Other Agents
 
-For OpenCode, Windsurf, Cline, Gemini CLI, and 35+ other agents — use the Vercel Skills CLI:
+For OpenCode, Windsurf, Cline, Gemini CLI, and 35+ other agents — use the Vercel Skills CLI.
+
+First, see all available Scalekit skills:
 
 ```bash
-# See all available Scalekit skills
 npx skills add scalekit-inc/skills --list
+```
 
-# Pick one based on your auth type:
+Then pick one based on your auth type and run the install command:
+
+```bash
 npx skills add scalekit-inc/skills --skill integrating-agent-auth
 npx skills add scalekit-inc/skills --skill implementing-scalekit-fsa
 npx skills add scalekit-inc/skills --skill adding-mcp-oauth
 npx skills add scalekit-inc/skills --skill modular-sso
 npx skills add scalekit-inc/skills --skill implementing-scim-provisioning
+```
 
-# Or install everything at once:
+Or install everything at once:
+
+```bash
 npx skills add scalekit-inc/skills --all
 ```
 
+Run the command that matches your needs in your terminal.
+
 ---
 
-## Step 3 — Implement
+## Step 3 — Start implementing
 
-Once the plugin or skill is installed, the agent will automatically activate the relevant Scalekit skill when you describe your goal in natural language. For example:
+Once you've installed the plugin or skill, you can start implementing. Describe your goal in natural language and the AI assistant will guide you through the process:
 
 - *"Add OAuth to my MCP server so Claude Desktop can connect to it"*
 - *"Implement login and signup with JWT session management"*
 - *"Connect my AI agent to Gmail and Google Calendar using OAuth"*
 - *"Add enterprise SSO to my existing app"*
 
+The assistant will provide step-by-step instructions, code examples, and explanations. You'll implement the changes yourself with guidance.
+
 ---
 
 ## Documentation
 
-Fetch the right resource depending on what you need:
+You can fetch these resources to learn more about Scalekit:
 
 | Resource | URL | When to use |
 |----------|-----|-------------|
-| **LLM doc index** | `https://docs.scalekit.com/llms.txt` | Start here — maps each Scalekit product (Agent Auth, MCP, FSA, SSO, SCIM) to its documentation set. Fetch this to understand which docs apply to the user's auth type before implementing. |
+| **LLM doc index** | `https://docs.scalekit.com/llms.txt` | Start here — maps each Scalekit product (Agent Auth, MCP, FSA, SSO, SCIM) to its documentation set. Fetch this to understand which docs apply to your auth type before implementing. |
 | **API reference** | `https://docs.scalekit.com/apis.md` | Full REST API reference in Markdown (generated from OpenAPI spec). Covers Connected Accounts, Connections, Organizations, Users, Tool Execution, Admin Portal endpoints with request/response schemas. |
 | **Docs sitemap** | `https://docs.scalekit.com/sitemap-0.xml` | Complete index of all documentation pages. Use to discover specific guides (e.g. a framework integration, provider setup, or troubleshooting page) when you need a URL you don't have. |
 
 **Recommended lookup flow:**
-1. Fetch `llms.txt` to identify the right documentation set for the user's chosen auth type
+1. Fetch `llms.txt` to identify the right documentation set for your chosen auth type
 2. Fetch `apis.md` when you need specific endpoint details during implementation
 3. Query the sitemap only if you need to find a page not covered by the above two
+
+You can ask the AI assistant to fetch these resources for you when needed.
