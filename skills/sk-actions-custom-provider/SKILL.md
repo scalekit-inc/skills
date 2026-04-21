@@ -1,6 +1,6 @@
 ---
 name: sk-actions-custom-provider
-description: Create or review Scalekit custom providers/connectors for proxy-only usage. Use this skill when the task is to gather API docs, infer whether a connector is OAuth, Basic, Bearer, or API Key, determine required tracked fields like domain or version, generate provider JSON, check for existing custom providers, show update diffs, run approved create or update curls, and print resolved delete curls.
+description: Create or review Scalekit custom providers/connectors for proxy-only usage, including MCP providers. Use this skill when the task is to gather API docs, infer whether a connector is OAuth, Basic, Bearer, or API Key, determine if it is an MCP provider, determine required tracked fields like domain or version, generate provider JSON, check for existing custom providers, show update diffs, run approved create or update curls, and print resolved delete curls.
 ---
 
 # Custom Provider
@@ -53,7 +53,7 @@ This skill is only for proxy-only connectors.
 
 Do not restate or paraphrase this startup request again in the same reply.
 2. Read the user's answer and branch:
-   - if target is `Dev`, ask for `SCALEKIT_ENVIRONMENT_URL`, `SCALEKIT_CLIENT_ID`, `SCALEKIT_CLIENT_SECRET`, custom provider name, API docs link, auth docs link if separate, and base API URL if already known
+   - if target is `Dev`, ask for `SCALEKIT_ENVIRONMENT_URL`, `SCALEKIT_CLIENT_ID`, `SCALEKIT_CLIENT_SECRET`, custom provider name, whether this is an MCP provider, API docs link, auth docs link if separate, and base API URL or full MCP URL (this becomes `proxy_url`)
    - if target is `Production`, ask for `PROD_SCALEKIT_ENVIRONMENT_URL`, `PROD_SCALEKIT_CLIENT_ID`, `PROD_SCALEKIT_CLIENT_SECRET`, `DEV_SCALEKIT_ENVIRONMENT_URL`, `DEV_SCALEKIT_CLIENT_ID`, `DEV_SCALEKIT_CLIENT_SECRET`, and the provider name they want to replicate in Production
    - if target is `Production`, do not generate provider JSON from scratch for production; first fetch the matching provider JSON from `Dev` and use that as the source of truth
 3. Use `SCALEKIT_ENVIRONMENT_URL` as `env_url` in `Dev`.
@@ -115,12 +115,13 @@ curl --location '{{SCALEKIT_ENVIRONMENT_URL}}/api/v1/providers?filter.provider_t
    - `BASIC`: proxy sends `Authorization: Basic base64(username:password)`
    - `BEARER`: proxy sends `Authorization: Bearer <token>`
    - `API_KEY`: proxy sends `Authorization: <api_key>` as-is
-16. If auth type is `OAUTH`, try to discover:
+16. If auth type is `OAUTH` and the provider is NOT an MCP provider, try to discover:
    - `authorize_uri`
    - `token_uri`
    - `user_info_uri`
    - visible scopes
-17. If any required OAuth values are missing, ask only for the missing values.
+   If auth type is `OAUTH` and the provider IS an MCP provider, skip this step — MCP OAuth only needs `oauth_config: {"pkce_enabled": true}`.
+17. If any required OAuth values are missing for a non-MCP OAuth provider, ask only for the missing values.
 18. Inspect docs for concrete extra tracked fields from this known set:
    - `token`
    - `api_key`
@@ -202,7 +203,8 @@ Common `auth_patterns[]` fields:
 - `description`
 - `fields`
 - `account_fields` for account-scoped values when needed
-- `oauth_config` for OAuth only
+- `oauth_config` for OAuth only; for MCP OAuth providers, always set to `{"pkce_enabled": true}` with no other fields
+- `is_mcp` set to `true` for MCP providers; omit for non-MCP providers
 - `auth_header_key_override` when the upstream auth header key is not `Authorization`
 - `auth_field_mutations` when the upstream requires a prefix, suffix, or default on `api_key`, `token`, `username`, or `password`
 
@@ -239,6 +241,8 @@ Optional OAuth config fields supported by the backend:
 - `allow_use_scalekit_credentials`
 - `custom_scope_name`
 - `pkce_enabled`
+
+For MCP OAuth providers, `oauth_config` must be `{"pkce_enabled": true}` and nothing else. Do not include `authorize_uri`, `token_uri`, `user_info_uri`, or `available_scopes` for MCP OAuth providers — they use DCR (Dynamic Client Registration) and do not need those fields.
 
 OAuth `fields` are usually auth-time options, not long-lived secrets.
 
@@ -426,6 +430,71 @@ Example:
     }
   ],
   "proxy_url": "https://a.klaviyo.com",
+  "proxy_enabled": true
+}
+```
+
+## MCP Providers
+
+MCP (Model Context Protocol) providers are a special type of proxy-only connector where the upstream service exposes an MCP-compatible endpoint.
+
+### Rules for MCP providers
+
+- Always set `is_mcp: true` in all `auth_patterns[]`
+- For `OAUTH` auth type:
+  - Set `oauth_config` to `{"pkce_enabled": true}` only
+  - Do not include `authorize_uri`, `token_uri`, `user_info_uri`, or `available_scopes` — MCP OAuth uses DCR and does not need them
+- For non-OAuth auth types (`BASIC`, `BEARER`, `API_KEY`):
+  - Do not include `oauth_config`
+  - All other auth rules remain the same as non-MCP providers
+
+### OAuth MCP Example (GitHub)
+
+```json
+{
+  "display_name": "Github MCP",
+  "description": "Connect to Github MCP",
+  "auth_patterns": [
+    {
+      "description": "Authenticate with Github MCP using browser OAuth.",
+      "display_name": "OAuth 2.1/DCR",
+      "fields": [],
+      "is_mcp": true,
+      "oauth_config": {
+        "pkce_enabled": true
+      },
+      "type": "OAUTH"
+    }
+  ],
+  "proxy_url": "https://api.githubcopilot.com/mcp/",
+  "proxy_enabled": true
+}
+```
+
+### Bearer MCP Example (Apify)
+
+```json
+{
+  "display_name": "Apify MCP",
+  "description": "Connect to Apify MCP to run web scraping, browser automation, and data extraction Actors directly from your AI workflows.",
+  "auth_patterns": [
+    {
+      "description": "Authenticate with Apify using your API Token.",
+      "display_name": "Apify Token",
+      "fields": [
+        {
+          "field_name": "token",
+          "hint": "Your Apify API Token",
+          "input_type": "password",
+          "label": "Apify Token",
+          "required": true
+        }
+      ],
+      "is_mcp": true,
+      "type": "BEARER"
+    }
+  ],
+  "proxy_url": "https://mcp.apify.com",
   "proxy_enabled": true
 }
 ```
@@ -769,6 +838,9 @@ Do not fabricate identifiers.
 Before finalizing:
 - `display_name` is safe and under 200 chars
 - auth type matches the upstream docs
+- if provider is MCP, `is_mcp: true` is present in all auth patterns
+- if provider is MCP and OAuth, `oauth_config` is `{"pkce_enabled": true}` with no other fields
+- if provider is MCP and non-OAuth, `oauth_config` is not present
 - `oauth_config` exists only for OAuth providers
 - tracked fields are concrete and minimal
 - `proxy_url` matches the upstream host pattern
