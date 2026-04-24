@@ -2,12 +2,12 @@
 
 This skill helps you create, review, update, or prepare deletion for a Scalekit custom provider.
 
-It is only for **proxy-only** connectors.
+This skill is intended for **REST API based connectors**. For MCP providers, tools are discovered automatically from the Scalekit platform for your connected account.
 
 ## When To Use It
 
 Use this skill when you want help with any of the following:
-- creating a new custom provider in `Dev`
+- creating a new custom provider in `Dev`, including MCP providers
 - reviewing an existing custom provider
 - updating an existing custom provider
 - replicating a provider from `Dev` to `Production`
@@ -18,6 +18,7 @@ Use this skill when you want help with any of the following:
 The skill can:
 - read API and auth docs in `Dev`
 - infer the auth type: `OAUTH`, `BASIC`, `BEARER`, or `API_KEY`
+- detect and handle MCP providers (sets `is_mcp: true` and applies correct OAuth PKCE config)
 - generate the provider JSON
 - list existing custom providers
 - show diffs before updates
@@ -36,7 +37,7 @@ The skill will ask you for:
 - provider name
 - API docs link
 - auth docs link if separate
-- base API URL if you already know it
+- base API URL or full MCP URL (used as `proxy_url`)
 
 Then it will:
 - inspect the docs
@@ -97,6 +98,17 @@ If you ask to delete a provider, the skill will:
 
 It will **not** execute the delete curl for you.
 
+## MCP Providers
+
+The skill supports MCP (Model Context Protocol) providers. When you answer "yes" to the MCP question, the skill applies two structural changes to the generated JSON:
+
+1. Sets `is_mcp: true` on all auth patterns
+2. For `OAUTH` auth type: sets `oauth_config` to `{"pkce_enabled": true}` only — no `authorize_uri`, `token_uri`, `user_info_uri`, or `available_scopes`
+
+For non-OAuth MCP providers (`BASIC`, `BEARER`, `API_KEY`), `oauth_config` is not included.
+
+Once an MCP provider is created and a connected account is set up, tools are discovered automatically from the Scalekit platform — no manual tool registration needed.
+
 ## Example Prompts
 
 ```text
@@ -145,7 +157,9 @@ This section is a quick reference for the kinds of provider payloads the skill c
 - `account_fields`
   Account-scoped inputs. For OAuth path parameters, use this instead of `fields`.
 - `oauth_config`
-  OAuth-only configuration block.
+  OAuth-only configuration block. For MCP OAuth providers, set to `{"pkce_enabled": true}` only.
+- `is_mcp`
+  Set to `true` for MCP providers. Omit for non-MCP providers.
 - `auth_header_key_override`
   Lets you send the auth credential in a header other than `Authorization`.
 - `auth_field_mutations`
@@ -157,7 +171,7 @@ This section is a quick reference for the kinds of provider payloads the skill c
 
 Use this when the upstream service uses OAuth 2.0.
 
-Typical properties:
+Typical properties (non-MCP):
 - `oauth_config.authorize_uri`
   OAuth authorization endpoint.
 - `oauth_config.token_uri`
@@ -166,6 +180,8 @@ Typical properties:
   Endpoint used to fetch the authenticated user profile, when available.
 - `oauth_config.available_scopes`
   List of scopes users can authorize.
+
+For MCP OAuth providers, `oauth_config` is `{"pkce_enabled": true}` only — no other fields needed.
 
 Example provider payload:
 
