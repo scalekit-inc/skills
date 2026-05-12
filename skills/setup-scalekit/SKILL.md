@@ -21,11 +21,11 @@ Review the table below and select the plugin that matches what you're building:
 
 | Plugin name | When to use |
 |-------------|-------------|
-| `agent-auth` | AI agent needs OAuth access to third-party services (Gmail, Slack, Notion, etc.) |
-| `full-stack-auth` | Web app needs login, signup, sessions, and RBAC |
-| `mcp-auth` | Building an MCP server that needs OAuth 2.1 to secure its tools |
-| `modular-sso` | Adding enterprise SSO to an existing app without replacing its auth |
-| `modular-scim` | Automated user provisioning and deprovisioning via directory sync |
+| `agent-auth` | AI agent needs OAuth access to third-party services (Gmail, Slack, Notion, etc.) — **AgentKit** |
+| `full-stack-auth` | Web app needs login, signup, sessions, and RBAC — **SaaSKit** |
+| `mcp-auth` | Building an MCP server that needs OAuth 2.1 to secure its tools — **SaaSKit** |
+| `modular-sso` | Adding enterprise SSO to an existing app without replacing its auth — **SaaSKit** |
+| `modular-scim` | Automated user provisioning and deprovisioning via directory sync — **SaaSKit** |
 
 You'll use this plugin name in the install commands in the next step.
 
@@ -137,10 +137,10 @@ npx skills add scalekit-inc/skills --list
 Then pick one based on your auth type and run the install command:
 
 ```bash
-npx skills add scalekit-inc/skills --skill integrating-agent-auth
-npx skills add scalekit-inc/skills --skill implementing-scalekit-fsa
+npx skills add scalekit-inc/skills --skill integrating-agentkit
+npx skills add scalekit-inc/skills --skill implementing-saaskit
 npx skills add scalekit-inc/skills --skill adding-mcp-oauth
-npx skills add scalekit-inc/skills --skill modular-sso
+npx skills add scalekit-inc/skills --skill implementing-modular-sso
 npx skills add scalekit-inc/skills --skill implementing-scim-provisioning
 ```
 
