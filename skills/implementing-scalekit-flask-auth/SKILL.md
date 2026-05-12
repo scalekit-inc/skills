@@ -249,7 +249,7 @@ class TokenRefreshMiddleware:
             if expires_at.tzinfo:
                 expires_at = expires_at.replace(tzinfo=None)
 
-            if datetime.utcnow() + timedelta(minutes=REFRESH_BUFFER_MINUTES) >= expires_at:
+            if datetime.now(timezone.utc) + timedelta(minutes=REFRESH_BUFFER_MINUTES) >= expires_at:
                 client = ScalekitClient()
                 token_response = client.refresh_access_token(refresh_token)
                 expires_in = token_response.get('expires_in', 3600)
@@ -257,7 +257,7 @@ class TokenRefreshMiddleware:
                     'access_token': token_response.get('access_token'),
                     'refresh_token': token_response.get('refresh_token', refresh_token),
                     'id_token': token_response.get('id_token', token_data.get('id_token')),
-                    'expires_at': (datetime.utcnow() + timedelta(seconds=expires_in)).isoformat(),
+                    'expires_at': (datetime.now(timezone.utc) + timedelta(seconds=expires_in)).isoformat(),
                     'expires_in': expires_in,
                 }
         except Exception as e:
@@ -353,7 +353,7 @@ def callback():
             'access_token': access_token,
             'refresh_token': refresh_token,
             'id_token': id_token,
-            'expires_at': (datetime.utcnow() + timedelta(seconds=expires_in)).isoformat(),
+            'expires_at': (datetime.now(timezone.utc) + timedelta(seconds=expires_in)).isoformat(),
             'expires_in': expires_in,
         }
         session['scalekit_roles'] = user_info.get('roles', []) or user_info.get('https://scalekit.com/roles', [])
@@ -414,7 +414,7 @@ def refresh_token():
             'access_token': resp.get('access_token'),
             'refresh_token': resp.get('refresh_token', rt),
             'id_token': resp.get('id_token', token_data.get('id_token')),
-            'expires_at': (datetime.utcnow() + timedelta(seconds=expires_in)).isoformat(),
+            'expires_at': (datetime.now(timezone.utc) + timedelta(seconds=expires_in)).isoformat(),
             'expires_in': expires_in,
         }
         return jsonify({'success': True, 'newAccessToken': resp.get('access_token')})

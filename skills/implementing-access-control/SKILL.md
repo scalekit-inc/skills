@@ -31,7 +31,7 @@ const validateAndExtractAuth = async (req, res, next) => {
     const isValid = await scalekit.validateAccessToken(accessToken);
     if (!isValid) return res.status(401).json({ error: "Invalid or expired token" });
 
-    const tokenData = await dessToken(accessToken); // JWT decode library
+    const tokenData = await decodeToken(accessToken); // JWT decode library
     req.user = {
       id: tokenData.sub,
       organizationId: tokenData.oid,
@@ -113,7 +113,7 @@ Avoid building authorization solely in the frontend because it can be bypassed.
 ## Checklist
 
 - Token is validated before decoding/using claims.
-- `roles` and `permissions` are normalizeays and attached to request context.
+- `roles` and `permissions` are normalized as arrays and attached to request context.
 - Every protected route applies `requireRole(...)` and/or `requirePermission(...)` at the boundary.
 - Permission names follow a consistent `resource:action` convention.
 - Client-side checks are treated as UX only; server-side checks are authoritative.

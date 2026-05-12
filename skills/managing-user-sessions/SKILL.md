@@ -3,10 +3,9 @@ name: managing-user-sessions
 description: Manages Scalekit-backed user sessions by securely storing access/refresh/ID tokens (with encryption and correct cookie attributes), validating access tokens on every request, transparently refreshing tokens in middleware, and optionally revoking sessions remotely via Scalekit session APIs. Use when building session persistence for only for web apps. For SPAs this is NOT the skill.
 ---
 
-# Manage user sessions (Scalekit FSA)
+# Manage user sessions (Scalekit SaaSKit)
 
-## Skill contract
-This SKILL.md must include `name` and `description` frontmatter fields, and the description should be written in third person for reliable skill discovery.
+
 
 ## What “session management” means here
 After successful authentication, the app receives session tokens (typically access + refresh, and sometimes an ID token) that determine how long the user stays signed in and whether refresh can happen without re-authentication.
@@ -25,7 +24,7 @@ This skill implements a secure default for traditional web apps (encrypted HttpO
 ## Non-negotiable security rules (defaults)
 - Store access and refresh tokens separately.
 - Use HttpOnly cookies for tokens in traditional web apps to reduce XSS exposure.
-- Use `Secure` in production (HTTPS-only) and set `SameSite` to `Strict` (or `Lax` if Strict breaks auth redirects).
+- Use `Secure` in production (HTTPS-only) and set `SameSite` to `Lax` (required for OAuth callback redirects to work correctly; `Strict` breaks auth flows).
 - Scope cookies with `Path` to reduce exposure:
   - Access token cookie: scope to `/api` (or your protected routes) when possible.
   - Refresh token cookie: scope to the refresh endpoint only (example `/auth/refresh`).
@@ -63,7 +62,7 @@ res.cookie("accessToken", encAccess, {
   maxAge: (expiresIn - 60) * 1000, // clock-skew buffer
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",
-  sameSite: "strict",
+  sameSite: "lax",
   path: "/api",
 });
 
@@ -71,7 +70,7 @@ res.cookie("accessToken", encAccess, {
 res.cookie("refreshToken", encRefresh, {
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",
-  sameSite: "strict",
+  sameSite: "lax",
   path: "/auth/refresh",
 });
 
@@ -80,7 +79,7 @@ if (idToken) {
   res.cookie("idToken", idToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
+    sameSite: "lax",
     path: "/",
   });
 }
@@ -103,7 +102,7 @@ resp.set_cookie(
   max_age=auth_result.expires_in - 60,
   httponly=True,
   secure=os.environ.get("FLASK_ENV") == "production",
-  samesite="Strict",
+  samesite="Lax",
   path="/api",
 )
 
@@ -112,7 +111,7 @@ resp.set_cookie(
   enc_refresh,
   httponly=True,
   secure=os.environ.get("FLASK_ENV") == "production",
-  samesite="Strict",
+  samesite="Lax",
   path="/auth/refresh",
 )
 
@@ -122,7 +121,7 @@ if getattr(auth_result, "id_token", None):
     auth_result.id_token,
     httponly=True,
     secure=os.environ.get("FLASK_ENV") == "production",
-    samesite="Strict",
+    samesite="Lax",
     path="/",
   )
 ```
@@ -133,7 +132,7 @@ if getattr(auth_result, "id_token", None):
 encAccess := encrypt(accessToken)
 encRefresh := encrypt(refreshToken)
 
-c.SetSameSite(http.SameSiteStrictMode)
+c.SetSameSite(http.SameSiteLaxMode)
 
 c.SetCookie("accessToken", encAccess, expiresIn-60, "/api", "", isProd(), true)
 c.SetCookie("refreshToken", encRefresh, 0, "/auth/refresh", "", isProd(), true)
@@ -204,14 +203,14 @@ export async function verifySession(req, res, next) {
       maxAge: (authResult.expiresIn - 60) * 1000,
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      sameSite: "lax",
       path: "/api",
     });
 
     res.cookie("refreshToken", encrypt(authResult.refreshToken), {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      sameSite: "lax",
       path: "/auth/refresh",
     });
 
@@ -252,9 +251,9 @@ def verify_session(f):
       resp = make_response(f(*args, **kwargs))
       resp.set_cookie("accessToken", encrypt(auth_result.access_token),
                       max_age=auth_result.expires_in - 60, httponly=True,
-                      secure=is_prod(), samesite="Strict", path="/api")
+                      secure=is_prod(), samesite="Lax", path="/api")
       resp.set_cookie("refreshToken", encrypt(auth_result.refresh_token),
-                      httponly=True, secure=is_prod(), samesite="Strict", path="/auth/refresh")
+                      httponly=True, secure=is_prod(), samesite="Lax", path="/auth/refresh")
       return resp
     except Exception:
       return jsonify({"error": "Authentication failed"}), 401
@@ -294,7 +293,7 @@ func VerifySession() gin.HandlerFunc {
       return
     }
 
-    c.SetSameSite(http.SameSiteStrictMode)
+    c.SetSameSite(http.SameSiteLaxMode)
     c.SetCookie("accessToken", encrypt(authResult.AccessToken), authResult.ExpiresIn-60, "/api", "", isProd(), true)
     c.SetCookie("refreshToken", encrypt(authResult.RefreshToken), 0, "/auth/refresh", "", isProd(), true)
 
