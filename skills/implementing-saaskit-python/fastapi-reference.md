@@ -1,7 +1,4 @@
----
-name: implementing-scalekit-fastapi-auth
-description: Guides implementation of Scalekit OIDC/OAuth2 authentication and authorization in an existing FastAPI project. Use when the user wants to add Scalekit login, SSO, token management, session handling, or permission-based route protection to a FastAPI app.
----
+# FastAPI Reference
 
 # Scalekit Auth for FastAPI
 

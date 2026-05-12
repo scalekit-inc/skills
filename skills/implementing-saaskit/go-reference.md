@@ -1,7 +1,5 @@
----
-name: implementing-scalekit-go-auth
-description: Guides Go developers implementing Scalekit authentication in Gin-based web apps using scalekit-sdk-go. Use when the developer mentions Scalekit, enterprise SSO, OIDC login, OAuth2 callback, access token validation, token refresh, session cookies, logout, IDP-initiated login, or xoid/xuid JWT claims in a Go project.
----
+# Go (Gin) Reference
+
 
 # Scalekit Auth in Go (Gin)
 

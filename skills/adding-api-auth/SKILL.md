@@ -373,3 +373,139 @@ func AuthenticateToken(sc scalekit.Scalekit) gin.HandlerFunc {
 - **Rotate safely**: Create new key → update consumer → verify → invalidate old key (avoids downtime).
 - **Use `expiry` for time-limited access**: Limits blast radius if a key is compromised.
 - **Never log or commit keys**: Treat API keys like passwords — use encrypted secrets managers or env vars.
+
+---
+
+## Client Credentials (OAuth 2.0)
+
+For service-to-service (machine-to-machine) auth using JWT bearer tokens instead of opaque API keys. Use when APIs need scope-based access control, JWT validation via JWKS, or standard OAuth 2.0 client credentials flow.
+
+### Flow
+
+```
+Register client (your app) → Issue client_id + secret (Scalekit) →
+API client fetches bearer token → Your server validates JWT + scopes
+```
+
+### Register an API client for an organization
+
+One organization can have multiple API clients. `plain_secret` is **returned only once**.
+
+```python
+# Python
+from scalekit.v1.clients.clients_pb2 import OrganizationClient
+
+response = scalekit_client.m2m_client.create_organization_client(
+    organization_id="<ORG_ID>",
+    m2m_client=OrganizationClient(
+        name="GitHub Actions Deployment Service",
+        description="Deploys to production via GitHub Actions",
+        scopes=["deploy:applications", "read:deployments"],  # resource:action pattern
+        audience=["deployment-api.acmecorp.com"],
+        custom_claims=[
+            {"key": "github_repository", "value": "acmecorp/inventory-service"},
+            {"key": "environment",        "value": "production_us"}
+        ],
+        expiry=3600  # seconds; default 3600
+    )
+)
+client_id    = response.client.client_id
+plain_secret = response.plain_secret  # store securely; not retrievable again
+```
+
+### API client fetches a bearer token
+
+Runs inside the **API client's** code, not your server:
+
+```bash
+curl -X POST "$SCALEKIT_ENVIRONMENT_URL/oauth/token" \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "grant_type=client_credentials" \
+  -d "client_id=<API_CLIENT_ID>" \
+  -d "client_secret=<API_CLIENT_SECRET>"
+```
+
+Response includes `access_token` (JWT), `token_type`, `expires_in`, and `scope`.
+
+### Validate the JWT on your API server
+
+**Do this on EVERY request. Never trust unverified tokens.**
+
+```python
+# Python — SDK handles JWKS automatically
+token = request.headers.get("Authorization", "").removeprefix("Bearer ")
+try:
+    claims = scalekit_client.validate_access_token_and_get_claims(token=token)
+    # claims["scopes"] → list of granted scopes
+except Exception:
+    return 401  # invalid or expired
+```
+
+```javascript
+// Node.js — manual JWKS + JWT verify
+import jwksClient from 'jwks-rsa';
+import jwt from 'jsonwebtoken';
+
+const jwks = jwksClient({
+  jwksUri: `${process.env.SCALEKIT_ENVIRONMENT_URL}/.well-known/jwks.json`,
+  cache: true
+});
+
+async function verifyToken(token) {
+  const decoded = jwt.decode(token, { complete: true });
+  const key     = await jwks.getSigningKey(decoded.header.kid);
+  return jwt.verify(token, key.getPublicKey(), {
+    algorithms: ['RS256'],
+    complete: true
+  }).payload;
+}
+```
+
+### Enforce scopes in middleware
+
+```python
+# Python — Flask
+def require_scope(scope):
+    def decorator(f):
+        @functools.wraps(f)
+        def wrapper(*args, **kwargs):
+            token = request.headers.get("Authorization", "").removeprefix("Bearer ")
+            if not token:
+                return jsonify({"error": "Missing token"}), 401
+            try:
+                claims = scalekit_client.validate_access_token_and_get_claims(token=token)
+            except Exception:
+                return jsonify({"error": "Invalid token"}), 401
+            if scope not in claims.get("scopes", []):
+                return jsonify({"error": "Insufficient permissions"}), 403
+            return f(*args, **kwargs)
+        return wrapper
+    return decorator
+```
+
+```javascript
+// Node.js — Express
+function requireScope(scope) {
+  return async (req, res, next) => {
+    const token = (req.headers.authorization || '').replace('Bearer ', '');
+    if (!token) return res.status(401).send('Missing token');
+    try {
+      const payload = await verifyToken(token);
+      if (!payload.scopes?.includes(scope))
+        return res.status(403).send('Insufficient permissions');
+      req.tokenClaims = payload;
+      next();
+    } catch {
+      res.status(401).send('Invalid token');
+    }
+  };
+}
+```
+
+### Client credentials key rules
+
+- `plain_secret` is **returned once only** — instruct customers to store it immediately.
+- Always validate tokens **server-side** before trusting claims.
+- Cache JWKS keys (avoid fetching on every request); rotate on `kid` mismatch.
+- Use `resource:action` scope naming (e.g. `deployments:read`, `applications:create`).
+- An `organization_id` maps to one customer; multiple API clients per org are supported.
