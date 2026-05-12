@@ -1,9 +1,9 @@
 ---
 name: implementing-scalekit-fsa
-description: Implements Scalekit full-stack authentication (FSA) including sign-up, login, logout, and secure session management using JWT tokens. Use when building or integrating user authentication with the Scalekit SDK across Node.js, Python, Go, or Java — or when the user asks about auth flows, OAuth callbacks, token refresh, or session handling with Scalekit.
+description: Implements Scalekit SaaSKit full-stack authentication (FSA) including sign-up, login, logout, and secure session management using JWT tokens. Use when building or integrating user authentication with SaaSKit or the Scalekit SDK across Node.js, Python, Go, or Java — or when the user asks about auth flows, OAuth callbacks, token refresh, or session handling with Scalekit.
 ---
 
-# Scalekit Full-Stack Authentication
+# Scalekit SaaSKit (Full-Stack Authentication)
 
 ## Setup
 

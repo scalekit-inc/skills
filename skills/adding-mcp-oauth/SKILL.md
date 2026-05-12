@@ -375,7 +375,7 @@ See [Complete Working Examples](#complete-working-examples) below for production
 Production-ready examples demonstrating different implementation approaches:
 
 ### FastMCP (5-Line OAuth Integration)
-**Skill:** [add-auth-fastmcp](../add-auth-fastmcp/SKILL.md)
+**Skill:** [mcp-oauth-fastmcp](../mcp-oauth-fastmcp/SKILL.md)
 - Simplest approach with built-in OAuth provider
 - Automatic token validation and scope enforcement
 - Complete todo server with CRUD operations

@@ -173,7 +173,7 @@ You can fetch these resources to learn more about Scalekit:
 
 | Resource | URL | When to use |
 |----------|-----|-------------|
-| **LLM doc index** | `https://docs.scalekit.com/llms.txt` | Start here — maps each Scalekit product (Agent Auth, MCP, FSA, SSO, SCIM) to its documentation set. Fetch this to understand which docs apply to your auth type before implementing. |
+| **LLM doc index** | `https://docs.scalekit.com/llms.txt` | Start here — maps each Scalekit product (AgentKit, MCP Auth, SaaSKit/FSA, SSO, SCIM) to its documentation set. Fetch this to understand which docs apply to your auth type before implementing. |
 | **API reference** | `https://docs.scalekit.com/apis.md` | Full REST API reference in Markdown (generated from OpenAPI spec). Covers Connected Accounts, Connections, Organizations, Users, Tool Execution, Admin Portal endpoints with request/response schemas. |
 | **Docs sitemap** | `https://docs.scalekit.com/sitemap-0.xml` | Complete index of all documentation pages. Use to discover specific guides (e.g. a framework integration, provider setup, or troubleshooting page) when you need a URL you don't have. |
 

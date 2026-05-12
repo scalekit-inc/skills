@@ -78,7 +78,7 @@ scalekit_client = ScalekitClient(
 )
 ```
 
-For Go and Java patterns, see [REFERENCE.md](REFERENCE.md).
+For Go and Java patterns, see the [Scalekit SDK documentation](https://docs.scalekit.com/apis).
 
 ---
 
@@ -166,7 +166,7 @@ async def scalekit_webhook(request: Request):
     return JSONResponse(status_code=201, content={"status": "processed"})
 ```
 
-For Go and Java, see [REFERENCE.md](REFERENCE.md).
+For Go and Java, see the [Scalekit SDK documentation](https://docs.scalekit.com/apis).
 
 ---
 
@@ -223,8 +223,8 @@ After deploying the webhook endpoint:
 
 ---
 
-## Reference files
+## Reference
 
-- Full Go/Java SDK examples → [REFERENCE.md](REFERENCE.md)
-- Webhook event payload schemas → [EVENTS.md](EVENTS.md)
-- RBAC group-to-role mapping patterns → [RBAC.md](RBAC.md)
+- Full Go/Java SDK examples → [Scalekit SDK documentation](https://docs.scalekit.com/apis)
+- Webhook event payload schemas → [Scalekit webhook events](https://docs.scalekit.com/directory/scim/quickstart/)
+- RBAC group-to-role mapping patterns → [Role based access control](https://docs.scalekit.com/authenticate/fsa/rbac/)
