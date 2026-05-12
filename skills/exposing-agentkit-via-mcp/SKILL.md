@@ -1,13 +1,13 @@
 ---
-name: building-agent-mcp-server
-description: Guides developers through creating a Scalekit AgentKit MCP server with authenticated tool access. Use when building an MCP server, exposing Scalekit AgentKit tools over MCP, or connecting AI agents via LangChain/LangGraph MCP adapters.
+name: exposing-agentkit-via-mcp
+description: Guides developers through configuring a Scalekit AgentKit MCP endpoint with authenticated tool access. Use when exposing AgentKit tools over MCP, generating per-user MCP URLs, or connecting AI agents via LangChain or LangGraph MCP adapters.
 ---
 
-# Building an Agent MCP Server
+# Exposing AgentKit via MCP
 
-Scalekit lets you build MCP servers that manage authentication, create personalized access URLs for users, and define which tools are accessible. You can also bundle several toolkits (e.g., Gmail + Google Calendar) within a single server.
+Scalekit lets you configure MCP endpoints that manage authentication, create personalized access URLs for users, and define which AgentKit tools are accessible. You can also bundle several toolkits (e.g., Gmail + Google Calendar) within a single endpoint.
 
-[Model Context Protocol (MCP)](https://modelcontextprotocol.io/docs/getting-started/intro) is an open-source standard that enables AI systems to interface with external tools and data sources. Where the `integrating-agent-auth` skill uses the SDK directly, this workflow exposes Scalekit tools over the MCP protocol so any compliant client — LangChain, Claude Desktop, MCP Inspector — can consume them.
+[Model Context Protocol (MCP)](https://modelcontextprotocol.io/docs/getting-started/intro) is an open-source standard that enables AI systems to interface with external tools and data sources. Where the `integrating-agentkit` skill uses the SDK directly, this workflow configures AgentKit to expose tools over the MCP protocol so any compliant client — LangChain, Claude Desktop, MCP Inspector — can consume them.
 
 > **Note:** AgentKit MCP servers only support Streamable HTTP transport.
 
@@ -156,3 +156,16 @@ asyncio.run(main())
 > **Note — MCP client compatibility:** You can test this MCP server with popular clients like MCP Inspector, Claude Desktop, and other spec-compliant implementations. Note that ChatGPT's beta connector feature may not work properly as it's still in beta and doesn't fully adhere to the MCP specification yet.
 
 Full working example: [github.com/scalekit-inc/python-connect-demos/tree/main/mcp](https://github.com/scalekit-inc/python-connect-demos/tree/main/mcp)
+
+## Deep reference
+
+- AgentKit overview: [docs.scalekit.com/agentkit/overview](https://docs.scalekit.com/agentkit/overview/)
+- Connections: [docs.scalekit.com/agentkit/connections](https://docs.scalekit.com/agentkit/connections/)
+- Connected accounts: [docs.scalekit.com/agentkit/connected-accounts](https://docs.scalekit.com/agentkit/connected-accounts/)
+- Tool discovery: [docs.scalekit.com/agentkit/tool-discovery](https://docs.scalekit.com/agentkit/tool-discovery/)
+
+## When to switch skills
+
+- Use `integrating-agentkit` for direct SDK integration without MCP.
+- Use `discovering-connector-tools` when the user needs the current tool catalog or schema.
+- Use `testing-agentkit-tools` when the user wants to validate a tool call live.

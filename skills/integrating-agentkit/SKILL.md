@@ -1,6 +1,6 @@
 ---
-name: integrating-agent-auth
-description: Integrates Scalekit AgentKit (Agent Auth) into a project to handle OAuth flows, token storage, and automatic refresh for third-party services (Gmail, Slack, Notion, Calendar). Use when a user needs to connect to an external service, authorize OAuth access, fetch access or refresh tokens, or execute API calls on behalf of a user via AgentKit.
+name: integrating-agentkit
+description: Integrates Scalekit AgentKit into a project so an agent can create connections, authorize users, discover tools, and execute authenticated tool calls on their behalf. Use when a user needs to set up a connection, create a connected account, generate an authorization link, or wire AgentKit tools into application code or an agent framework.
 ---
 
 # AgentKit Integration
@@ -289,16 +289,20 @@ agent = Agent(
 response = agent.process_request("fetch my last 5 unread emails and summarize them")
 ```
 
-For more examples and framework-specific patterns, see [code-samples.md](../references/code-samples.md).
+For more examples and framework-specific patterns, see the [AgentKit code samples](https://docs.scalekit.com/agentkit/code-samples/).
 
 ## Deep reference
 
-For comprehensive documentation on connected accounts lifecycle, states, and API usage, see [connected-accounts.md](../references/connected-accounts.md).
+- AgentKit overview: [docs.scalekit.com/agentkit/overview](https://docs.scalekit.com/agentkit/overview/)
+- Connections: [docs.scalekit.com/agentkit/connections](https://docs.scalekit.com/agentkit/connections/)
+- Connected accounts: [docs.scalekit.com/agentkit/connected-accounts](https://docs.scalekit.com/agentkit/connected-accounts/)
+- Tool discovery: [docs.scalekit.com/agentkit/tool-discovery](https://docs.scalekit.com/agentkit/tool-discovery/)
+- Connectors catalog: [docs.scalekit.com/agentkit/connectors](https://docs.scalekit.com/agentkit/connectors/)
+- BYOC (Bring Your Own Credentials): [docs.scalekit.com/agentkit/byoc](https://docs.scalekit.com/agentkit/launch-checklist/byoc/)
 
-For code samples and implementation examples by framework, see [code-samples.md](../references/code-samples.md).
+## When to switch skills
 
-For an overview of supported providers and their capabilities, see [providers.md](../references/providers.md).
-
-For comprehensive token management including refresh, security, and monitoring, see [token-management.md](../references/token-management.md).
-
-For configuring your own OAuth credentials per connector (whitelabeling, dedicated quotas), see [byoc.md](../references/byoc.md).
+- Use `discovering-connector-tools` when the user needs the current tool catalog or schema.
+- Use `testing-agentkit-tools` when the user wants to validate a tool call live.
+- Use `exposing-agentkit-via-mcp` when the user wants AgentKit tools exposed over MCP.
+- Use `sk-actions-custom-provider` to create custom connectors.
