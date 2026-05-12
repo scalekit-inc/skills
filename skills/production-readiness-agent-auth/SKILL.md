@@ -1,9 +1,9 @@
 ---
 name: production-readiness-agent-auth
-description: Walks through a structured production readiness checklist for Scalekit agent authentication implementations. Use when the user says they are going live, launching to production, doing a pre-launch review, or wants to verify their agent OAuth implementation is production-ready.
+description: Walks through a structured production readiness checklist for Scalekit AgentKit (agent authentication) implementations. Use when the user says they are going live, launching to production, doing a pre-launch review, or wants to verify their AgentKit or agent OAuth implementation is production-ready.
 ---
 
-# Scalekit Agent Auth Production Readiness
+# Scalekit AgentKit Production Readiness
 
 Work through each section in order — earlier sections are blockers for later ones.
 

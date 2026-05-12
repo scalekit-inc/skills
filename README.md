@@ -38,20 +38,20 @@ Copy the `SKILL.md` file from any skill directory into your project's `.cursor/s
 |-------|-------------|
 | `setup-scalekit` | Guided setup — detects your AI coding tool and walks through plugin installation and auth type selection |
 
-### Agent Auth
+### AgentKit
 
-Skills for adding OAuth-based agent authentication — connect AI agents to third-party services like Gmail, Slack, and Notion.
+Skills for adding OAuth-based agent authentication — connect AI agents to third-party services like Gmail, Slack, and Notion via [AgentKit](https://docs.scalekit.com/agentkit/quickstart/).
 
 | Skill | Description |
 |-------|-------------|
-| `integrating-agent-auth` | Integrate Scalekit Agent Auth for OAuth flows, token storage, and token refresh |
+| `integrating-agent-auth` | Integrate Scalekit AgentKit for OAuth flows, token storage, and token refresh |
 | `building-agent-mcp-server` | Create MCP servers with authenticated tool access for LangChain/LangGraph agents |
 | `sk-actions-custom-provider` | Create custom Scalekit providers/connectors with OAuth, Basic, Bearer, or API Key auth |
 | `production-readiness-agent-auth` | Production readiness checklist for agent authentication |
 
-### Full-Stack Auth
+### SaaSKit (Full-Stack Auth)
 
-Skills for implementing complete authentication flows — login, signup, sessions, RBAC, and framework-specific integrations.
+Skills for implementing complete authentication flows — login, signup, sessions, RBAC, and framework-specific integrations via [SaaSKit](https://docs.scalekit.com/authenticate/fsa/quickstart/).
 
 | Skill | Description |
 |-------|-------------|

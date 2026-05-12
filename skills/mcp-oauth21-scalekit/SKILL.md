@@ -63,9 +63,7 @@ Minimum fields to include:
 - `resource_documentation`: docs URL (optional but recommended)
 - `scopes_supported`: list of scopes you configured
 
-If the user wants a template, point them to:
-- `assets/oauth-protected-resource.json`
-- `assets/express/well-known-route.ts` or `assets/fastapi/well_known_route.py`
+If the user wants a template, see the `mcp-auth-expressjs-scalekit` skill (Express) or `mcp-auth-fastapi-fastmcp-scalekit` skill (FastAPI) — both include ready-to-use asset files.
 
 ### 3) Add Bearer token validation middleware (resource server enforcement)
 Apply middleware to all MCP endpoints.
@@ -80,9 +78,7 @@ Rules:
      - Validate expiry and issued-at (SDK typically handles this)
   4. On validation failure → respond `401` with `WWW-Authenticate`
 
-Templates:
-- Node/Express: `assets/express/auth-middleware.ts`
-- Python/FastAPI: `assets/fastapi/auth_middleware.py`
+For complete middleware implementations, see the `mcp-auth-expressjs-scalekit` skill (Node/Express) or `mcp-auth-fastapi-fastmcp-scalekit` skill (Python/FastAPI).
 
 Security notes:
 - Do not log raw tokens.
@@ -92,7 +88,7 @@ Security notes:
 ### 4) Optional: scope-based authorization at tool execution time
 For each MCP tool, define required scope(s) and enforce them when executing the tool.
 Suggested approach:
-- Maintain a map: `tool_name -> required_scopes` (see `assets/tool-scope-map.example.yaml`)
+- Maintain a map: `tool_name -> required_scopes`
 - At execution:
   - Validate token again with `requiredScopes` (or validate once and check claims, depending on SDK support)
   - If insufficient scope → return an OAuth-style error response (403, `insufficient_scope`) with a helpful message
@@ -106,7 +102,7 @@ Suggested approach:
 - Test with at least one MCP host (Claude Desktop / Cursor / VS Code) if that's your target.
 
 ### 6) Production checklist
-See `references/SECURITY.md`. Minimum:
+Minimum:
 - HTTPS everywhere
 - Correct CORS for MCP endpoints
 - Secure secret storage (env/secret manager)
@@ -118,6 +114,6 @@ See `references/SECURITY.md`. Minimum:
 ---
 
 ## References
-- Deep technical notes: `references/REFERENCE.md`
-- Scope design patterns: `references/SCOPES.md`
-- Production hardening: `references/SECURITY.md`
+- [Scalekit MCP Auth documentation](https://docs.scalekit.com/authenticate/mcp/quickstart/)
+- For implementation templates with assets, use the `mcp-auth-expressjs-scalekit` or `mcp-auth-fastmcp-scalekit` skills
+- [Production readiness checklist](../production-readiness-mcp-auth/SKILL.md)

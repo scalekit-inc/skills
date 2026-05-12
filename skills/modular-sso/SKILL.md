@@ -9,7 +9,7 @@ description: Implements complete SSO and authentication flows using Scalekit. Ha
 
 **Choose your authentication mode:**
 - **Modular SSO**: You manage users and sessions (covered here)
-- **Full-Stack Auth**: Scalekit manages users and sessions (built-in SSO)
+- **SaaSKit (Full-Stack Auth)**: Scalekit manages users and sessions (built-in SSO)
 
 This skill covers Modular SSO for applications with existing user management.
 
@@ -404,7 +404,7 @@ Prevent failed redirects by checking SSO configuration before redirecting:
 
 **Node.js:**
 ```javascript
-const domain = email.split('@').toLowerCase(); [reddit](https://www.reddit.com/r/ClaudeAI/comments/1qb1024/ultimate_claude_skillmd_autobuilds_any_fullstack/)
+const domain = email.split('@')[1].toLowerCase();
 
 const connections = await scalekit.connections.listConnectionsByDomain({
   domain
