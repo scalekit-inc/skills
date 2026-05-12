@@ -1,7 +1,4 @@
----
-name: implementing-scalekit-flask-auth
-description: Guides implementation of Scalekit OIDC/OAuth2 authentication and authorization in an existing Flask project. Use when the user wants to add Scalekit login, SSO, token management, session handling, or permission-based route protection to a Flask app.
----
+# Flask Reference
 
 # Scalekit Auth for Flask
 

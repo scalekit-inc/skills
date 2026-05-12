@@ -1,7 +1,5 @@
----
-name: implementing-scalekit-springboot-auth
-description: Guides Java developers integrating Scalekit OIDC authentication into Spring Boot 3.x apps. Use when the developer mentions Scalekit, enterprise SSO, OIDC login, OAuth2 client setup, protected routes, ID token claims, or logout in a Spring Boot project.
----
+# Spring Boot Reference
+
 
 # Scalekit Auth in Spring Boot
 

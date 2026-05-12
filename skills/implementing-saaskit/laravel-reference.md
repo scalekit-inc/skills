@@ -1,7 +1,5 @@
----
-name: implementing-scalekit-laravel-auth
-description: Implements Scalekit authentication in a Laravel app using the patterns from scalekit-inc/scalekit-laravel-auth-example. Handles login, OAuth callback, Laravel session storage, automatic token refresh via middleware, logout, and permission-based route protection. Uniquely uses Laravel's Http facade with raw HTTP calls instead of a PHP SDK — no official Scalekit PHP SDK exists. Use when adding auth controllers, protecting routes with middleware, managing sessions, or checking permissions in a Laravel + Scalekit codebase.
----
+# Laravel Reference
+
 
 # Scalekit Auth — Laravel
 
