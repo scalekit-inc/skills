@@ -1,9 +1,9 @@
 ---
-name: managing-user-sessions
-description: Manages Scalekit-backed user sessions by securely storing access/refresh/ID tokens (with encryption and correct cookie attributes), validating access tokens on every request, transparently refreshing tokens in middleware, and optionally revoking sessions remotely via Scalekit session APIs. Use when building session persistence for only for web apps. For SPAs this is NOT the skill.
+name: managing-saaskit-sessions
+description: Manages Scalekit SaaSKit user sessions by securely storing tokens, validating access tokens on requests, refreshing tokens in middleware, and revoking sessions via Scalekit APIs. Use when building session persistence for web apps or auditing session management.
 ---
 
-# Manage user sessions (Scalekit SaaSKit)
+# SaaSKit Session Management
 
 
 
@@ -348,3 +348,9 @@ await scalekit.session.revokeAllUserSessions("usr_1234567890123456");
 - Refresh token accidentally sent to all endpoints (missing `Path=/auth/refresh`).
 - Middleware refreshes but does not rotate tokens (misses theft detection benefits).
 - SPA stores access token in localStorage (higher XSS risk) when memory storage was feasible.
+
+## When to switch skills
+
+- Use `implementing-saaskit` for the initial auth setup that produces the tokens.
+- Use `implementing-access-control` for RBAC checks on the validated session.
+- Use `production-readiness-saaskit` to audit session security before launch.

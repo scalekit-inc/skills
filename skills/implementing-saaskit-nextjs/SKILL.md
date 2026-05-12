@@ -1,6 +1,6 @@
 ---
-name: implementing-scalekit-nextjs-auth
-description: Implements Scalekit authentication in a Next.js App Router project using the patterns from scalekit-inc/scalekit-nextjs-auth-example. Handles login, OAuth callback, session management, token refresh, logout, and permission-based access control using @scalekit-sdk/node. Use when adding auth routes, protecting pages, managing sessions, or checking permissions in a Next.js + Scalekit codebase.
+name: implementing-saaskit-nextjs
+description: Implements Scalekit SaaSKit authentication in a Next.js App Router project using @scalekit-sdk/node. Use when adding auth routes, protecting pages, managing sessions, or checking permissions in Next.js with Scalekit.
 ---
 
 # Scalekit Auth — Next.js App Router

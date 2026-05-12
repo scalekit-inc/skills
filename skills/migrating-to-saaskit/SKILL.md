@@ -1,6 +1,6 @@
 ---
-name: migrating-to-scalekit-auth
-description: Plans and executes a safe, incremental migration from any existing auth system to Scalekit's full-stack auth platform. Use when the user asks to migrate authentication, replace session middleware, import users/organizations to Scalekit, configure SSO, or set up SCIM provisioning with Scalekit.
+name: migrating-to-saaskit
+description: Plans and executes incremental migration from any existing authentication system (Auth0, Firebase, Cognito, custom) to Scalekit SaaSKit. Use when a user mentions migrating, switching, or moving away from their current auth provider.
 ---
 
 # Scalekit Auth Migration Planner

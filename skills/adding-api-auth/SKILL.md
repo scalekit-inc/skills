@@ -1,11 +1,6 @@
 ---
-name: adding-api-key-auth
-description: >
-  Creates, validates, lists, and revokes long-lived opaque API keys using
-  Scalekit for organization-scoped or user-scoped bearer authentication.
-  Use when adding API key auth to endpoints, building key management UIs,
-  filtering data by org/user context, or revoking compromised credentials.
-  Supports Node.js, Python, Go, and Java SDKs.
+name: adding-api-auth
+description: Implements machine-to-machine authentication using Scalekit — either long-lived opaque API keys (org or user scoped) or OAuth 2.0 client credentials for service-to-service auth. Use when adding API key auth, building key management, or implementing client credentials flows.
 ---
 
 # Adding API Key Auth (Scalekit)
