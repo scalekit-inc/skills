@@ -1,6 +1,6 @@
 ---
 name: scalekit-code-doctor
-description: Use when a user asks to generate, review, validate, or fix any code snippet that uses Scalekit APIs or SDKs. This skill is the single source of truth for Scalekit code correctness — it can generate illustration-quality snippets from scratch (for docs, websites, or integration guides) and review existing code to catch wrong method names, missing parameters, security anti-patterns, and broken auth flows. Covers all four SDKs (Node, Python, Go, Java), raw REST API calls, and all Scalekit product areas (SSO, FSA, Agent Auth, MCP Auth, SCIM). Use when the user says review my Scalekit code, generate a Scalekit example, validate this auth flow, check my SDK usage, fix my Scalekit integration, write a code sample for docs, or anything involving Scalekit code quality.
+description: Use when a user asks to generate, review, validate, or fix any code snippet that uses Scalekit APIs or SDKs. This skill is the single source of truth for Scalekit code correctness — it can generate illustration-quality snippets from scratch (for docs, websites, or integration guides) and review existing code to catch wrong method names, missing parameters, security anti-patterns, and broken auth flows. Covers all four SDKs (Node, Python, Go, Java), raw REST API calls, and both Scalekit product suites — SaaSKit (SSO, login, sessions, RBAC, SCIM) and AgentKit (connections, tool calling, MCP auth). Use when the user says review my Scalekit code, generate a Scalekit example, validate this auth flow, check my SDK usage, fix my Scalekit integration, write a code sample for docs, or anything involving Scalekit code quality.
 ---
 
 # Scalekit Code Doctor
@@ -46,13 +46,25 @@ Before generating or reviewing, identify these three things:
 Next.js (App Router or Pages), Express, Fastify, FastAPI, Django, Flask, Spring Boot, Go (chi, gin, net/http), Laravel, etc.
 
 ### Product area
-- **SSO** — Enterprise single sign-on (SAML, OIDC)
-- **Full-Stack Auth (FSA)** — Login, signup, sessions, RBAC
-- **Agent Auth** — OAuth for AI agents to access third-party services
-- **MCP Auth** — OAuth 2.1 for MCP servers
-- **SCIM** — Directory sync and user provisioning
-- **Admin Portal** — Customer-facing admin configuration
-- **Webhooks** — Event subscriptions and payload verification
+
+Scalekit has two product suites. Identify which one the user's code belongs to:
+
+**SaaSKit** — Full-stack authentication for B2B SaaS apps
+- SSO — Enterprise single sign-on (SAML, OIDC)
+- Login & Sessions — Sign-up, login, logout, session management
+- RBAC — Roles, permissions, access control
+- SCIM — Directory sync and user provisioning
+- Admin Portal — Customer-facing admin configuration
+
+**AgentKit** — Authentication and tool access for AI agents
+- Connections — OAuth token vault for third-party services (connected accounts)
+- Tool Calling — Execute tools via connected accounts
+- MCP Authentication — OAuth 2.1 for MCP servers
+- Framework Integrations — LangChain, Vercel AI, Anthropic, OpenAI, Google ADK, Mastra
+
+**Cross-product**
+- Webhooks — Event subscriptions and payload verification
+- M2M Auth — API keys and client credentials
 
 ---
 
@@ -81,28 +93,28 @@ Cross-reference every SDK call against `references/REFERENCE.md`:
 
 ### Generation patterns by product area
 
-**SSO / FSA login flow** — Always include these components:
+**SaaSKit — Login, SSO, and sessions**
 1. Client initialization (singleton pattern)
 2. Login route: generate auth URL with `state` for CSRF
 3. Callback route: validate `state`, exchange code, store session
 4. Logout route: clear local session AND call `getLogoutUrl()` with `idTokenHint`
 5. Token refresh (if `offline_access` scope is used)
 
-**Agent Auth** — Focus on connected accounts:
+**SaaSKit — SCIM provisioning**
+1. Enable directory for an organization
+2. List directory users and groups
+3. Webhook handler for SCIM events
+
+**AgentKit — Connections and tool calling**
 1. Client initialization
 2. Create/list connected accounts
 3. Execute tools with connected account credentials
 4. Handle token refresh for third-party OAuth tokens
 
-**MCP Auth** — Focus on OAuth 2.1 server protection:
+**AgentKit — MCP Authentication**
 1. MCP server setup with OAuth middleware
 2. Token validation on incoming requests
 3. Scope verification
-
-**SCIM** — Focus on directory sync:
-1. Enable directory for an organization
-2. List directory users and groups
-3. Webhook handler for SCIM events
 
 **Webhooks** — Always include signature verification:
 1. Raw body parsing (not JSON-parsed)
