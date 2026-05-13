@@ -243,4 +243,84 @@ When the user's code makes raw HTTP calls (fetch, axios, requests, http.Client) 
 |----------|-----|-------------|
 | REST API reference | `https://docs.scalekit.com/apis.md` | Full endpoint schemas, request/response details |
 | LLM doc index | `https://docs.scalekit.com/llms.txt` | Find the right docs page for a specific product area |
-| Docs sitemap | `https://docs.scalekit.com/sitemap-0.xml` | Discover specific guide URLs |
+| SaaSKit docs | `https://docs.scalekit.com/_llms-txt/saaskit-complete.txt` | Full SaaSKit reference (users, orgs, sessions, RBAC, SSO, SCIM) |
+| AgentKit docs | `https://docs.scalekit.com/_llms-txt/agentkit.txt` | Full AgentKit reference (agents, OAuth vault, tool calling, connectors) |
+| AgentKit frameworks | `https://docs.scalekit.com/_llms-txt/agentkit-frameworks.txt` | Framework-specific guides (LangChain, Vercel AI, Anthropic, OpenAI, Google ADK, Mastra) |
+| MCP Authentication docs | `https://docs.scalekit.com/_llms-txt/mcp-authentication.txt` | MCP server OAuth 2.1, Dynamic Client Registration |
+
+### GitHub repos — working examples
+
+When generating or reviewing framework-specific code, fetch the matching repo for real, tested patterns. Repos are from `scalekit-inc` and `scalekit-developers` GitHub orgs.
+
+**SaaSKit — Auth examples by framework**
+
+| Framework | Repo | What it shows |
+|-----------|------|---------------|
+| Next.js (App Router) | [scalekit-nextjs-auth-example](https://github.com/scalekit-inc/scalekit-nextjs-auth-example) | SSO, sessions, protected routes, TypeScript |
+| Next.js (Pages) | [nextjs-example-apps](https://github.com/scalekit-inc/nextjs-example-apps) | React SSO integration flows |
+| Next.js + Auth.js | [scalekit-authjs-example](https://github.com/scalekit-developers/scalekit-authjs-example) | Enterprise SSO with next-auth v5 |
+| Express.js | [scalekit-express-auth-example](https://github.com/scalekit-inc/scalekit-express-auth-example) | Node SDK, EJS frontend, sessions |
+| Express.js | [scalekit-express-example](https://github.com/scalekit-developers/scalekit-express-example) | SSO with session management, middleware |
+| FastAPI | [scalekit-fastapi-auth-example](https://github.com/scalekit-inc/scalekit-fastapi-auth-example) | Python SDK, OAuth 2.0, protected routes |
+| FastAPI | [scalekit-fastapi-example](https://github.com/scalekit-developers/scalekit-fastapi-example) | Async auth, Pydantic models |
+| Django | [scalekit-django-auth-example](https://github.com/scalekit-inc/scalekit-django-auth-example) | Python SDK, Django auth integration |
+| Flask | [scalekit-flask-auth-example](https://github.com/scalekit-inc/scalekit-flask-auth-example) | Python SDK, Flask sessions |
+| Spring Boot | [scalekit-springboot-auth-example](https://github.com/scalekit-inc/scalekit-springboot-auth-example) | Java, Spring Security, OIDC |
+| Spring Boot | [scalekit-springboot-example](https://github.com/scalekit-developers/scalekit-springboot-example) | Java SDK, enterprise SSO |
+| Go (Gin) | [scalekit-go-example](https://github.com/scalekit-developers/scalekit-go-example) | Go SDK, Gin framework, SSO |
+| Laravel | [scalekit-laravel-auth-example](https://github.com/scalekit-inc/scalekit-laravel-auth-example) | REST API calls, Laravel HTTPS |
+| Astro | [astro-scalekit-auth-example](https://github.com/scalekit-developers/astro-scalekit-auth-example) | Auth, SSO, social login, protected routes |
+| .NET | [dotnet-example-apps](https://github.com/scalekit-inc/dotnet-example-apps) | ASP.NET Core, SAML/OIDC |
+| Expo (mobile) | [expo-scalekit-sample](https://github.com/scalekit-inc/expo-scalekit-sample) | OAuth 2.0 + PKCE for mobile |
+
+**SaaSKit — Integration examples**
+
+| Integration | Repo | What it shows |
+|-------------|------|---------------|
+| AWS Cognito | [scalekit-cognito-sso](https://github.com/scalekit-inc/scalekit-cognito-sso) | OIDC SSO with Cognito user pools |
+| Firebase | [scalekit-firebase-sso](https://github.com/scalekit-inc/scalekit-firebase-sso) | SAML/OIDC SSO with Firebase Auth |
+| Supabase | [scalekit-supabase-example](https://github.com/scalekit-inc/scalekit-supabase-example) | Supabase + Scalekit auth |
+| Multi-app SSO | [multiapp-demo](https://github.com/scalekit-inc/multiapp-demo) | Seamless SSO across multiple apps |
+| Org switcher | [Nextjs-Django-Org-Switcher-Example](https://github.com/scalekit-inc/Nextjs-Django-Org-Switcher-Example) | Next.js frontend + Django backend, org switching |
+| OIDC/SAML/SCIM | [oidc-saml-scim-examples](https://github.com/scalekit-developers/oidc-saml-scim-examples) | Google, Okta integration patterns |
+| Passwordless | [passwordless-auth-demos](https://github.com/scalekit-developers/passwordless-auth-demos) | Passwordless authentication flows |
+| Managed login | [managed-loginbox-expressjs-demo](https://github.com/scalekit-developers/managed-loginbox-expressjs-demo) | Hosted login UI with Express |
+| Full demo app | [coffee-desk-demo](https://github.com/scalekit-inc/coffee-desk-demo) | Workspace creation, user provisioning, RBAC, SSO |
+
+**AgentKit — Agent and MCP examples**
+
+| Framework / Pattern | Repo | What it shows |
+|---------------------|------|---------------|
+| LangChain | [sample-langchain-agent](https://github.com/scalekit-inc/sample-langchain-agent) | Python LangChain agent with Scalekit auth |
+| Google ADK | [google-adk-agent-example](https://github.com/scalekit-inc/google-adk-agent-example) | Google ADK agent with authenticated tools |
+| Vercel AI SDK | [vercel-ai-agent-toolkit](https://github.com/scalekit-developers/vercel-ai-agent-toolkit) | Vercel AI SDK + Scalekit connectors |
+| Apify Actor | [agentkit-apify-actor-example](https://github.com/scalekit-developers/agentkit-apify-actor-example) | OAuth auth, YouTube → Notion agent |
+| LiteLLM | [litellm-agentkit-inbox-triage](https://github.com/scalekit-developers/litellm-agentkit-inbox-triage) | Inbox triage with Gmail, GitHub, Slack |
+| MCP Auth (multi-framework) | [mcp-auth-demos](https://github.com/scalekit-inc/mcp-auth-demos) | MCP OAuth 2.1 demos |
+| MCP + FastMCP | [fastmcp-scalekit-example](https://github.com/scalekit-inc/fastmcp-scalekit-example) | FastMCP server with Scalekit auth |
+| MCP + BYOA | [byoa-demo-mcp](https://github.com/scalekit-inc/byoa-demo-mcp) | Bring your own auth + MCP |
+| MCP + Coffee Desk | [coffee-desk-mcp](https://github.com/scalekit-inc/coffee-desk-mcp) | Demo MCP server with roles/permissions |
+| Python connections | [python-connect-demos](https://github.com/scalekit-inc/python-connect-demos) | Python connection and identity workflows |
+| Agent auth examples | [agent-auth-examples](https://github.com/scalekit-developers/agent-auth-examples) | Official AgentKit examples collection |
+| Node.js agents | [agent-node-demos](https://github.com/scalekit-inc/agent-node-demos) | TypeScript agent demos |
+| Workflow agents | [workflow-agents-demos](https://github.com/scalekit-developers/workflow-agents-demos) | Multi-step agent workflows |
+| Render deploy kit | [render-ai-agent-deploykit](https://github.com/scalekit-developers/render-ai-agent-deploykit) | Render Workflows + Scalekit + Claude |
+
+**Developer tools**
+
+| Tool | Repo | Purpose |
+|------|------|---------|
+| Dryrun CLI | [scalekit-dryrun](https://github.com/scalekit-inc/scalekit-dryrun) | Test auth flows without writing code |
+| Scalekit MCP server | [scalekit-mcp-server](https://github.com/scalekit-inc/scalekit-mcp-server) | Manage orgs, users, connections via AI assistants |
+| API collections | [api-collections](https://github.com/scalekit-inc/api-collections) | Postman/Bruno collections for Scalekit endpoints |
+| Documentation source | [developer-docs](https://github.com/scalekit-inc/developer-docs) | Docs site source (MDX) |
+
+**Frontend SDKs**
+
+| SDK | Repo | Purpose |
+|-----|------|---------|
+| React SDK | [scalekit-react-sdk](https://github.com/scalekit-inc/scalekit-react-sdk) | React OIDC authentication |
+| Vue SDK | [scalekit-vue-sdk](https://github.com/scalekit-inc/scalekit-vue-sdk) | Vue OIDC authentication |
+| Expo SDK | [scalekit-expo-sdk](https://github.com/scalekit-inc/scalekit-expo-sdk) | Expo/React Native OAuth 2.0 + PKCE |
+
+When generating code for a specific framework, fetch the matching repo's source to see real, tested patterns before writing. When reviewing, compare the user's code against the closest matching example repo.
