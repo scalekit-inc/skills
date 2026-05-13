@@ -166,13 +166,35 @@ If everything is correct, say so explicitly: "This code is correct. All SDK call
 
 ---
 
-## Step 5 — Verify against live docs (when uncertain)
+## Step 5 — Handling SDK updates and unknown methods
 
-If you encounter an SDK method or REST endpoint that isn't in `references/REFERENCE.md`, do NOT guess. Instead:
+The `references/REFERENCE.md` in this skill is a **point-in-time snapshot**. Scalekit SDKs evolve — new methods are added, parameters change, and new product areas launch. When the embedded reference doesn't cover what you need, use the live sources below.
 
-1. Fetch `https://docs.scalekit.com/apis.md` for the full REST API reference
-2. Fetch `https://docs.scalekit.com/llms.txt` to find the right documentation page
-3. State explicitly what you verified and what you couldn't verify
+### When to check live sources
+
+- A method the user wrote isn't in the embedded reference (could be newly added, not a typo)
+- The user asks about a feature you don't recognize (e.g., a new connector, a new auth mode)
+- You're generating code for a product area with sparse coverage in the reference
+- The user explicitly mentions a recent SDK update or version
+
+### How to check: fetch the live SDK REFERENCE.md files
+
+Each SDK repo has a maintained `REFERENCE.md` with full, current method signatures. Fetch the one you need:
+
+| SDK | Live reference URL |
+|-----|-------------------|
+| Node.js | `https://raw.githubusercontent.com/scalekit-inc/scalekit-sdk-node/main/REFERENCE.md` |
+| Python | `https://raw.githubusercontent.com/scalekit-inc/scalekit-sdk-python/main/REFERENCE.md` |
+| Go | `https://raw.githubusercontent.com/scalekit-inc/scalekit-sdk-go/main/REFERENCE.md` |
+| Java | `https://raw.githubusercontent.com/scalekit-inc/scalekit-sdk-java/main/REFERENCE.md` |
+| REST API | `https://docs.scalekit.com/apis.md` |
+
+### Resolution order
+
+1. Check the embedded `references/REFERENCE.md` first (fastest, no network)
+2. If the method isn't there, fetch the live SDK REFERENCE.md from the table above
+3. If still not found, fetch `https://docs.scalekit.com/apis.md` for REST endpoints
+4. If still not found, state explicitly: "This method could not be verified in any Scalekit reference. It may not exist."
 
 Never output code containing an unverified method call.
 
@@ -194,14 +216,19 @@ When the user's code makes raw HTTP calls (fetch, axios, requests, http.Client) 
 
 ## Documentation resources
 
-When you need to look up information beyond the embedded references:
+### Live SDK references (always current — fetch when embedded reference is stale)
+
+| SDK | REFERENCE.md (raw) | Repo |
+|-----|--------------------|----|
+| Node.js | `https://raw.githubusercontent.com/scalekit-inc/scalekit-sdk-node/main/REFERENCE.md` | [scalekit-sdk-node](https://github.com/scalekit-inc/scalekit-sdk-node) |
+| Python | `https://raw.githubusercontent.com/scalekit-inc/scalekit-sdk-python/main/REFERENCE.md` | [scalekit-sdk-python](https://github.com/scalekit-inc/scalekit-sdk-python) |
+| Go | `https://raw.githubusercontent.com/scalekit-inc/scalekit-sdk-go/main/REFERENCE.md` | [scalekit-sdk-go](https://github.com/scalekit-inc/scalekit-sdk-go) |
+| Java | `https://raw.githubusercontent.com/scalekit-inc/scalekit-sdk-java/main/REFERENCE.md` | [scalekit-sdk-java](https://github.com/scalekit-inc/scalekit-sdk-java) |
+
+### Scalekit docs
 
 | Resource | URL | When to use |
 |----------|-----|-------------|
-| API reference (full) | `https://docs.scalekit.com/apis.md` | REST endpoint details, request/response schemas |
+| REST API reference | `https://docs.scalekit.com/apis.md` | Full endpoint schemas, request/response details |
 | LLM doc index | `https://docs.scalekit.com/llms.txt` | Find the right docs page for a specific product area |
 | Docs sitemap | `https://docs.scalekit.com/sitemap-0.xml` | Discover specific guide URLs |
-| Node SDK source | `https://github.com/scalekit-inc/scalekit-sdk-node` | Verify Node method signatures |
-| Python SDK source | `https://github.com/scalekit-inc/scalekit-sdk-python` | Verify Python method signatures |
-| Go SDK source | `https://github.com/scalekit-inc/scalekit-sdk-go` | Verify Go method signatures |
-| Java SDK source | `https://github.com/scalekit-inc/scalekit-sdk-java` | Verify Java method signatures |
