@@ -30,7 +30,7 @@ Copy the `SKILL.md` file from any skill directory into your project's `.cursor/s
 
 ## Skills Catalog
 
-**19 skills** across 3 product categories.
+**18 skills** across 3 product categories.
 
 ### Getting Started
 
@@ -47,7 +47,6 @@ Skills for connecting AI agents to third-party services like Gmail, Slack, and N
 | `integrating-agentkit` | Integrate AgentKit for connections, authorization, tool discovery, and execution |
 | `exposing-agentkit-via-mcp` | Configure AgentKit MCP endpoints for LangChain/LangGraph agents |
 | `discovering-connector-tools` | Discover live tools and inspect input/output schemas for any connector |
-| `testing-agentkit-tools` | Test authorization links, tool metadata, and tool execution live |
 | `sk-actions-custom-provider` | Create custom connectors with OAuth, Basic, Bearer, or API Key auth |
 | `production-readiness-agentkit` | Production readiness checklist for AgentKit implementations |
 
