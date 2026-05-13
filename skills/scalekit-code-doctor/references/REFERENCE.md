@@ -86,6 +86,8 @@ Note: The REST API docs use `SCALEKIT_ENVIRONMENT_URL` in some examples. Both `S
 | `refreshAccessToken` | `(refreshToken: string) → Promise<RefreshTokenResponse>` | New tokens |
 | `verifyWebhookPayload` | `(secret: string, headers: Record<string, string>, payload: string) → boolean` | Boolean |
 | `verifyInterceptorPayload` | `(secret: string, headers: Record<string, string>, payload: string) → boolean` | Boolean |
+| `generateClientToken` | `(clientId: string, clientSecret: string) → Promise<string>` | M2M access token |
+| `getClientAccessToken` | `() → Promise<string>` | M2M access token (uses stored credentials) |
 
 **AuthorizationUrlOptions**: `scopes?: string[]`, `state?: string`, `nonce?: string`, `loginHint?: string`, `domainHint?: string`, `connectionId?: string`, `organizationId?: string`, `provider?: string`, `codeChallenge?: string`, `codeChallengeMethod?: string`, `prompt?: string`
 
@@ -235,7 +237,21 @@ Note: Go methods take `context.Context` as the first parameter for network calls
 
 ### Python sub-clients (accessed via `client.<subclient>.<method>`)
 
-Python follows the same structure but with `snake_case` method names:
+Python uses `snake_case` method names. **Important**: Some Python sub-client names are **plural** while Node uses singular. This is a common source of bugs.
+
+| Node.js | Python | Difference |
+|---------|--------|------------|
+| `client.user` | `client.users` | Plural in Python |
+| `client.role` | `client.roles` | Plural in Python |
+| `client.permission` | `client.permissions` | Plural in Python |
+| `client.session` | `client.sessions` | Plural in Python |
+| `client.organization` | `client.organization` | Same |
+| `client.connection` | `client.connection` | Same |
+| `client.domain` | `client.domain` | Same |
+| `client.directory` | `client.directory` | Same |
+| `client.connectedAccounts` | `client.connected_accounts` | snake_case in Python |
+
+Methods:
 - `client.organization.create_organization(organization)`
 - `client.organization.get_organization(organization_id)`
 - `client.organization.list_organizations(page_size, page_token?)`
@@ -253,21 +269,28 @@ Python follows the same structure but with `snake_case` method names:
 - `client.directory.get_directory(organization_id, directory_id)`
 - `client.directory.list_directory_users(organization_id, directory_id, options?)`
 - `client.directory.list_directory_groups(organization_id, directory_id, options?)`
-- `client.user.create_user(organization_id, user)`
-- `client.user.get_user(user_id)`
-- `client.user.list_users(options?)`
-- `client.user.update_user(user_id, user)`
-- `client.user.delete_user(user_id)`
-- `client.role.create_role(role)`
-- `client.role.list_roles(options?)`
-- `client.role.update_role(role_id, role)`
-- `client.role.delete_role(role_id)`
-- `client.permission.create_permission(permission)`
-- `client.permission.list_permissions(options?)`
-- `client.session.get_session(session_id)`
-- `client.session.get_user_sessions(user_id, options?)`
-- `client.session.revoke_session(session_id)`
-- `client.session.revoke_all_user_sessions(user_id)`
+- `client.users.create_user(organization_id, user)`
+- `client.users.get_user(user_id)`
+- `client.users.list_users(options?)`
+- `client.users.update_user(user_id, user)`
+- `client.users.delete_user(user_id)`
+- `client.roles.create_role(role)`
+- `client.roles.list_roles(options?)`
+- `client.roles.update_role(role_id, role)`
+- `client.roles.delete_role(role_id)`
+- `client.permissions.create_permission(permission)`
+- `client.permissions.list_permissions(options?)`
+- `client.sessions.get_session(session_id)`
+- `client.sessions.get_user_sessions(user_id, options?)`
+- `client.sessions.revoke_session(session_id)`
+- `client.sessions.revoke_all_user_sessions(user_id)`
+
+Additional Python-only methods on client:
+- `client.validate_access_token_and_get_claims(token, options?) → dict` — validates and returns decoded claims
+- `client.verify_scopes(token, required_scopes) → bool` — checks scopes, raises on missing
+- `client.generate_client_token(client_id, client_secret, scopes?) → str` — M2M token generation
+- `client.get_client_access_token() → str` — M2M token using stored credentials
+- `client.verify_interceptor_payload(secret, headers, payload) → bool` — interceptor signature verification
 
 Note: Python connection/domain/directory methods often require `organization_id` as the first parameter, unlike Node which uses option objects.
 

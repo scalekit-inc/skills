@@ -1,6 +1,6 @@
 # Common Mistakes in Scalekit Code
 
-This file catalogs known anti-patterns, hallucinated methods, and security issues found in Scalekit integrations. Each entry shows the wrong pattern and the correct fix. Use this as a lookup during both generation and review.
+This file catalogs known anti-patterns, hallucinated methods, and security issues found in Scalekit integrations. Each entry shows the wrong pattern and the correct fix. Use this as a lookup during both generation and review. 10 categories.
 
 ---
 
@@ -10,18 +10,19 @@ This file catalogs known anti-patterns, hallucinated methods, and security issue
 
 **Wrong:**
 ```typescript
-import ScalekitClient from '@scalekit-sdk/node';        // default import
-import { ScalekitClient } from 'scalekit';               // wrong package
-import { ScalekitClient } from 'scalekit-sdk-node';      // wrong package
-import { Scalekit } from '@scalekit-sdk/node';            // wrong export name
+import ScalekitClient from '@scalekit-sdk/node';        // default import — use named import
+import { ScalekitClient } from 'scalekit';               // wrong package name
+import { ScalekitClient } from 'scalekit-sdk-node';      // wrong package name
 ```
 
-**Correct:**
+**Correct (either works):**
 ```typescript
 import { ScalekitClient } from '@scalekit-sdk/node';
+// OR
+import { Scalekit } from '@scalekit-sdk/node';  // official alias, also valid
 ```
 
-Note: The REST API docs show `import { Scalekit } from "@scalekit-sdk/node"` — this is an alias that also works, but `ScalekitClient` is the canonical export used in the SDK source and REFERENCE.md.
+Both `ScalekitClient` and `Scalekit` are valid named exports from `@scalekit-sdk/node`. The SDK source exports both. Use whichever is consistent with your codebase.
 
 ### Python
 
@@ -67,7 +68,36 @@ import com.scalekit.ScalekitClient;
 
 ---
 
-## 2. Wrong Method Names
+## 2. Wrong Sub-Client Names (Python vs Node)
+
+Python and Node use different pluralization for some sub-clients. Using the wrong one causes `AttributeError` in Python or `TypeError` in Node.
+
+| Sub-client | Node.js (singular) | Python (plural) |
+|------------|--------------------|--------------------|
+| Users | `client.user.getUser(...)` | `client.users.get_user(...)` |
+| Roles | `client.role.listRoles(...)` | `client.roles.list_roles(...)` |
+| Permissions | `client.permission.listPermissions(...)` | `client.permissions.list_permissions(...)` |
+| Sessions | `client.session.getSession(...)` | `client.sessions.get_session(...)` |
+
+Sub-clients that are the SAME in both: `organization`, `connection`, `domain`, `directory`.
+
+**Wrong (Python):**
+```python
+client.user.get_user(user_id)          # AttributeError: 'ScalekitClient' has no attribute 'user'
+client.role.list_roles()               # AttributeError
+client.session.revoke_session(sid)     # AttributeError
+```
+
+**Correct (Python):**
+```python
+client.users.get_user(user_id)
+client.roles.list_roles()
+client.sessions.revoke_session(sid)
+```
+
+---
+
+## 3. Wrong Method Names
 
 ### Node.js
 
@@ -109,7 +139,7 @@ import com.scalekit.ScalekitClient;
 
 ---
 
-## 3. Missing Required Parameters
+## 4. Missing Required Parameters
 
 ### `authenticateWithCode` — missing `redirectUri`
 
@@ -158,7 +188,7 @@ All Go network methods require `context.Context` as the first parameter.
 
 ---
 
-## 4. Auth Flow Gaps
+## 5. Auth Flow Gaps
 
 ### Missing callback handler
 
@@ -243,7 +273,7 @@ app.get('/auth/callback', async (req, res) => {
 
 ---
 
-## 5. Security Anti-Patterns
+## 6. Security Anti-Patterns
 
 ### `sameSite: 'strict'` on session cookies
 
@@ -360,7 +390,7 @@ OAuth redirects are full HTTP redirects to an external domain (Scalekit/IdP). Cl
 
 ---
 
-## 6. Environment Variable Mistakes
+## 7. Environment Variable Mistakes
 
 | Wrong | Correct | Issue |
 |-------|---------|-------|
@@ -373,7 +403,7 @@ OAuth redirects are full HTTP redirects to an external domain (Scalekit/IdP). Cl
 
 ---
 
-## 7. Client Instantiation Mistakes
+## 8. Client Instantiation Mistakes
 
 ### Creating a new client per request
 
@@ -404,7 +434,7 @@ The client manages its own token lifecycle and connection pooling. Creating it p
 
 ---
 
-## 8. Token Refresh Race Conditions
+## 9. Token Refresh Race Conditions
 
 When multiple browser tabs trigger token refresh simultaneously, the second request often fails because the first one already consumed the refresh token.
 
@@ -429,7 +459,7 @@ async function refreshToken(session) {
 
 ---
 
-## 9. Missing Scopes
+## 10. Missing Scopes
 
 ### Refresh tokens require `offline_access` scope
 
