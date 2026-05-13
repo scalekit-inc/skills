@@ -31,10 +31,13 @@ skills/
 └── scalekit-logo.svg
 ```
 
-## Skill inventory (18 skills)
+## Skill inventory (19 skills)
 
 ### Getting Started (1)
 - `setup-scalekit` — guided onboarding
+
+### Developer Tools (1)
+- `scalekit-code-doctor` — generate and review Scalekit code with verified SDK signatures
 
 ### AgentKit (5)
 - `integrating-agentkit` — core integration

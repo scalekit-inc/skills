@@ -30,13 +30,21 @@ Copy the `SKILL.md` file from any skill directory into your project's `.cursor/s
 
 ## Skills Catalog
 
-**18 skills** across 3 product categories.
+**19 skills** across 4 product categories.
 
 ### Getting Started
 
 | Skill | Description |
 |-------|-------------|
 | `setup-scalekit` | Guided setup — detects your AI coding tool and walks through plugin installation and auth type selection |
+
+### Developer Tools
+
+Cross-cutting skills that work across all Scalekit product areas.
+
+| Skill | Description |
+|-------|-------------|
+| `scalekit-code-doctor` | Generate illustration-quality code snippets and review existing Scalekit integrations — validates SDK usage, auth flows, security, and config across Node, Python, Go, Java, and REST API |
 
 ### AgentKit
 
