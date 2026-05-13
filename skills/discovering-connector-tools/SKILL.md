@@ -104,5 +104,5 @@ Use `connector` in explanations. Only use `provider` when the SDK or API filter 
 ## When to switch skills
 
 - Use `integrating-agentkit` for the full integration workflow (create account, authorize, execute).
-- Use `testing-agentkit-tools` to validate a tool call live.
+- Use the Scalekit MCP server (`https://mcp.scalekit.com`) to validate a tool call interactively.
 - Use `exposing-agentkit-via-mcp` to expose discovered tools over MCP.

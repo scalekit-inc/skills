@@ -168,4 +168,4 @@ Full working example: [github.com/scalekit-inc/python-connect-demos/tree/main/mc
 
 - Use `integrating-agentkit` for direct SDK integration without MCP.
 - Use `discovering-connector-tools` when the user needs the current tool catalog or schema.
-- Use `testing-agentkit-tools` when the user wants to validate a tool call live.
+- Use the Scalekit MCP server (`https://mcp.scalekit.com`) to validate a tool call interactively.
