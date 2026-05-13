@@ -373,6 +373,8 @@ Base URL: `https://<subdomain>.scalekit.com` (production) or `https://<subdomain
 
 Authentication: Bearer token from `POST /oauth/token` with `client_credentials` grant.
 
+Endpoints are grouped by product suite: **SaaSKit** (authentication, SSO, SCIM, RBAC, sessions) and **AgentKit** (connections, tool calling, MCP auth).
+
 ### Token endpoint
 ```
 POST /oauth/token
@@ -381,7 +383,7 @@ Content-Type: application/x-www-form-urlencoded
 client_id={client_id}&client_secret={client_secret}&grant_type=client_credentials
 ```
 
-### Connected Accounts
+### AgentKit — Connected Accounts
 | Method | Path | Description |
 |--------|------|-------------|
 | GET | `/api/v1/connected_accounts` | List connected accounts |
@@ -393,12 +395,12 @@ client_id={client_id}&client_secret={client_secret}&grant_type=client_credential
 | POST | `/api/v1/connected_accounts/magic_link` | Generate authentication magic link |
 | POST | `/api/v1/connected_accounts/user/verify` | Verify connected account user |
 
-### Connections
+### SaaSKit — Connections (SSO)
 | Method | Path | Description |
 |--------|------|-------------|
 | GET | `/api/v1/connections` | List connections |
 
-### Organizations
+### SaaSKit — Organizations
 | Method | Path | Description |
 |--------|------|-------------|
 | GET | `/api/v1/organizations` | List organizations |
@@ -409,7 +411,7 @@ client_id={client_id}&client_secret={client_secret}&grant_type=client_credential
 | PUT | `/api/v1/organizations/{id}/portal_links` | Generate admin portal link |
 | PATCH | `/api/v1/organizations/{id}/settings` | Toggle organization settings |
 
-### Roles
+### SaaSKit — Roles
 | Method | Path | Description |
 |--------|------|-------------|
 | GET | `/api/v1/organizations/{org_id}/roles` | List organization roles |
@@ -419,7 +421,7 @@ client_id={client_id}&client_secret={client_secret}&grant_type=client_credential
 | DELETE | `/api/v1/organizations/{org_id}/roles/{role_name}` | Delete role |
 | PATCH | `/api/v1/organizations/{org_id}/roles:set_defaults` | Set default roles |
 
-### Users & Memberships
+### SaaSKit — Users & Memberships
 | Method | Path | Description |
 |--------|------|-------------|
 | GET | `/api/v1/users` | List users |
@@ -435,19 +437,19 @@ client_id={client_id}&client_secret={client_secret}&grant_type=client_credential
 | PATCH | `/api/v1/memberships/organizations/{organization_id}/users/{id}` | Update membership |
 | PATCH | `/api/v1/invites/organizations/{organization_id}/users/{id}/resend` | Resend invitation |
 
-### Sessions
+### SaaSKit — Sessions
 | Method | Path | Description |
 |--------|------|-------------|
 | GET | `/api/v1/users/{user_id}/sessions` | Get user sessions |
 | POST | `/api/v1/users/{user_id}/sessions:revoke_all` | Revoke all user sessions |
 | POST | `/api/v1/sessions/{session_id}:revoke` | Revoke a session |
 
-### Tools
+### AgentKit — Tools
 | Method | Path | Description |
 |--------|------|-------------|
 | POST | `/api/v1/execute_tool` | Execute a tool using a connected account |
 
-### Organization API Clients (M2M)
+### SaaSKit — Organization API Clients (M2M)
 | Method | Path | Description |
 |--------|------|-------------|
 | GET | `/api/v1/organizations/{organization_id}/clients` | List org API clients |
