@@ -6,7 +6,7 @@ Use THIS skill when:
 - You're adding MCP to an existing FastAPI application
 - You need more control over request handling than FastMCP's built-in ScalekitProvider offers
 
-Use the `mcp-auth-fastmcp-scalekit` skill instead when:
+Use the [fastmcp-reference.md](fastmcp-reference.md) approach instead when:
 - You're building a standalone MCP server and don't need FastAPI-specific features
 - You want the simplest possible setup (5-line auth config)
 

@@ -295,7 +295,7 @@ except Exception:
 
 ### Verify your integration
 
-Before testing with AI hosts, Claude Code will scan your project to determine
+Before testing with AI hosts, the coding agent will scan your project to determine
 the right URL to verify against. It will look for:
 
 - `RESOURCE_ID` or `resource` values in your code or `.env`
