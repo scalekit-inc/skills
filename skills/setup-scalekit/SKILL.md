@@ -21,11 +21,8 @@ Review the table below and select the plugin that matches what you're building:
 
 | Plugin name | When to use |
 |-------------|-------------|
-| `agent-auth` | AI agent needs OAuth access to third-party services (Gmail, Slack, Notion, etc.) — **AgentKit** |
-| `full-stack-auth` | Web app needs login, signup, sessions, and RBAC — **SaaSKit** |
-| `mcp-auth` | Building an MCP server that needs OAuth 2.1 to secure its tools — **SaaSKit** |
-| `modular-sso` | Adding enterprise SSO to an existing app without replacing its auth — **SaaSKit** |
-| `modular-scim` | Automated user provisioning and deprovisioning via directory sync — **SaaSKit** |
+| `agentkit` | AI agent needs OAuth access to third-party services (Gmail, Slack, Notion, etc.) — connections, tool discovery, token vault |
+| `saaskit` | Web app needs login, sessions, SSO, SCIM, MCP server auth, RBAC, or API keys — covers all application-level auth |
 
 You'll use this plugin name in the install commands in the next step.
 
@@ -58,12 +55,9 @@ Run these commands inside Claude Code (the REPL prompt, not the terminal):
 ```
 /plugin marketplace add scalekit-inc/claude-code-authstack
 
-# Pick one based on your auth needs:
-/plugin install agent-auth@scalekit-auth-stack
-/plugin install full-stack-auth@scalekit-auth-stack
-/plugin install mcp-auth@scalekit-auth-stack
-/plugin install modular-sso@scalekit-auth-stack
-/plugin install modular-scim@scalekit-auth-stack
+# Install based on your auth needs:
+/plugin install agentkit@scalekit-auth-stack
+/plugin install saaskit@scalekit-auth-stack
 ```
 
 After running the commands, restart Claude Code for the plugin to take effect.
@@ -77,12 +71,9 @@ Run these commands in your terminal:
 ```bash
 copilot plugin marketplace add scalekit-inc/github-copilot-authstack
 
-# Pick one based on your auth needs:
-copilot plugin install agent-auth@scalekit-auth-stack
-copilot plugin install full-stack-auth@scalekit-auth-stack
-copilot plugin install mcp-auth@scalekit-auth-stack
-copilot plugin install modular-sso@scalekit-auth-stack
-copilot plugin install modular-scim@scalekit-auth-stack
+# Install based on your auth needs:
+copilot plugin install agentkit@github-copilot-authstack
+copilot plugin install saaskit@github-copilot-authstack
 ```
 
 After running the commands, the plugin will be installed and ready to use.
