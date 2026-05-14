@@ -78,7 +78,7 @@ scalekit_client = ScalekitClient(
 )
 ```
 
-For Go and Java patterns, see [REFERENCE.md](REFERENCE.md).
+For Go and Java patterns, see the [Scalekit SDK documentation](https://docs.scalekit.com/apis).
 
 ---
 
@@ -166,7 +166,7 @@ async def scalekit_webhook(request: Request):
     return JSONResponse(status_code=201, content={"status": "processed"})
 ```
 
-For Go and Java, see [REFERENCE.md](REFERENCE.md).
+For Go and Java, see the [Scalekit SDK documentation](https://docs.scalekit.com/apis).
 
 ---
 
@@ -223,8 +223,69 @@ After deploying the webhook endpoint:
 
 ---
 
-## Reference files
+## Customer self-serve SCIM setup (admin portal)
 
-- Full Go/Java SDK examples → [REFERENCE.md](REFERENCE.md)
-- Webhook event payload schemas → [EVENTS.md](EVENTS.md)
-- RBAC group-to-role mapping patterns → [RBAC.md](RBAC.md)
+Let enterprise customers configure their own directory sync via an embedded portal — no support tickets needed.
+
+### Generate portal link (server-side)
+
+Generate a new link on every page load — links are single-use.
+
+**Node.js:**
+```javascript
+const { location } = await scalekit.organization.generatePortalLink(organizationId);
+// Pass `location` to the frontend as a template variable or API response
+```
+
+**Python:**
+```python
+portal = scalekit_client.organization.generate_portal_link(organization_id)
+location = portal.location
+# Pass `location` to your template or JSON response
+```
+
+### Embed the portal (client-side)
+
+```html
+<iframe
+  src="{{ portalLink }}"
+  width="100%"
+  height="600px"
+  frameborder="0"
+  allow="clipboard-write"
+></iframe>
+```
+
+**Required**: Register your app domain in **Dashboard > Developers > API Configuration > Redirect URIs** or the iframe will be blocked.
+
+### Handle portal events
+
+```javascript
+window.addEventListener('message', (event) => {
+  if (event.origin !== process.env.SCALEKIT_ENVIRONMENT_URL) return;
+  const { type } = event.data;
+  switch (type) {
+    case 'SCIM_CONFIGURED':
+      // Refresh org SCIM status, show success banner
+      break;
+    case 'SESSION_EXPIRED':
+      // Re-fetch a new portal link and reload the iframe src
+      reloadPortalIframe();
+      break;
+  }
+});
+```
+
+`SESSION_EXPIRED` handling is required — without it the portal silently breaks for long-lived sessions.
+
+### Shareable link (no-code alternative)
+
+For one-time onboarding: **Dashboard > Organizations** → select org → **Generate link** → share URL directly. Also share Scalekit's [SCIM setup guides](https://docs.scalekit.com/guides/integrations/scim-integrations/) so the IT admin has provider-specific directory sync steps.
+
+---
+
+## Reference
+
+- Full Go/Java SDK examples → [Scalekit SDK documentation](https://docs.scalekit.com/apis)
+- Webhook event payload schemas → [Scalekit webhook events](https://docs.scalekit.com/directory/scim/quickstart/)
+- RBAC group-to-role mapping patterns → [Role based access control](https://docs.scalekit.com/authenticate/fsa/rbac/)

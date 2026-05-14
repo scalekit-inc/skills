@@ -30,7 +30,7 @@ Copy the `SKILL.md` file from any skill directory into your project's `.cursor/s
 
 ## Skills Catalog
 
-**35 skills** across 5 product categories.
+**19 skills** across 4 product categories.
 
 ### Getting Started
 
@@ -38,79 +38,44 @@ Copy the `SKILL.md` file from any skill directory into your project's `.cursor/s
 |-------|-------------|
 | `setup-scalekit` | Guided setup — detects your AI coding tool and walks through plugin installation and auth type selection |
 
-### Agent Auth
+### Developer Tools
 
-Skills for adding OAuth-based agent authentication — connect AI agents to third-party services like Gmail, Slack, and Notion.
-
-| Skill | Description |
-|-------|-------------|
-| `integrating-agent-auth` | Integrate Scalekit Agent Auth for OAuth flows, token storage, and token refresh |
-| `building-agent-mcp-server` | Create MCP servers with authenticated tool access for LangChain/LangGraph agents |
-| `sk-actions-custom-provider` | Create custom Scalekit providers/connectors with OAuth, Basic, Bearer, or API Key auth |
-| `production-readiness-agent-auth` | Production readiness checklist for agent authentication |
-
-### Full-Stack Auth
-
-Skills for implementing complete authentication flows — login, signup, sessions, RBAC, and framework-specific integrations.
+Cross-cutting skills that work across all Scalekit product areas.
 
 | Skill | Description |
 |-------|-------------|
-| `implementing-scalekit-fsa` | Implement Scalekit FSA with sign-up, login, logout, and JWT session management |
-| `implementing-fsa-logout` | Complete logout flow clearing session cookies and invalidating sessions |
-| `managing-user-sessions` | Secure token storage, validation, and transparent token refresh in middleware |
-| `implementing-access-control` | Server-side RBAC with role/permission validation at route boundaries |
-| `implementing-admin-portal` | Admin portal for customer self-serve SSO and SCIM configuration |
-| `adding-api-key-auth` | Create, validate, list, and revoke long-lived API keys for bearer auth |
-| `adding-oauth2-to-apis` | OAuth 2.0 client-credentials authentication on API endpoints |
-| `migrating-to-scalekit-auth` | Incremental migration from existing auth systems to Scalekit |
-| `production-readiness-full-stack-auth` | Production readiness checklist for full-stack authentication |
+| `scalekit-code-doctor` | Generate illustration-quality code snippets and review existing Scalekit integrations — validates SDK usage, auth flows, security, and config across Node, Python, Go, Java, and REST API |
 
-**Framework guides:**
+### AgentKit
 
-| Skill | Framework |
-|-------|-----------|
-| `implementing-scalekit-nextjs-auth` | Next.js (App Router) |
-| `implementing-scalekit-django-auth` | Django |
-| `implementing-scalekit-fastapi-auth` | FastAPI |
-| `implementing-scalekit-flask-auth` | Flask |
-| `implementing-scalekit-go-auth` | Go (Gin) |
-| `implementing-scalekit-laravel-auth` | Laravel |
-| `implementing-scalekit-springboot-auth` | Spring Boot 3.x |
-
-### MCP Auth
-
-Skills for securing MCP (Model Context Protocol) servers with OAuth 2.1 — protect tools that Claude Desktop, Cursor, and VS Code connect to.
+Skills for connecting AI agents to third-party services like Gmail, Slack, and Notion via [AgentKit](https://docs.scalekit.com/agentkit/quickstart/).
 
 | Skill | Description |
 |-------|-------------|
-| `adding-mcp-oauth` | Add OAuth 2.1 to MCP servers for Claude Desktop, Cursor, and VS Code |
-| `mcp-oauth-fastmcp` | OAuth 2.1 authorization for FastMCP servers using Scalekit provider |
-| `mcp-oauth21-scalekit` | Production OAuth 2.1 with .well-known discovery and Bearer token validation |
-| `mcp-auth-expressjs-scalekit` | Scalekit OAuth in Express.js MCP server with middleware and transport |
-| `mcp-auth-fastapi-fastmcp-scalekit` | Scalekit OAuth in FastAPI+FastMCP with middleware-level token validation |
-| `mcp-auth-fastmcp-scalekit` | Scalekit OAuth in FastMCP with per-tool scope checks |
-| `express-mcp-server` | Build an MCP server using Express.js, TypeScript, and OAuth 2.1 |
-| `fastapi-fastmcp` | Build an MCP server using FastAPI, FastMCP, and OAuth 2.1 |
-| `production-readiness-mcp-auth` | Production readiness checklist for MCP authentication |
+| `integrating-agentkit` | Integrate AgentKit for connections, authorization, tool discovery, and execution |
+| `exposing-agentkit-via-mcp` | Configure AgentKit MCP endpoints for LangChain/LangGraph agents |
+| `discovering-connector-tools` | Discover live tools and inspect input/output schemas for any connector |
+| `sk-actions-custom-provider` | Create custom connectors with OAuth, Basic, Bearer, or API Key auth |
+| `production-readiness-agentkit` | Production readiness checklist for AgentKit implementations |
 
-### Modular SSO
+### SaaSKit
 
-Skills for adding enterprise SSO to existing applications without replacing your auth system.
+Skills for implementing authentication, SSO, SCIM, MCP server auth, and RBAC via [SaaSKit](https://docs.scalekit.com/authenticate/fsa/quickstart/).
 
 | Skill | Description |
 |-------|-------------|
-| `modular-sso` | Complete SSO/auth flows with IdP-initiated login and session management |
-| `production-readiness-sso` | Production readiness checklist for SSO implementations |
-
-### Modular SCIM
-
-Skills for implementing SCIM directory sync — automated user provisioning and deprovisioning.
-
-| Skill | Description |
-|-------|-------------|
+| `implementing-saaskit` | SaaSKit auth (sign-up, login, logout, sessions) across Node.js, Python, Go, Java |
+| `implementing-saaskit-nextjs` | SaaSKit auth in Next.js App Router with @scalekit-sdk/node |
+| `implementing-saaskit-python` | SaaSKit auth in Django, FastAPI, or Flask with scalekit-sdk-python |
+| `implementing-modular-sso` | Enterprise SSO (SAML/OIDC), IdP-initiated login, and admin portal |
 | `implementing-scim-provisioning` | SCIM user provisioning using Scalekit Directory API and webhooks |
-| `implementing-admin-portal-scim` | Admin portal for customer self-serve SCIM and SSO configuration |
-| `production-readiness-scim` | Production readiness checklist for SCIM provisioning |
+| `implementing-access-control` | Server-side RBAC with role/permission validation at route boundaries |
+| `managing-saaskit-sessions` | Token storage, validation, refresh middleware, and session revocation |
+| `adding-mcp-oauth` | OAuth 2.1 authorization for MCP servers (Express, FastAPI, FastMCP) |
+| `adding-api-auth` | API keys (org/user scoped) and OAuth 2.0 client credentials for M2M auth |
+| `migrating-to-saaskit` | Incremental migration from existing auth systems to SaaSKit |
+| `testing-auth-setup` | Validate auth integration via the dryrun CLI |
+| `production-readiness-saaskit` | Unified production readiness checklist (auth, SSO, SCIM, MCP, RBAC) |
 
 ## Skill Structure
 

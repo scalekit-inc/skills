@@ -21,11 +21,8 @@ Review the table below and select the plugin that matches what you're building:
 
 | Plugin name | When to use |
 |-------------|-------------|
-| `agent-auth` | AI agent needs OAuth access to third-party services (Gmail, Slack, Notion, etc.) |
-| `full-stack-auth` | Web app needs login, signup, sessions, and RBAC |
-| `mcp-auth` | Building an MCP server that needs OAuth 2.1 to secure its tools |
-| `modular-sso` | Adding enterprise SSO to an existing app without replacing its auth |
-| `modular-scim` | Automated user provisioning and deprovisioning via directory sync |
+| `agentkit` | AI agent needs OAuth access to third-party services (Gmail, Slack, Notion, etc.) — connections, tool discovery, token vault |
+| `saaskit` | Web app needs login, sessions, SSO, SCIM, MCP server auth, RBAC, or API keys — covers all application-level auth |
 
 You'll use this plugin name in the install commands in the next step.
 
@@ -58,12 +55,9 @@ Run these commands inside Claude Code (the REPL prompt, not the terminal):
 ```
 /plugin marketplace add scalekit-inc/claude-code-authstack
 
-# Pick one based on your auth needs:
-/plugin install agent-auth@scalekit-auth-stack
-/plugin install full-stack-auth@scalekit-auth-stack
-/plugin install mcp-auth@scalekit-auth-stack
-/plugin install modular-sso@scalekit-auth-stack
-/plugin install modular-scim@scalekit-auth-stack
+# Install based on your auth needs:
+/plugin install agentkit@scalekit-auth-stack
+/plugin install saaskit@scalekit-auth-stack
 ```
 
 After running the commands, restart Claude Code for the plugin to take effect.
@@ -77,12 +71,9 @@ Run these commands in your terminal:
 ```bash
 copilot plugin marketplace add scalekit-inc/github-copilot-authstack
 
-# Pick one based on your auth needs:
-copilot plugin install agent-auth@scalekit-auth-stack
-copilot plugin install full-stack-auth@scalekit-auth-stack
-copilot plugin install mcp-auth@scalekit-auth-stack
-copilot plugin install modular-sso@scalekit-auth-stack
-copilot plugin install modular-scim@scalekit-auth-stack
+# Install based on your auth needs:
+copilot plugin install agentkit@github-copilot-authstack
+copilot plugin install saaskit@github-copilot-authstack
 ```
 
 After running the commands, the plugin will be installed and ready to use.
@@ -137,10 +128,10 @@ npx skills add scalekit-inc/skills --list
 Then pick one based on your auth type and run the install command:
 
 ```bash
-npx skills add scalekit-inc/skills --skill integrating-agent-auth
-npx skills add scalekit-inc/skills --skill implementing-scalekit-fsa
+npx skills add scalekit-inc/skills --skill integrating-agentkit
+npx skills add scalekit-inc/skills --skill implementing-saaskit
 npx skills add scalekit-inc/skills --skill adding-mcp-oauth
-npx skills add scalekit-inc/skills --skill modular-sso
+npx skills add scalekit-inc/skills --skill implementing-modular-sso
 npx skills add scalekit-inc/skills --skill implementing-scim-provisioning
 ```
 
@@ -173,7 +164,7 @@ You can fetch these resources to learn more about Scalekit:
 
 | Resource | URL | When to use |
 |----------|-----|-------------|
-| **LLM doc index** | `https://docs.scalekit.com/llms.txt` | Start here — maps each Scalekit product (Agent Auth, MCP, FSA, SSO, SCIM) to its documentation set. Fetch this to understand which docs apply to your auth type before implementing. |
+| **LLM doc index** | `https://docs.scalekit.com/llms.txt` | Start here — maps each Scalekit product (AgentKit, MCP Auth, SaaSKit/FSA, SSO, SCIM) to its documentation set. Fetch this to understand which docs apply to your auth type before implementing. |
 | **API reference** | `https://docs.scalekit.com/apis.md` | Full REST API reference in Markdown (generated from OpenAPI spec). Covers Connected Accounts, Connections, Organizations, Users, Tool Execution, Admin Portal endpoints with request/response schemas. |
 | **Docs sitemap** | `https://docs.scalekit.com/sitemap-0.xml` | Complete index of all documentation pages. Use to discover specific guides (e.g. a framework integration, provider setup, or troubleshooting page) when you need a URL you don't have. |
 
