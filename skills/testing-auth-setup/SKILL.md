@@ -16,7 +16,13 @@ Runs the Scalekit dryrun CLI to validate that your auth integration is correctly
 
 ## Prerequisites
 
-Before running, confirm these environment variables are available:
+Install the Scalekit CLI globally if not already available:
+
+```bash
+npm i -g @scalekit-inc/cli
+```
+
+Confirm these environment variables are available:
 
 - `SCALEKIT_ENV_URL` — your Scalekit environment URL
 - `SCALEKIT_CLIENT_ID` — your client ID from app.scalekit.com > Settings

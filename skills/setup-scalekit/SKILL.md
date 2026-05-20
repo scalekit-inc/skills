@@ -15,7 +15,17 @@ Then find the matching section below for your tool.
 
 ---
 
-## Step 2 — Choose your auth plugin
+## Step 2 — Install the Scalekit CLI
+
+Install the Scalekit CLI globally — it provides commands for managing environments, organizations, and auth configurations from the terminal:
+
+```bash
+npm i -g @scalekit-inc/cli
+```
+
+---
+
+## Step 3 — Choose your auth plugin
 
 Review the table below and select the plugin that matches what you're building:
 
@@ -145,7 +155,7 @@ Run the command that matches your needs in your terminal.
 
 ---
 
-## Step 3 — Start implementing
+## Step 4 — Start implementing
 
 Once you've installed the plugin or skill, you can start implementing. Describe your goal in natural language and the AI assistant will guide you through the process:
 
