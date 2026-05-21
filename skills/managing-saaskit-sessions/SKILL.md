@@ -1,16 +1,9 @@
 ---
 name: managing-saaskit-sessions
-description: Manages Scalekit SaaSKit user sessions by securely storing tokens, validating access tokens on requests, refreshing tokens in middleware, and revoking sessions via Scalekit APIs. Use when building session persistence for web apps or auditing session management.
+description: Manages Scalekit SaaSKit user sessions by securely storing tokens, validating access tokens on requests, refreshing tokens in middleware, and revoking sessions via Scalekit APIs. Use when building session persistence, implementing login/logout, managing cookies, handling JWT tokens, fixing session expiry, or auditing session security in a Scalekit web app.
 ---
 
 # SaaSKit Session Management
-
-
-
-## What “session management” means here
-After successful authentication, the app receives session tokens (typically access + refresh, and sometimes an ID token) that determine how long the user stays signed in and whether refresh can happen without re-authentication.
-
-This skill implements a secure default for traditional web apps (encrypted HttpOnly cookies) and also supports SPA/mobile patterns (access token in memory + `Authorization: Bearer` headers).
 
 ## Inputs to collect (ask before coding)
 - App type: traditional server-rendered web app, SPA, mobile app, or hybrid.

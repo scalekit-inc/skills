@@ -9,16 +9,6 @@ Use live AgentKit metadata as the source of truth for tool names, required input
 
 Do not rely on static connector notes as a complete catalog. Those may lag the live platform.
 
-## When to use this skill
-
-Use this skill when the user asks:
-
-- what tools exist for a connector
-- which tool should the agent use
-- what inputs a tool requires
-- what output shape a tool returns
-- how to reduce the tool set before giving tools to an LLM
-
 ## Discovery workflow
 
 1. Identify the target connector or exact tool name.
@@ -89,11 +79,13 @@ const tool = await client.actions.getTools({ toolName: 'gmail_fetch_mails' });
 
 Use `connector` in explanations. Only use `provider` when the SDK or API filter field literally expects that name.
 
-## What to emphasize
+## Key rules
 
-- `connection_name` is the exact dashboard value and may not equal the connector slug.
-- Tool metadata is the durable way to determine current inputs and outputs.
-- Restrict the tool set before handing it to an LLM. Fewer relevant tools improve tool selection and parameter filling.
+- `connection_name` is the exact dashboard value — may not equal the connector slug
+- Always use live tool metadata, not static docs
+- Restrict the tool set before handing to an LLM — fewer relevant tools improve selection accuracy
+
+**If `get_tools` returns empty:** verify the connector is configured in the dashboard and the connection name matches exactly.
 
 ## Deep reference
 

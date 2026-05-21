@@ -1,6 +1,6 @@
 ---
 name: implementing-scim-provisioning
-description: Implements SCIM user provisioning using Scalekit's Directory API and webhooks. Use when the user asks to add SCIM, directory sync, user provisioning, deprovisioning, or lifecycle management to their existing application.
+description: Sets up SCIM endpoints, handles directory webhook events, maps user attributes, and manages group memberships using Scalekit's Directory API. Use when the user asks to add SCIM, directory sync, user provisioning, deprovisioning, or lifecycle management to their application.
 ---
 
 # SCIM Provisioning with Scalekit
@@ -225,62 +225,19 @@ After deploying the webhook endpoint:
 
 ## Customer self-serve SCIM setup (admin portal)
 
-Let enterprise customers configure their own directory sync via an embedded portal — no support tickets needed.
+Let customers configure directory sync via an embedded admin portal. Generate a single-use portal link server-side, embed it in an iframe, and handle `SCIM_CONFIGURED` and `SESSION_EXPIRED` postMessage events.
 
-### Generate portal link (server-side)
-
-Generate a new link on every page load — links are single-use.
-
-**Node.js:**
 ```javascript
+// Server: generate link (single-use, regenerate on each page load)
 const { location } = await scalekit.organization.generatePortalLink(organizationId);
-// Pass `location` to the frontend as a template variable or API response
+
+// Client: embed in iframe
+// <iframe src="{{ portalLink }}" width="100%" height="600px" allow="clipboard-write"></iframe>
 ```
 
-**Python:**
-```python
-portal = scalekit_client.organization.generate_portal_link(organization_id)
-location = portal.location
-# Pass `location` to your template or JSON response
-```
+Register your app domain in **Dashboard > Developers > API Configuration > Redirect URIs** or the iframe will be blocked.
 
-### Embed the portal (client-side)
-
-```html
-<iframe
-  src="{{ portalLink }}"
-  width="100%"
-  height="600px"
-  frameborder="0"
-  allow="clipboard-write"
-></iframe>
-```
-
-**Required**: Register your app domain in **Dashboard > Developers > API Configuration > Redirect URIs** or the iframe will be blocked.
-
-### Handle portal events
-
-```javascript
-window.addEventListener('message', (event) => {
-  if (event.origin !== process.env.SCALEKIT_ENVIRONMENT_URL) return;
-  const { type } = event.data;
-  switch (type) {
-    case 'SCIM_CONFIGURED':
-      // Refresh org SCIM status, show success banner
-      break;
-    case 'SESSION_EXPIRED':
-      // Re-fetch a new portal link and reload the iframe src
-      reloadPortalIframe();
-      break;
-  }
-});
-```
-
-`SESSION_EXPIRED` handling is required — without it the portal silently breaks for long-lived sessions.
-
-### Shareable link (no-code alternative)
-
-For one-time onboarding: **Dashboard > Organizations** → select org → **Generate link** → share URL directly. Also share Scalekit's [SCIM setup guides](https://docs.scalekit.com/guides/integrations/scim-integrations/) so the IT admin has provider-specific directory sync steps.
+For no-code onboarding: **Dashboard > Organizations** → select org → **Generate link** → share URL directly. Also share [SCIM setup guides](https://docs.scalekit.com/guides/integrations/scim-integrations/) for IdP-specific steps.
 
 ---
 

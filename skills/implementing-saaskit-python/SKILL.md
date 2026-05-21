@@ -46,14 +46,54 @@ Each framework has different patterns for routes, middleware, and session storag
 | FastAPI | Dependency injection | Server-side or JWT | [fastapi-reference.md](fastapi-reference.md) |
 | Flask | `@login_required` decorator | Flask-Session | [flask-reference.md](flask-reference.md) |
 
-## Default workflow
+## Default workflow (FastAPI example)
 
-1. Set `SCALEKIT_ENV_URL`, `SCALEKIT_CLIENT_ID`, `SCALEKIT_CLIENT_SECRET` in `.env`.
-2. Initialize `ScalekitClient` at module level.
-3. Create a login route that redirects to `sc.get_authorization_url(redirect_uri, options)`.
-4. Create a callback route that calls `sc.authenticate_with_code(code, redirect_uri)`.
-5. Store tokens in the framework's session mechanism.
-6. Create a logout route that clears the session and redirects to `sc.get_logout_url(options)`.
+```python
+import os, secrets
+from fastapi import FastAPI, Request, Response
+from fastapi.responses import RedirectResponse
+from dotenv import load_dotenv
+from scalekit import ScalekitClient
+
+load_dotenv()
+
+app = FastAPI()
+REDIRECT_URI = os.getenv("SCALEKIT_REDIRECT_URI", "http://localhost:8000/auth/callback")
+
+sc = ScalekitClient(
+    env_url=os.getenv("SCALEKIT_ENV_URL"),
+    client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+    client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+)
+
+@app.get("/auth/login")
+def login(response: Response):
+    state = secrets.token_urlsafe(32)
+    response = RedirectResponse(sc.get_authorization_url(REDIRECT_URI, {"state": state}))
+    response.set_cookie("oauth_state", state, httponly=True, samesite="lax", secure=True)
+    return response
+
+@app.get("/auth/callback")
+def callback(request: Request, code: str, state: str):
+    stored = request.cookies.get("oauth_state")
+    if not stored or stored != state:
+        return Response("CSRF mismatch", status_code=403)
+    result = sc.authenticate_with_code(code, REDIRECT_URI)
+    # Store result.user and tokens in your session mechanism
+    response = RedirectResponse("/dashboard")
+    response.delete_cookie("oauth_state")
+    return response
+
+@app.get("/auth/logout")
+def logout(request: Request):
+    logout_url = sc.get_logout_url({"post_logout_redirect_uri": "http://localhost:8000"})
+    # Clear your session here
+    return RedirectResponse(logout_url)
+```
+
+If `authenticate_with_code` raises an exception, verify the redirect URI matches the dashboard exactly.
+
+For Django and Flask patterns, see the framework-specific references linked in the table above.
 
 ## Deep reference
 

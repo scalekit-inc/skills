@@ -40,106 +40,18 @@ Help the user:
 
 ## Interaction Flow
 
-Follow this sequence.
+See `references/INTERACTION-FLOW.md` for the full step-by-step sequence. Key points:
 
-1. At skill start, send this opening message once and only once:
+1. **Start**: Ask `Dev` or `Production`
+2. **Dev**: Collect credentials + provider name → generate token → list existing providers → infer auth type from docs → generate JSON → create/update after approval
+3. **Production**: Collect both Dev + Production credentials → fetch Dev provider as source of truth → compare with Production → print curl for user to run (never execute)
+4. **Delete**: Resolve `identifier` from list response → print delete curl for user to run
+5. If provider exists, ask update vs create
+6. Infer auth type (`OAUTH`/`BASIC`/`BEARER`/`API_KEY`) from docs; for MCP OAuth, `oauth_config: {"pkce_enabled": true}` only
+7. Inspect docs for tracked fields, auth header overrides, and `auth_field_mutations`
+8. Generate final JSON
 
-```text
-Share:
-- Is this Scalekit environment Dev or Production?
-
-This skill is only for proxy-only connectors.
-```
-
-Do not restate or paraphrase this startup request again in the same reply.
-2. Read the user's answer and branch:
-   - if target is `Dev`, ask for `SCALEKIT_ENVIRONMENT_URL`, `SCALEKIT_CLIENT_ID`, `SCALEKIT_CLIENT_SECRET`, custom provider name, whether this is an MCP provider, API docs link, auth docs link if separate, and base API URL or full MCP URL (this becomes `proxy_url`)
-   - if target is `Production`, ask for `PROD_SCALEKIT_ENVIRONMENT_URL`, `PROD_SCALEKIT_CLIENT_ID`, `PROD_SCALEKIT_CLIENT_SECRET`, `DEV_SCALEKIT_ENVIRONMENT_URL`, `DEV_SCALEKIT_CLIENT_ID`, `DEV_SCALEKIT_CLIENT_SECRET`, and the provider name they want to replicate in Production
-   - if target is `Production`, do not generate provider JSON from scratch for production; first fetch the matching provider JSON from `Dev` and use that as the source of truth
-3. Use `SCALEKIT_ENVIRONMENT_URL` as `env_url` in `Dev`.
-4. In `Dev`, generate `env_access_token` with:
-
-```bash
-curl --location '{{SCALEKIT_ENVIRONMENT_URL}}/oauth/token' \
---header 'Content-Type: application/x-www-form-urlencoded' \
---data-urlencode 'grant_type=client_credentials' \
---data-urlencode 'client_id={{SCALEKIT_CLIENT_ID}}' \
---data-urlencode 'client_secret={{SCALEKIT_CLIENT_SECRET}}'
-```
-
-5. In `Dev`, after the user provides the custom provider name, list existing custom providers with:
-
-```bash
-curl --location '{{SCALEKIT_ENVIRONMENT_URL}}/api/v1/providers?filter.provider_type=CUSTOM&page_size=1000' \
---header 'Authorization: Bearer {{env_access_token}}'
-```
-
-6. In `Dev`, compare the provided name against the returned custom providers.
-7. If target is `Production`:
-   - ask for `PROD_SCALEKIT_ENVIRONMENT_URL`, `PROD_SCALEKIT_CLIENT_ID`, and `PROD_SCALEKIT_CLIENT_SECRET` if the user did not already provide them for Production
-   - ask for `DEV_SCALEKIT_ENVIRONMENT_URL`, `DEV_SCALEKIT_CLIENT_ID`, and `DEV_SCALEKIT_CLIENT_SECRET` if the user did not already provide them
-   - ask which provider name should be replicated in Production if the user did not already provide it
-   - generate a Dev `env_access_token`
-   - list Dev custom providers
-   - find the provider that matches the requested provider name
-   - if no matching Dev provider exists, stop and tell the user you cannot safely prepare a Production curl without the Dev provider JSON
-   - use the Dev provider JSON as the source of truth instead of regenerating it from scratch
-   - ask the user to review that provider JSON
-   - generate a Production `env_access_token`
-   - list Production custom providers to determine whether the action is create or update
-   - if the provider already exists in Production, resolve its `identifier`, build a tabular diff with columns `Dev`, `Current Production`, and `Proposed`, and then print the update curl only
-   - if the provider does not exist in Production, print the create curl only
-   - tell the user to run the printed curl from their terminal
-   - stop and do not execute create, update, or delete
-8. If the user says they want to delete the custom provider at any point, switch to delete mode:
-   - read `providers[]`
-   - find the matching provider object
-   - use its `identifier` field, not its `id` field
-   - print the delete curl with the resolved `identifier`, the actual `SCALEKIT_ENVIRONMENT_URL`, and the actual `env_access_token`
-   - ask the user to run that delete curl from their terminal
-   - if delete fails due to existing connections, tell the user to go to Scalekit Dashboard, delete associated connections and connected accounts if any, and then retry deleting the custom provider
-   - stop and do not continue into create or update
-9. If a provider with the same name already exists, ask:
-   - This provider already exists. Do you want me to update the existing provider, or create a new one?
-10. If the user wants to update the existing provider, continue in update mode and reuse that provider.
-11. If the user wants to create a new provider, continue in create mode.
-12. Tell the user this skill is for proxy-only connectors.
-13. Read the docs and infer which auth type it is:
-   - `OAUTH`
-   - `BASIC`
-   - `BEARER`
-   - `API_KEY`
-14. If auth type is unclear, ask the user to choose one.
-15. Give a one-line explanation for the auth type:
-   - `OAUTH`: standard OAuth 2.0 flow with authorize/token endpoints and user authorization
-   - `BASIC`: proxy sends `Authorization: Basic base64(username:password)`
-   - `BEARER`: proxy sends `Authorization: Bearer <token>`
-   - `API_KEY`: proxy sends `Authorization: <api_key>` as-is
-16. If auth type is `OAUTH` and the provider is NOT an MCP provider, try to discover:
-   - `authorize_uri`
-   - `token_uri`
-   - `user_info_uri`
-   - visible scopes
-   If auth type is `OAUTH` and the provider IS an MCP provider, skip this step — MCP OAuth only needs `oauth_config: {"pkce_enabled": true}`.
-17. If any required OAuth values are missing for a non-MCP OAuth provider, ask only for the missing values.
-18. Inspect docs for concrete extra tracked fields from this known set:
-   - `token`
-   - `api_key`
-   - `username`
-   - `password`
-   - `domain`
-   - `version`
-   - named path parameters stored as provider fields with `is_path_param: true`
-19. Inspect docs for auth header behavior:
-   - if the upstream uses a header key other than `Authorization`, set `auth_header_key_override`
-   - if the upstream requires a prefix, suffix, or fallback value on `api_key`, `token`, `username`, or `password`, set `auth_field_mutations`
-   - apply those mutations only when the docs clearly require them
-20. For named path parameters, ask for exact field names if they are not clear from docs.
-21. Determine the correct `proxy_url`.
-22. Generate the final provider JSON.
-23. If the user asks to leave `proxy_url` empty or set `proxy_enabled` to `false`, tell them that tool calling will not work in that configuration because custom providers support tool calling only through the tool proxy feature.
-24. Do not leave `proxy_url` empty and do not set `proxy_enabled` to `false`.
-25. If the workflow is in update mode:
+### Update mode:
    - compare the previous provider JSON and the new provider JSON in a table that includes only `display_name`, `description`, `auth_patterns`, `proxy_url`, and `proxy_enabled`
    - if OAuth scopes were removed or added, tell the user to carefully verify those scope changes
    - tell the user this update might require creating a new connection because older connections will not have the new settings
@@ -152,41 +64,6 @@ curl --location '{{SCALEKIT_ENVIRONMENT_URL}}/api/v1/providers?filter.provider_t
    - ask for explicit approval before running the create curl
    - only after explicit approval, run the create curl
    - after create, tell the user: Refresh the page on Scalekit Dashboard to see the new provider.
-
-## What To Ask
-
-Prefer short, concrete questions.
-
-The initial request for required inputs is defined in `Interaction Flow` step 1. Do not repeat that opening block again.
-
-Ask later only if needed:
-- Is this Scalekit environment `Dev` or `Production`?
-- I found this custom provider in the list response. Do you want me to delete it?
-- This provider already exists. Do you want me to update the existing provider, or create a new one?
-- Carefully verify the scope changes. Some earlier scopes were removed or new scopes were added. Do you want to proceed with these updated values?
-- If you leave `proxy_url` empty or set `proxy_enabled` to `false`, tool calling will not work because custom providers support tool calling only through the tool proxy feature.
-- This is `Production`. Please share `PROD_SCALEKIT_ENVIRONMENT_URL`, `PROD_SCALEKIT_CLIENT_ID`, `PROD_SCALEKIT_CLIENT_SECRET`, `DEV_SCALEKIT_ENVIRONMENT_URL`, `DEV_SCALEKIT_CLIENT_ID`, `DEV_SCALEKIT_CLIENT_SECRET`, and the provider name you want to replicate in Production.
-- I believe this auth type is `X` because of `Y`. Confirm or correct me.
-- I could not find `authorize_uri` or `token_uri`. Please provide the missing OAuth endpoints.
-- I see the API host is tenant-specific. What field should be tracked for that host value?
-- I see a required path placeholder in the API URL. Confirm the exact field name that should be stored on the connected account and substituted into `proxy_url`.
-- The docs use a non-standard auth header key. Confirm that I should set `auth_header_key_override` to `X`.
-- The docs show the credential needs a prefix, suffix, or fallback value before it is sent. Confirm that I should add `auth_field_mutations` for `X`.
-- I found this provider in Dev. Review this provider JSON carefully. If this is a Production update, I will also show a table comparing Dev, current Production, and the proposed payload before printing the curl for you to run yourself.
-
-Do not ask broad, open-ended questions when the docs already imply the answer.
-
-## Display Name Rules
-
-The server derives the identifier from `display_name`.
-
-When generating JSON:
-- keep `display_name` under 200 characters
-- prefer alphanumeric and hyphen-friendly names
-- spaces are acceptable
-- if the user gives a risky or overly long name, propose a safer `display_name` before generating JSON
-
-Do not ask the user to choose the identifier.
 
 ## Provider Shape
 
@@ -213,291 +90,22 @@ Supported field input types:
 - `password`
 - `select`
 
-Default assumptions:
-- `proxy_enabled` should be `true`
-- `proxy_url` must not be empty
-- the auth header key should stay `Authorization` unless docs require an override
-- do not add `auth_field_mutations` unless docs require them
+Defaults: `proxy_enabled: true`, `proxy_url` must not be empty (tool calling requires it), auth header stays `Authorization` unless docs require override, no `auth_field_mutations` unless docs require them.
 
-If a user asks to leave `proxy_url` empty or set `proxy_enabled` to `false`, tell them that tool calling will not work because custom providers support tool calling only through the tool proxy feature.
+## Provider Types and Examples
 
-## The 4 Provider Types
+See `references/PROVIDER-EXAMPLES.md` for complete JSON examples of all 4 provider types (OAuth, Basic, Bearer, API Key) and MCP variants.
 
-### OAuth Provider
+**Quick reference:**
 
-Use when the upstream service uses OAuth 2.0.
+| Type | `auth_patterns[].type` | Key fields | Runtime |
+|------|----------------------|------------|---------|
+| OAuth | `OAUTH` | `oauth_config` with endpoints and scopes | Standard OAuth 2.0 flow |
+| Basic | `BASIC` | `username`, `password` | `Authorization: Basic base64(u:p)` |
+| Bearer | `BEARER` | `token` | `Authorization: Bearer <token>` |
+| API Key | `API_KEY` | `api_key` | `Authorization: <key>` (raw) |
 
-Required shape:
-- `auth_patterns[].type = "OAUTH"`
-- `oauth_config` present
-
-Usually includes:
-- `authorize_uri`
-- `token_uri`
-- `user_info_uri`
-- `available_scopes`
-
-Optional OAuth config fields supported by the backend:
-- `allow_use_scalekit_credentials`
-- `custom_scope_name`
-- `pkce_enabled`
-
-For MCP OAuth providers, `oauth_config` must be `{"pkce_enabled": true}` and nothing else. Do not include `authorize_uri`, `token_uri`, `user_info_uri`, or `available_scopes` for MCP OAuth providers — they use DCR (Dynamic Client Registration) and do not need those fields.
-
-OAuth `fields` are usually auth-time options, not long-lived secrets.
-
-For OAuth providers:
-- path parameters that must be stored on the connected account should go in `account_fields`, not `fields`
-
-OAuth auth patterns may still use:
-- `auth_header_key_override` if the upstream expects the token in a different header name
-- `auth_field_mutations.token` if the docs require prefix, suffix, or default handling before the proxy adds `Bearer `
-
-Example:
-
-```json
-{
-  "display_name": "My Asana",
-  "description": "Connect to Asana. Manage tasks, projects, teams, and workflow automation",
-  "auth_patterns": [
-    {
-      "description": "Authenticate with Asana using OAuth 2.0",
-      "display_name": "OAuth 2.0",
-      "account_fields": [],
-      "fields": [],
-      "oauth_config": {
-        "authorize_uri": "https://app.asana.com/-/oauth_authorize",
-        "available_scopes": [
-          {
-            "description": "Read user profile and basic data",
-            "display_name": "Default Access",
-            "required": false,
-            "scope": "default"
-          }
-        ],
-        "token_uri": "https://app.asana.com/-/oauth_token",
-        "user_info_uri": "https://app.asana.com/api/1.0/users/me"
-      },
-      "type": "OAUTH"
-    }
-  ],
-  "proxy_url": "https://app.asana.com/api",
-  "proxy_enabled": true
-}
-```
-
-### Basic Provider
-
-Use when the upstream API expects HTTP Basic auth.
-
-Required shape:
-- `auth_patterns[].type = "BASIC"`
-- `fields` collects the values needed for Basic auth
-
-Typical fields:
-- `username`
-- `password`
-- `domain` if the API host varies per customer
-
-Runtime behavior:
-- proxy sends `Authorization: Basic base64(username:password)`
-- `auth_field_mutations.username` and `auth_field_mutations.password` are applied before the Basic value is base64-encoded
-
-Example:
-
-```json
-{
-  "display_name": "My Freshdesk",
-  "description": "Connect to Freshdesk. Manage tickets, contacts, companies, and customer support workflows",
-  "auth_patterns": [
-    {
-      "description": "Authenticate with Freshdesk using Basic Auth",
-      "display_name": "Basic Auth",
-      "fields": [
-        {
-          "field_name": "domain",
-          "hint": "yourcompany.freshdesk.com",
-          "input_type": "text",
-          "label": "Freshdesk Domain",
-          "required": true
-        },
-        {
-          "field_name": "username",
-          "hint": "Your Freshdesk API Key",
-          "input_type": "password",
-          "label": "API Key",
-          "required": true
-        }
-      ],
-      "auth_field_mutations": {
-        "password": {
-          "default": "X"
-        },
-        "username": {
-          "suffix": "/token"
-        }
-      },
-      "type": "BASIC"
-    }
-  ],
-  "proxy_url": "https://{{domain}}/api",
-  "proxy_enabled": true
-}
-```
-
-### Bearer Provider
-
-Use when the upstream API expects:
-
-```text
-Authorization: Bearer <token>
-```
-
-Required shape:
-- `auth_patterns[].type = "BEARER"`
-- `fields` usually includes `token`
-
-Runtime behavior:
-- proxy applies `auth_field_mutations.token` first if present
-- proxy then sends `<header key>: Bearer <mutated token>`
-
-Example:
-
-```json
-{
-  "display_name": "My Tavily",
-  "description": "Use Tavily to connect your agent to the web and search for information across the internet",
-  "auth_patterns": [
-    {
-      "description": "Authenticate with Tavily using your API Key",
-      "display_name": "Bearer Auth",
-      "fields": [
-        {
-          "field_name": "token",
-          "hint": "Your Tavily API Key",
-          "input_type": "password",
-          "label": "API Key",
-          "required": true
-        }
-      ],
-      "type": "BEARER"
-    }
-  ],
-  "proxy_url": "https://api.tavily.com",
-  "proxy_enabled": true
-}
-```
-
-### API Key Provider
-
-Use when the upstream API expects the raw API key in `Authorization` with no prefix.
-
-Required shape:
-- `auth_patterns[].type = "API_KEY"`
-- `fields` usually includes `api_key`
-
-Runtime behavior:
-- proxy sends `Authorization: <api_key>`
-- proxy applies `auth_field_mutations.api_key` first if present
-- if `auth_header_key_override` is set, proxy sends that header key instead of `Authorization`
-
-Example:
-
-```json
-{
-  "display_name": "My Klaviyo",
-  "description": "Use Klaviyo to connect your agent to the AI marketing platform",
-  "auth_patterns": [
-    {
-      "description": "Authenticate with Klaviyo private API Key",
-      "display_name": "API Key",
-      "fields": [
-        {
-          "field_name": "api_key",
-          "hint": "Your Klaviyo API Key",
-          "input_type": "password",
-          "label": "API Key",
-          "required": true
-        }
-      ],
-      "auth_header_key_override": "x-api-key",
-      "auth_field_mutations": {
-        "api_key": {
-          "prefix": "Klaviyo-API-Key "
-        }
-      },
-      "type": "API_KEY"
-    }
-  ],
-  "proxy_url": "https://a.klaviyo.com",
-  "proxy_enabled": true
-}
-```
-
-## MCP Providers
-
-MCP (Model Context Protocol) providers are a special type of proxy-only connector where the upstream service exposes an MCP-compatible endpoint.
-
-### Rules for MCP providers
-
-- Always set `is_mcp: true` in all `auth_patterns[]`
-- For `OAUTH` auth type:
-  - Set `oauth_config` to `{"pkce_enabled": true}` only
-  - Do not include `authorize_uri`, `token_uri`, `user_info_uri`, or `available_scopes` — MCP OAuth uses DCR and does not need them
-- For non-OAuth auth types (`BASIC`, `BEARER`, `API_KEY`):
-  - Do not include `oauth_config`
-  - All other auth rules remain the same as non-MCP providers
-
-### OAuth MCP Example (GitHub)
-
-```json
-{
-  "display_name": "Github MCP",
-  "description": "Connect to Github MCP",
-  "auth_patterns": [
-    {
-      "description": "Authenticate with Github MCP using browser OAuth.",
-      "display_name": "OAuth 2.1/DCR",
-      "fields": [],
-      "is_mcp": true,
-      "oauth_config": {
-        "pkce_enabled": true
-      },
-      "type": "OAUTH"
-    }
-  ],
-  "proxy_url": "https://api.githubcopilot.com/mcp/",
-  "proxy_enabled": true
-}
-```
-
-### Bearer MCP Example (Apify)
-
-```json
-{
-  "display_name": "Apify MCP",
-  "description": "Connect to Apify MCP to run web scraping, browser automation, and data extraction Actors directly from your AI workflows.",
-  "auth_patterns": [
-    {
-      "description": "Authenticate with Apify using your API Token.",
-      "display_name": "Apify Token",
-      "fields": [
-        {
-          "field_name": "token",
-          "hint": "Your Apify API Token",
-          "input_type": "password",
-          "label": "Apify Token",
-          "required": true
-        }
-      ],
-      "is_mcp": true,
-      "type": "BEARER"
-    }
-  ],
-  "proxy_url": "https://mcp.apify.com",
-  "proxy_enabled": true
-}
-```
+**MCP rules:** Set `is_mcp: true` in all `auth_patterns[]`. For MCP OAuth, `oauth_config` must be `{"pkce_enabled": true}` only — no `authorize_uri`/`token_uri`/`user_info_uri` (uses DCR).
 
 ## Tracked Fields
 
@@ -543,81 +151,15 @@ If a path parameter appears in `proxy_url`, tell the user where to send its runt
 - for static auth (`BASIC`, `BEARER`, `API_KEY`), put it in `connected_account.authorization_details.static_auth.details.path_variables`
 - for `OAUTH`, put it in `connected_account.api_config.path_variables`
 
-If the exact key names are unclear, ask the user to confirm them.
+If the exact key names are unclear, ask the user to confirm them. For connected account payload structures with `path_variables`, see `references/PROVIDER-EXAMPLES.md`.
 
 ## Auth Header Customization
 
-Only add these fields when the upstream docs require them.
+Only add when upstream docs require it. See `references/PROVIDER-EXAMPLES.md` for full details.
 
-### `auth_header_key_override`
-
-Use this when the upstream expects the auth credential in a header other than `Authorization`.
-
-Example:
-
-```json
-"auth_header_key_override": "x-api-key"
-```
-
-### `auth_field_mutations`
-
-Use this when the upstream expects the raw credential to be transformed before proxy formatting:
-- `prefix`: prepend text to the stored value
-- `suffix`: append text to the stored value
-- `default`: use this value when the stored value is empty
-
-Supported mutation targets:
-- `api_key`
-- `token`
-- `username`
-- `password`
-
-Mutation order:
-- apply `default` if the stored value is empty
-- then prepend `prefix`
-- then append `suffix`
-- for `BEARER`, the proxy adds `Bearer ` after mutation
-- for `BASIC`, the proxy base64-encodes `username:password` after mutation
-
-Examples:
-
-Zendesk-style Basic auth:
-
-```json
-"auth_field_mutations": {
-  "username": {
-    "suffix": "/token"
-  }
-}
-```
-
-Freshdesk-style Basic auth:
-
-```json
-"auth_field_mutations": {
-  "password": {
-    "default": "X"
-  }
-}
-```
-
-Klaviyo-style API key auth:
-
-```json
-"auth_field_mutations": {
-  "api_key": {
-    "prefix": "Klaviyo-API-Key "
-  }
-}
-```
-
-Harvest-style API key auth:
-
-```json
-{
-  "auth_header_key_override": "x-api-key"
-}
-```
+- `auth_header_key_override`: when upstream uses a header key other than `Authorization` (e.g., `x-api-key`)
+- `auth_field_mutations`: when upstream needs `prefix`, `suffix`, or `default` on `api_key`/`token`/`username`/`password`
+- Mutation order: apply `default` → prepend `prefix` → append `suffix` → then proxy adds its format (`Bearer ` or base64)
 
 ## Supported Placeholders
 
@@ -628,247 +170,71 @@ The backend supports:
 
 Use placeholders only when the API contract requires them.
 
-## How To Decide Proxy URL
+## Proxy URL Patterns
 
-Pick one of these patterns:
+| Pattern | Example |
+|---------|---------|
+| Fixed | `https://api.example.com` |
+| Tenant domain | `https://{{domain}}/api` |
+| Versioned | `https://api.example.com/{{version}}` |
+| Path param | `https://api.example.com/resources/{{path_param_1}}` |
 
-1. Fixed base URL
+State why the chosen shape is correct. For `path_variables` payload structures, see `references/PROVIDER-EXAMPLES.md`.
 
-```json
-"proxy_url": "https://api.example.com"
-```
+## Missing Info
 
-2. Tenant-specific domain
-
-```json
-"proxy_url": "https://{{domain}}/api"
-```
-
-3. Versioned URL
-
-```json
-"proxy_url": "https://api.example.com/{{version}}"
-```
-
-4. URL with named path parameter
-
-```json
-"proxy_url": "https://api.example.com/resources/{{path_param_1}}"
-```
-
-When responding, state why the chosen shape is correct.
-
-If you use named path placeholders in `proxy_url`, also tell the user how to pass `path_variables` during connected account create or update.
-
-For static auth, the structure is:
-
-```json
-{
-  "identifier": "some-identifier",
-  "connector": "mycustomprovider",
-  "connected_account": {
-    "authorization_details": {
-      "static_auth": {
-        "details": {
-          "...": "...",
-          "path_variables": {
-            "path_param_1": "value_1"
-          }
-        }
-      }
-    }
-  }
-}
-```
-
-For OAuth, the structure is:
-
-```json
-{
-  "identifier": "some-identifier",
-  "connector": "myoauthcustomconnector",
-  "connected_account": {
-    "authorization_details": {
-      "oauth_token": {}
-    },
-    "api_config": {
-      "...": "...",
-      "path_variables": {
-        "path_param_1": "value_1"
-      }
-    }
-  }
-}
-```
-
-## Missing Info And Assumptions
-
-Before generating the final JSON, summarize:
-- values confirmed from docs
-- values provided by the user
-- values assumed by you
-- values still missing
-
-If critical auth details are missing, stop and ask only for those missing values.
-
-If the provided docs are too vague, say so directly and ask for the API auth reference.
+Before generating JSON, summarize confirmed/assumed/missing values. If critical auth details are missing, stop and ask. If docs are too vague, ask for the API auth reference.
 
 ## Output Format
 
-When ready, respond in this order:
+Respond in order: (1) summary (environment, auth type, tracked fields, proxy URL), (2) provider JSON, (3) diff table for updates, (4) action (run curl in Dev; print curl in Production), (5) assumptions note.
 
-1. short summary
-   - target environment: `Dev` or `Production`
-   - inferred auth type
-   - tracked fields
-   - proxy URL choice
-2. for `Dev`, the generated provider JSON; for `Production`, the provider JSON fetched from `Dev`
-3. for updates:
-   - in `Dev`, a field diff table covering only `display_name`, `description`, `auth_patterns`, `proxy_url`, and `proxy_enabled`
-   - in `Production`, a tabular diff covering only `display_name`, `description`, `auth_patterns`, `proxy_url`, and `proxy_enabled` with columns `Dev`, `Current Production`, and `Proposed`
-4. action
-   - in `Dev`, say whether you will run create or update after approval
-   - in `Production`, print the create or update curl and tell the user to run it themselves; mention that you used Production credentials only for token generation, provider lookup, and curl construction, and that the printed curl includes the Production access token after `Bearer `
-5. short note about assumptions, placeholders, or missing Dev access
-
-## Curl Instructions
-
-HTTP method rules:
-- create is always `POST`
-- update is always `PUT`
-- get or list is always `GET`
-- delete is always `DELETE`
-
-Before listing, creating, updating, or deleting providers, generate `env_access_token` with:
+## Curl Templates
 
 ```bash
-curl --location '{{SCALEKIT_ENVIRONMENT_URL}}/oauth/token' \
+# Token (run first)
+curl --location '{{env_url}}/oauth/token' \
 --header 'Content-Type: application/x-www-form-urlencoded' \
 --data-urlencode 'grant_type=client_credentials' \
---data-urlencode 'client_id={{SCALEKIT_CLIENT_ID}}' \
---data-urlencode 'client_secret={{SCALEKIT_CLIENT_SECRET}}'
+--data-urlencode 'client_id={{client_id}}' \
+--data-urlencode 'client_secret={{client_secret}}'
+
+# List providers
+curl -X GET '{{env_url}}/api/v1/providers?filter.provider_type=CUSTOM&page_size=1000' \
+-H 'Authorization: Bearer {{token}}'
+
+# Create (POST) — Dev only, after explicit approval
+curl -X POST '{{env_url}}/api/v1/custom-providers' \
+-H 'Content-Type: application/json' -H 'Authorization: Bearer {{token}}' \
+-d '{ ...json... }'
+
+# Update (PUT) — Dev only, after diff review + confirmation
+curl -X PUT '{{env_url}}/api/v1/custom-providers/{{identifier}}' \
+-H 'Content-Type: application/json' -H 'Authorization: Bearer {{token}}' \
+-d '{ ...json... }'
+
+# Delete — NEVER execute; print resolved curl for user to run
+curl -X DELETE '{{env_url}}/api/v1/custom-providers/{{identifier}}' \
+-H 'Authorization: Bearer {{token}}'
 ```
 
-Use this list providers curl when checking for existing custom providers:
+**Key rules:** Always use `identifier` (not `id`) from the list response. In Production, never execute create/update/delete — print the resolved curl. Label executed curls with `✅`/`❌`. After any mutation, tell user to refresh Scalekit Dashboard.
 
-```bash
-curl --location --request GET '{{SCALEKIT_ENVIRONMENT_URL}}/api/v1/providers?filter.provider_type=CUSTOM&page_size=1000' \
---header 'Authorization: Bearer {{env_access_token}}'
-```
+**Update flow:** Show diff table (`display_name`, `description`, `auth_patterns`, `proxy_url`, `proxy_enabled`). Warn about scope changes and that existing connections/connected accounts may need recreation.
 
-### Create
-
-In `Dev`, only after explicit user approval, run:
-
-```bash
-curl --location --request POST '{{SCALEKIT_ENVIRONMENT_URL}}/api/v1/custom-providers' \
---header 'Content-Type: application/json' \
---header 'Authorization: Bearer {{env_access_token}}' \
---data '{
-  ...generated-json...
-}'
-```
-
-After create, tell the user: Refresh the page on Scalekit Dashboard to see the new provider.
-
-In `Production`, never run the create curl. Print the fully resolved curl and tell the user to run it from their terminal. The printed curl must use the Production access token in `Authorization: Bearer <production-env-access-token>`.
-
-### Update
-
-In `Dev`, before running the update curl:
-- read `providers[]`
-- find the matching provider object
-- use its `identifier` field, not its `id` field
-- show the required diff table for `display_name`, `description`, `auth_patterns`, `proxy_url`, and `proxy_enabled`
-- tell the user to carefully verify scope removals or additions if OAuth scopes changed
-- tell the user this update might require creating a new connection because older connections will not have the new settings
-- tell the user the same applies to connected accounts, or they can update the connected account by reauthorizing it
-- wait for explicit confirmation
-
-After confirmation, run:
-
-```bash
-curl --location --request PUT '{{SCALEKIT_ENVIRONMENT_URL}}/api/v1/custom-providers/{{identifier}}' \
---header 'Content-Type: application/json' \
---header 'Authorization: Bearer {{env_access_token}}' \
---data '{
-  ...generated-json...
-}'
-```
-
-After update, tell the user: Refresh the page on Scalekit Dashboard to see the new provider.
-
-In `Production`:
-- never regenerate the provider JSON from scratch when the matching `Dev` provider exists
-- fetch the matching provider from `Dev` and use that provider JSON as the payload
-- use Production credentials to generate a Production token and list Production providers
-- list Production providers to determine whether the action is create or update
-- if update is needed, resolve the provider identifier from `providers[] -> matching object -> identifier`
-- if update is needed, show a tabular diff with columns `Dev`, `Current Production`, and `Proposed` for `display_name`, `description`, `auth_patterns`, `proxy_url`, and `proxy_enabled`
-- print the fully resolved create or update curl only and never execute it
-- ensure the printed create or update curl uses the Production access token in `Authorization: Bearer <production-env-access-token>`
-- tell the user to review the provider JSON and run the printed curl from their terminal
-
-Do not fabricate identifiers.
-
-### Delete
-
-If the user asks to delete the custom provider:
-- run the list providers curl
-- read `providers[]`
-- find the matching provider object
-- use its `identifier` field, not its `id` field
-- print the delete curl only and never execute it
-- when printing it, replace `SCALEKIT_ENVIRONMENT_URL` and `env_access_token` with the actual values already available in the conversation
-- for Production deletes, use the Production access token in `Authorization: Bearer <production-env-access-token>`
-- ask the user to run that delete curl from their terminal
-- tell the user: Refresh the page on Scalekit Dashboard to see the provider removed.
-- if the delete API fails due to existing connections, tell the user:
-  Go to Scalekit Dashboard, delete the associated connections and connected accounts if any, and only then delete the custom provider.
-
-```bash
-curl --location --request DELETE 'https://actual-environment-url/api/v1/custom-providers/{{provider_identifier_from_list_custom_provider_api}}' \
---header 'Authorization: Bearer actual-env-access-token'
-```
-
-Do not fabricate identifiers.
+**Delete failures:** If delete fails due to existing connections, tell user to remove connections and connected accounts from Dashboard first.
 
 ## Review Checklist
 
-Before finalizing:
-- `display_name` is safe and under 200 chars
-- auth type matches the upstream docs
-- if provider is MCP, `is_mcp: true` is present in all auth patterns
-- if provider is MCP and OAuth, `oauth_config` is `{"pkce_enabled": true}` with no other fields
-- if provider is MCP and non-OAuth, `oauth_config` is not present
-- `oauth_config` exists only for OAuth providers
-- tracked fields are concrete and minimal
-- `proxy_url` matches the upstream host pattern
-- `proxy_url` is not empty
-- placeholders are used only when needed
-- `proxy_enabled` is `true`
-- if the user requested empty `proxy_url` or `proxy_enabled: false`, they were told tool calling would not work because custom providers support tool calling only through the tool proxy feature
-- for updates, a diff table exists for `display_name`, `description`, `auth_patterns`, `proxy_url`, and `proxy_enabled`
-- for `Production` updates, the diff table includes `Dev`, `Current Production`, and `Proposed` columns
-- for updates, OAuth scope removals or additions are called out explicitly when present
-- for updates, the user is warned that existing connections may need to be recreated and connected accounts may need reauthorization
-- in `Production`, the skill asks for Dev credentials if they were not provided
-- in `Production`, the skill asks for Production credentials if they were not provided
-- in `Production`, the skill fetches the matching Dev provider before preparing the Production curl
-- in `Production`, the skill does not regenerate the provider JSON from scratch when the Dev provider exists
-- in `Production`, the skill may run token and list-provider curls but never create, update, or delete curls
-- printed Production create, update, and delete curls include the Production access token after `Bearer `
-- printed create curls use `POST`, printed update curls use `PUT`, printed list curls use `GET`, and printed delete curls use `DELETE`
-- create runs only after explicit user approval
-- update runs only after explicit user confirmation
-- in `Production`, create and update curls are printed but never executed
-- after create or update, the user is told to refresh the Scalekit Dashboard page to see the new provider
-- for updates, the provider identifier comes from `providers[] -> matching object -> identifier`
-- for deletes, the provider identifier comes from `providers[] -> matching object -> identifier`
-- delete curl is printed with the resolved provider identifier
-- delete curl is never executed
-- for deletes, the user is told to run the printed delete curl from their terminal
-- after delete, the user is told to refresh the Scalekit Dashboard page to see the provider removed
-- if delete fails due to existing connections, the user is told to remove associated connections and connected accounts from Scalekit Dashboard before retrying
-- executed curl results are labeled with `✅` or `❌`
-- printed delete curl uses the actual environment URL and actual access token values instead of placeholders
+- [ ] `display_name` safe and under 200 chars
+- [ ] Auth type matches upstream docs
+- [ ] MCP providers: `is_mcp: true` in all auth patterns
+- [ ] MCP OAuth: `oauth_config` is `{"pkce_enabled": true}` only
+- [ ] `oauth_config` exists only for OAuth providers
+- [ ] `proxy_url` not empty; `proxy_enabled: true`
+- [ ] Tracked fields are concrete and minimal
+- [ ] Placeholders used only when needed
+- [ ] For updates: diff table shown; scope changes called out; connection recreation warning given
+- [ ] For Production: Dev provider JSON used as source of truth (never regenerated from scratch)
+- [ ] For Production: create/update/delete curls printed, never executed
+- [ ] `identifier` from list response used (not `id`); never fabricated

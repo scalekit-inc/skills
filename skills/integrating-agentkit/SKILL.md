@@ -55,32 +55,11 @@ const { connectedAccounts } = scalekitClient;
 
 </tabs>
 
-## Connector setup
-
-Before integrating with a connector, follow these steps in the Scalekit Dashboard:
-
-> **Gmail is the only connector that does not require dashboard setup.** Skip this section for Gmail.
-
-For all other connectors (Slack, Notion, Google Calendar, etc.):
-
-1. Go to **Scalekit Dashboard → AgentKit → Connections**
-2. Click **+ Create Connection**
-3. Select the connector you want to use
-4. Enter a **Connection Name** (e.g., `MY_SLACK`, `MY_NOTION`)
-5. Click **Save**
-
-> **Important**: The **Connection Name** you set in the dashboard is exactly what you use as the `connection_name` parameter in your code. They must match exactly.
-
 ## Integration workflow
 
-**First, ask the user:**
+> **Gmail works without dashboard setup.** All other connectors must be configured first: **Dashboard → AgentKit → Connections → + Create Connection**. The **Connection Name** in the dashboard must match `connection_name` in code exactly.
 
-> Are you starting fresh and want a quick test with Gmail, or are you integrating directly into your project?
-
-- If **fresh / quick test**: Use the Gmail example below (Gmail is the only connector that doesn't require dashboard setup)
-- If **integrating directly**: Create your connector in the Scalekit Dashboard first, then adapt the workflow below to your connector
-
-Copy this checklist and check off steps as you complete them:
+Copy this checklist:
 
 ```
 AgentKit Integration Progress:

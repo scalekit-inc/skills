@@ -1,6 +1,6 @@
 ---
 name: migrating-to-saaskit
-description: Plans and executes incremental migration from any existing authentication system (Auth0, Firebase, Cognito, custom) to Scalekit SaaSKit. Use when a user mentions migrating, switching, or moving away from their current auth provider.
+description: Audits the existing auth system, exports users and orgs, imports them into Scalekit via SDK, configures redirects and roles, and deploys with a gradual rollout behind a feature flag. Use when a user mentions migrating, switching, or moving away from their current auth provider (Auth0, Firebase, Cognito, custom).
 ---
 
 # Scalekit Auth Migration Planner
@@ -129,11 +129,20 @@ Verify:
 4. Monitor auth success rates and error logs
 5. Keep rollback plan active for first 48 hours
 
-**Post-deployment monitoring:**
-- Auth error rates
-- Session creation/validation metrics
-- SSO connection health
-- User-reported issues via support
+**Post-deployment verification:**
+
+```bash
+# Verify token endpoint works with Scalekit credentials
+curl -s -o /dev/null -w "%{http_code}" -X POST "$SCALEKIT_ENV_URL/oauth/token" \
+  -d "client_id=$SCALEKIT_CLIENT_ID&client_secret=$SCALEKIT_CLIENT_SECRET&grant_type=client_credentials"
+# Expected: 200
+
+# Verify a migrated user can be looked up
+curl -s -H "Authorization: Bearer $TOKEN" "$SCALEKIT_ENV_URL/api/v1/organizations/<org_id>/users?email=migrated-user@example.com" | jq .
+# Should return the user with correct external_id
+```
+
+Monitor: auth error rates, session creation/validation, SSO connection health, user-reported issues.
 
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: production-readiness-agentkit
-description: Walks through a structured production readiness checklist for Scalekit AgentKit implementations. Use when the user says they are going live, launching to production, doing a pre-launch review, or wants to verify their AgentKit authorization and tool-calling setup is production-ready.
+description: Validates OAuth token flows, audits token storage security, verifies per-connector authorization, and checks monitoring configuration for Scalekit AgentKit implementations before production launch. Use when going live, doing a pre-launch review, or verifying AgentKit authorization and tool-calling setup is production-ready.
 ---
 
 # Scalekit AgentKit Production Readiness
@@ -11,9 +11,20 @@ Work through each section in order — earlier sections are blockers for later o
 
 ## Quick checks (run first)
 
-- [ ] Production environment URL, client ID, and client secret are set (not dev/staging values)
+```bash
+# Confirm production credentials are set (not dev/staging)
+echo $SCALEKIT_ENV_URL    # should be https://<subdomain>.scalekit.com (not .scalekit.dev)
+echo $SCALEKIT_CLIENT_ID  # should be set
+echo $SCALEKIT_CLIENT_SECRET  # should be set
+
+# Verify token endpoint works
+curl -s -o /dev/null -w "%{http_code}" -X POST "$SCALEKIT_ENV_URL/oauth/token" \
+  -d "client_id=$SCALEKIT_CLIENT_ID&client_secret=$SCALEKIT_CLIENT_SECRET&grant_type=client_credentials"
+# Expected: 200
+```
+
 - [ ] HTTPS enforced on all auth endpoints
-- [ ] API credentials stored in environment variables — never committed to code
+- [ ] API credentials in environment variables — `grep -r "skc_" src/` returns nothing
 - [ ] Redirect URIs registered in dashboard match exactly what the app sends
 
 ---
@@ -55,8 +66,13 @@ Work through each section in order — earlier sections are blockers for later o
 - [ ] Log retention policies configured
 - [ ] Incident response runbook written (who to contact, how to revoke compromised tokens)
 
-**Key metrics:**
-- Token refresh success/failure rate
-- OAuth authorization completion rate (initiated vs completed)
-- Per-service API error rates (distinguish auth errors from service errors)
-- Token expiry distribution (are tokens being refreshed proactively?)
+**Key metrics:** Token refresh success/failure rate, OAuth completion rate (initiated vs completed), per-service API error rates, token expiry distribution.
+
+## Final smoke test
+
+Run the full cycle in staging with production credentials:
+1. Create a connected account for a test user → verify status returned
+2. Generate auth link → complete OAuth → verify status is `ACTIVE`
+3. Fetch access token → make a downstream API call → verify success
+4. Wait for token expiry → re-fetch → verify auto-refresh works
+5. Revoke access in the third-party app → verify graceful error handling

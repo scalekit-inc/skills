@@ -1,14 +1,12 @@
 ---
 name: implementing-access-control
-description: Implements server-side RBAC and permission checks by validating and decoding access tokens, extracting roles/permissions, and enforcing them with middleware/decorators at route boundaries. Use when building authorization around Scalekit tokens that embed roles and permissions.
+description: Implements server-side RBAC and permission checks by validating and decoding Scalekit access tokens, extracting roles/permissions, and enforcing them with middleware/decorators at route boundaries. Use when adding role-based access control, protecting routes or endpoints, building auth middleware, or checking JWT permissions with Scalekit tokens.
 ---
 
 # Implementing access control (Scalekit FSA)
 
 ## When to use
-Use this Skill after authentication is working and the app must authorize access to routes/actions by inspecting the user's access token for `roles` and `permissions`.
-Scalekit can embed these authorization details in the access token during the authentication flow, so the app can make decisions without extra API calls.
-Always validate the token's integrity before trusting any embedded roles/permissions.
+After authentication is working and the app must authorize access to routes/actions by inspecting the user's access token for `roles` and `permissions`.
 
 ## Workflow
 1. Validate the access token (expiry, issuer/audience as applicable) and then decode it to extract `sub`, `oid`, `roles`, and `permissions`.
@@ -104,16 +102,36 @@ def require_permission(permission):
     return decorator
 ```
 
-## Patterns and pitfalls
+## Verification
 
-Prefer roles for broad tiers (admin/manager/member) and permissions for granular actions like `projects:create` or `tasks:assign`.
-Common patterns include "admin bypass" (admins skip some permission checks) and "resource ownership" (user can edit only their own resource unless elevated).
-Avoid building authorization solely in the frontend because it can be bypassed.
+After implementing, test these cases:
+
+```bash
+# Test with a valid token that has the required role
+curl -H "Cookie: accessToken=<valid_admin_token>" http://localhost:3000/api/admin/users
+# Expected: 200
+
+# Test with a token missing the required role
+curl -H "Cookie: accessToken=<valid_member_token>" http://localhost:3000/api/admin/users
+# Expected: 403 {"error": "Access denied. Required role: admin"}
+
+# Test with an expired/invalid token
+curl -H "Cookie: accessToken=expired_token" http://localhost:3000/api/projects
+# Expected: 401 {"error": "Invalid or expired token"}
+```
+
+If 403 isn't returned for unauthorized users, check that the middleware chain order is correct: `validateAndExtractAuth` must run before `requireRole`/`requirePermission`.
+
+## Patterns
+
+- Roles for broad tiers (admin/manager/member), permissions for granular actions (`projects:create`, `tasks:assign`)
+- Admin bypass: admins skip permission checks for operational tasks
+- Resource ownership: user can edit only their own resource unless role-elevated
 
 ## Checklist
 
-- Token is validated before decoding/using claims.
-- `roles` and `permissions` are normalized as arrays and attached to request context.
-- Every protected route applies `requireRole(...)` and/or `requirePermission(...)` at the boundary.
-- Permission names follow a consistent `resource:action` convention.
-- Client-side checks are treated as UX only; server-side checks are authoritative.
+- [ ] Token validated before decoding claims
+- [ ] `roles` and `permissions` normalized as arrays in request context
+- [ ] Every protected route uses `requireRole(...)` and/or `requirePermission(...)` at the boundary
+- [ ] Permission names follow `resource:action` convention
+- [ ] Server-side checks are authoritative; client-side checks are UX only
