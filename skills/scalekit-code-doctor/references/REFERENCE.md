@@ -225,15 +225,52 @@ Note: Go methods take `context.Context` as the first parameter for network calls
 | Method | Signature |
 |--------|-----------|
 | `listConnectedAccounts` | `(options?) → Promise<ListConnectedAccountsResponse>` |
-| `getConnectedAccountAuth` | `(options) → Promise<GetConnectedAccountAuthResponse>` |
-| `createConnectedAccount` | `(request) → Promise<CreateConnectedAccountResponse>` |
-| `updateConnectedAccount` | `(request) → Promise<UpdateConnectedAccountResponse>` |
-| `deleteConnectedAccount` | `(request) → Promise<void>` |
+| `createConnectedAccount` | `(params) → Promise<CreateConnectedAccountResponse>` |
+| `getOrCreateConnectedAccount` | `(params) → Promise<CreateConnectedAccountResponse>` |
+| `updateConnectedAccount` | `(params) → Promise<UpdateConnectedAccountResponse>` |
+| `deleteConnectedAccount` | `(params) → Promise<DeleteConnectedAccountResponse>` |
+| `getMagicLinkForConnectedAccount` | `(params) → Promise<GetMagicLinkForConnectedAccountResponse>` |
+| `getConnectedAccountByIdentifier` | `(params) → Promise<GetConnectedAccountByIdentifierResponse>` |
+| `verifyConnectedAccountUser` | `(params) → Promise<VerifyConnectedAccountUserResponse>` |
+
+`listConnectedAccounts` options: `organizationId?`, `userId?`, `connector?`, `identifier?`, `provider?`, `pageSize?`, `pageToken?`, `query?`.
+`createConnectedAccount` / `getOrCreateConnectedAccount` params: `connector` (required), `identifier` (required), `connectedAccount` (auth details), `organizationId?`, `userId?`.
+`deleteConnectedAccount` / `getConnectedAccountByIdentifier` params: `connector?`, `identifier?`, `connectedAccountId?`, `organizationId?`, `userId?` — provide either `connectedAccountId` or both `connector` + `identifier`.
 
 **client.tools**
 | Method | Signature |
 |--------|-----------|
-| `executeTool` | `(request) → Promise<ExecuteToolResponse>` |
+| `listTools` | `(options?) → Promise<ListToolsResponse>` |
+| `listScopedTools` | `(identifier: string, options) → Promise<ListScopedToolsResponse>` |
+| `listAvailableTools` | `(identifier: string, options?) → Promise<ListAvailableToolsResponse>` |
+| `executeTool` | `(params) → Promise<ExecuteToolResponse>` |
+
+`listTools` options: `filter?` (`{ summary?, provider?, identifier?, toolName?: string[], query?, connector?, organizationId?, userId?, connectedAccountId? }`), `pageSize?`, `pageToken?`.
+`listScopedTools` options: `filter` (required — `{ providers?: string[], toolNames?: string[], connectionNames?: string[] }`), `pageSize?`, `pageToken?`. Returns `{ tools: ScopedTool[], totalSize, nextPageToken }` where each `ScopedTool` has `{ tool: Tool, identifier: string, connectedAccountId: string }` and `Tool.definition` is a `JsonObject` containing `name`, `description`, `input_schema`, etc.
+`listAvailableTools` options: `pageSize?`, `pageToken?`.
+`executeTool` params: `toolName` (required), `identifier?`, `params?` (Record — the tool input data), `connectedAccountId?`, `connector?`, `organizationId?`, `userId?`. Provide either `connectedAccountId` or `identifier` for account resolution. Returns `{ data: JsonObject, executionId: string }`.
+
+> **Critical**: On `client.tools.executeTool`, the parameter for tool input data is called **`params`**, not `toolInput`. The `toolInput` name only exists on `client.actions.executeTool` (the facade). Mixing them up causes tool args to be silently dropped.
+
+**client.actions** (facade over `tools` + `connectedAccounts` with ergonomic names)
+| Method | Signature |
+|--------|-----------|
+| `executeTool` | `(params) → Promise<ExecuteToolResponse>` |
+| `getAuthorizationLink` | `(params) → Promise<GetMagicLinkForConnectedAccountResponse>` |
+| `verifyConnectedAccountUser` | `(params) → Promise<VerifyConnectedAccountUserResponse>` |
+| `listConnectedAccounts` | `(params?) → Promise<ListConnectedAccountsResponse>` |
+| `deleteConnectedAccount` | `(params) → Promise<DeleteConnectedAccountResponse>` |
+| `getConnectedAccount` | `(params) → Promise<GetConnectedAccountByIdentifierResponse>` |
+| `createConnectedAccount` | `(params) → Promise<CreateConnectedAccountResponse>` |
+| `getOrCreateConnectedAccount` | `(params) → Promise<CreateConnectedAccountResponse>` |
+| `updateConnectedAccount` | `(params) → Promise<UpdateConnectedAccountResponse>` |
+| `request` | `(params) → Promise<AxiosResponse>` |
+
+`actions.executeTool` params: `toolName` (required), **`toolInput`** (Record — the tool input data), `identifier?`, `connectedAccountId?`, `connector?`, `organizationId?`, `userId?`.
+`actions.getAuthorizationLink` params: `connectionName?`, `identifier?`, `connectedAccountId?`, `organizationId?`, `userId?`, `state?`, `userVerifyUrl?`.
+`actions.request` params: `connectionName` (required), `identifier` (required), `path` (required), `method?` (default `'GET'`), `queryParams?`, `body?`, `formData?`, `headers?`, `timeoutMs?`.
+
+> **Key difference**: `actions.executeTool` accepts `toolInput` (mapped internally to `params`). `tools.executeTool` accepts `params` directly. Actions also uses `connectionName` where tools/connectedAccounts uses `connector`.
 
 ### Python sub-clients (accessed via `client.<subclient>.<method>`)
 
@@ -291,6 +328,37 @@ Additional Python-only methods on client:
 - `client.generate_client_token(client_id, client_secret, scopes?) → str` — M2M token generation
 - `client.get_client_access_token() → str` — M2M token using stored credentials
 - `client.verify_interceptor_payload(secret, headers, payload) → bool` — interceptor signature verification
+
+**client.tools** (Python)
+- `client.tools.list_tools(filter?, page_size?, page_token?) → ListToolsResponse`
+- `client.tools.list_scoped_tools(identifier, filter?, page_size?, page_token?) → ListScopedToolsResponse`
+- `client.tools.execute_tool(tool_name, identifier, params?, connected_account_id?, connection_name?) → ExecuteToolResponse`
+
+`filter` for `list_scoped_tools` is a `ScopedToolFilter(providers=[], tool_names=[], connection_names=[])`.
+`params` in `execute_tool` is a `dict` (converted to protobuf Struct internally).
+
+**client.actions** (Python — facade over tools + connected_accounts)
+- `client.actions.execute_tool(tool_input, tool_name, identifier?, tool_request?, connected_account_id?, connection_name?) → ExecuteToolResponse`
+- `client.actions.get_authorization_link(identifier?, connection_name?, connected_account_id?, state?, user_verify_url?) → MagicLinkResponse`
+- `client.actions.verify_connected_account_user(auth_request_id, identifier) → VerifyConnectedAccountUserResponse`
+- `client.actions.list_connected_accounts(connection_name?, identifier?, ...) → ListConnectedAccountsResponse`
+- `client.actions.delete_connected_account(connection_name?, identifier?, connected_account_id?) → DeleteConnectedAccountResponse`
+- `client.actions.get_connected_account(connection_name?, identifier?, connected_account_id?) → GetConnectedAccountAuthResponse`
+- `client.actions.create_connected_account(connection_name, identifier, ...) → CreateConnectedAccountResponse`
+- `client.actions.get_or_create_connected_account(connection_name, identifier, ...) → CreateConnectedAccountResponse`
+- `client.actions.update_connected_account(connection_name, identifier, ...) → UpdateConnectedAccountResponse`
+
+> **Critical (Python)**: `actions.execute_tool` takes `tool_input` as the first positional arg. `tools.execute_tool` takes `params` as a keyword arg. Mixing them up silently drops tool input.
+
+**client.actions.langchain** (Python — built-in LangChain integration)
+- `client.actions.langchain.get_tools(identifier, providers?, tool_names?, connection_names?, page_size?, page_token?) → List[StructuredTool]`
+
+Returns ready-to-use LangChain `StructuredTool` instances. Requires `pip install langchain-core`. This handles schema conversion and `func` wiring automatically — prefer this over manual `DynamicStructuredTool` construction.
+
+**client.actions.google** (Python — built-in Google ADK integration)
+- `client.actions.google.get_tools(identifier, ...) → List[Tool]`
+
+Returns Google ADK `Tool` instances. Requires `pip install google-adk`.
 
 Note: Python connection/domain/directory methods often require `organization_id` as the first parameter, unlike Node which uses option objects.
 
