@@ -25,18 +25,19 @@ Do not rely on static connector notes as a complete catalog. Those may lag the l
 ## Live tool discovery (Python)
 
 ```python
-import scalekit.client, os
+from scalekit import ScalekitClient
+import os
 from dotenv import load_dotenv
 load_dotenv()
 
-client = scalekit.client.ScalekitClient(
+sk_client = ScalekitClient(
     client_id=os.getenv("SCALEKIT_CLIENT_ID"),
     client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
     env_url=os.getenv("SCALEKIT_ENVIRONMENT_URL"),
 )
 
 # List all tools for a provider
-tools = client.actions.get_tools(providers=["GMAIL"], page_size=100)
+tools = sk_client.actions.get_tools(providers=["GMAIL"], page_size=100)
 for tool in tools.tools:
     print(f"Tool: {tool.name}")
     print(f"  Description: {tool.description}")
@@ -44,7 +45,7 @@ for tool in tools.tools:
     print(f"  Output schema: {tool.output_schema}")
 
 # Get a specific tool by name
-tool = client.actions.get_tools(tool_name="gmail_fetch_mails")
+tool = sk_client.actions.get_tools(tool_name="gmail_fetch_mails")
 ```
 
 ## Live tool discovery (Node.js)

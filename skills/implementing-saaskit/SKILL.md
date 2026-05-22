@@ -55,10 +55,10 @@ Store tokens in HttpOnly cookies:
 // Node.js
 res.cookie('accessToken', authResult.accessToken, {
   maxAge: (authResult.expiresIn - 60) * 1000,
-  httpOnly: true, secure: true, path: '/api', sameSite: 'strict'
+  httpOnly: true, secure: true, path: '/api', sameSite: 'lax'
 });
 res.cookie('refreshToken', authResult.refreshToken, {
-  httpOnly: true, secure: true, path: '/auth/refresh', sameSite: 'strict'
+  httpOnly: true, secure: true, path: '/auth/refresh', sameSite: 'lax'
 });
 ```
 
@@ -74,7 +74,7 @@ Clear session data, then redirect to Scalekit's logout endpoint:
 ```js
 // Node.js
 clearSessionData();
-const logoutUrl = scalekit.getLogoutUrl(idTokenHint, postLogoutRedirectUri);
+const logoutUrl = scalekit.getLogoutUrl({ idTokenHint, postLogoutRedirectUri });
 res.redirect(logoutUrl); // One-time use URL; expires after logout
 ```
 

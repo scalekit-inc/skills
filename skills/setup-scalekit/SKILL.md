@@ -79,5 +79,5 @@ Describe your goal and the installed skill will guide implementation:
 | Resource | URL | When to use |
 |----------|-----|-------------|
 | LLM doc index | `https://docs.scalekit.com/llms.txt` | Maps each product to its doc set — start here |
-| API reference | `https://docs.scalekit.com/apis.md` | Full REST API (OpenAPI-generated) |
+| API reference | `https://docs.scalekit.com/apis` | Full REST API (OpenAPI-generated) |
 | Docs sitemap | `https://docs.scalekit.com/sitemap-0.xml` | Find specific guides or pages |

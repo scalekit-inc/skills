@@ -69,7 +69,9 @@ sc = ScalekitClient(
 @app.get("/auth/login")
 def login(response: Response):
     state = secrets.token_urlsafe(32)
-    response = RedirectResponse(sc.get_authorization_url(REDIRECT_URI, {"state": state}))
+    from scalekit.common.scalekit import AuthorizationUrlOptions
+    options = AuthorizationUrlOptions(state=state)
+    response = RedirectResponse(sc.get_authorization_url(REDIRECT_URI, options=options))
     response.set_cookie("oauth_state", state, httponly=True, samesite="lax", secure=True)
     return response
 
@@ -86,7 +88,8 @@ def callback(request: Request, code: str, state: str):
 
 @app.get("/auth/logout")
 def logout(request: Request):
-    logout_url = sc.get_logout_url({"post_logout_redirect_uri": "http://localhost:8000"})
+    from scalekit.common.scalekit import LogoutUrlOptions
+    logout_url = sc.get_logout_url(options=LogoutUrlOptions(post_logout_redirect_uri="http://localhost:8000"))
     # Clear your session here
     return RedirectResponse(logout_url)
 ```

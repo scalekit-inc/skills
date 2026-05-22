@@ -1,6 +1,6 @@
 # Scalekit API Reference — Compact Lookup
 
-This file contains every correct SDK method signature and REST endpoint. Use it as ground truth when generating or reviewing Scalekit code. If a method isn't listed here, do NOT assume it exists — verify against the live SDK source or `https://docs.scalekit.com/apis.md`.
+This file contains every correct SDK method signature and REST endpoint. Use it as ground truth when generating or reviewing Scalekit code. If a method isn't listed here, do NOT assume it exists — verify against the live SDK source or `https://docs.scalekit.com/apis`.
 
 ---
 

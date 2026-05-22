@@ -82,10 +82,11 @@ class ScalekitClientWrapper:
         )
 
     def get_authorization_url(self, state: str) -> str:
+        from scalekit.common.scalekit import AuthorizationUrlOptions
+        options = AuthorizationUrlOptions(state=state)
         return self._client.get_authorization_url(
             redirect_uri=settings.scalekit_redirect_uri,
-            scopes=settings.scalekit_scopes,
-            state=state,
+            options=options,
         )
 
     def exchange_code_for_tokens(self, code: str) -> dict:
@@ -95,13 +96,13 @@ class ScalekitClientWrapper:
         )
 
     def get_user_info(self, access_token: str) -> dict:
-        return self._client.get_user_info(access_token)
+        return self._client.validate_access_token_and_get_claims(access_token)
 
     def validate_token_and_get_claims(self, access_token: str) -> dict:
         return self._client.validate_access_token_and_get_claims(access_token)
 
     def refresh_access_token(self, refresh_token: str) -> dict:
-        return self._client.refresh_token(refresh_token)
+        return self._client.refresh_access_token(refresh_token)
 
     def has_permission(self, access_token: str, permission: str) -> bool:
         try:
@@ -115,10 +116,11 @@ class ScalekitClientWrapper:
             return False
 
     def logout(self, access_token: str) -> str:
-        return self._client.get_logout_url(
-            access_token=access_token,
-            post_logout_redirect_uri=settings.scalekit_redirect_uri.replace('/auth/callback', '/'),
+        from scalekit.common.scalekit import LogoutUrlOptions
+        options = LogoutUrlOptions(
+            post_logout_redirect_uri=settings.scalekit_redirect_uri.replace('/auth/callback', '/')
         )
+        return self._client.get_logout_url(options=options)
 
 @lru_cache(maxsize=1)
 def scalekit_client() -> ScalekitClientWrapper:

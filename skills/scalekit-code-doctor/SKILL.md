@@ -107,7 +107,7 @@ Resolution order when a method isn't in `references/REFERENCE.md`:
 |----------|--------|
 | 1 | Embedded `references/REFERENCE.md` |
 | 2 | Live SDK reference: `https://raw.githubusercontent.com/scalekit-inc/scalekit-sdk-{node,python,go,java}/main/REFERENCE.md` |
-| 3 | REST API: `https://docs.scalekit.com/apis.md` |
+| 3 | REST API: `https://docs.scalekit.com/apis` |
 | 4 | State explicitly: "This method could not be verified." |
 
 Never output code containing an unverified method call.
@@ -116,7 +116,7 @@ Never output code containing an unverified method call.
 
 | Resource | URL |
 |----------|-----|
-| REST API reference | `https://docs.scalekit.com/apis.md` |
+| REST API reference | `https://docs.scalekit.com/apis` |
 | LLM doc index | `https://docs.scalekit.com/llms.txt` |
 | SaaSKit docs | `https://docs.scalekit.com/_llms-txt/saaskit-complete.txt` |
 | AgentKit docs | `https://docs.scalekit.com/_llms-txt/agentkit.txt` |
