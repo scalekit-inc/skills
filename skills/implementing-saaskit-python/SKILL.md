@@ -70,8 +70,9 @@ sc = ScalekitClient(
 def login(response: Response):
     state = secrets.token_urlsafe(32)
     from scalekit.common.scalekit import AuthorizationUrlOptions
-    options = AuthorizationUrlOptions(state=state)
-    response = RedirectResponse(sc.get_authorization_url(REDIRECT_URI, options=options))
+    options = AuthorizationUrlOptions()
+    options.state = state
+    response = RedirectResponse(sc.get_authorization_url(REDIRECT_URI, options))
     response.set_cookie("oauth_state", state, httponly=True, samesite="lax", secure=True)
     return response
 
