@@ -62,12 +62,12 @@ Initialize the Scalekit client:
 ```python
 load_dotenv()
 
-scalekit = scalekit.client.ScalekitClient(
+sk_client = ScalekitClient(
     client_id=os.getenv("SCALEKIT_CLIENT_ID"),
     client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
     env_url=os.getenv("SCALEKIT_ENVIRONMENT_URL"),
 )
-my_mcp = scalekit.actions.mcp
+my_mcp = sk_client.actions.mcp
 ```
 
 ## Step 2 — Create an MCP config and server instance

@@ -25,16 +25,17 @@ Install the SDK and initialize the client:
 pip install scalekit-sdk-python
 ```
 ```python
-import scalekit.client, os
+from scalekit import ScalekitClient
+import os
 from dotenv import load_dotenv
 load_dotenv()
 
-scalekit = scalekit.client.ScalekitClient(
+sk_client = ScalekitClient(
     client_id=os.getenv("SCALEKIT_CLIENT_ID"),
     client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
     env_url=os.getenv("SCALEKIT_ENVIRONMENT_URL"),
 )
-actions = scalekit.actions
+actions = sk_client.actions
 ```
 
 **Node.js**
