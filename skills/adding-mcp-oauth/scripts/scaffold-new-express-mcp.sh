@@ -64,9 +64,9 @@ EOF
 echo "Creating .env.example..."
 cat > .env.example << 'EOF'
 PORT=3002
-SK_ENV_URL=https://your-env.scalekit.com
-SK_CLIENT_ID=your-client-id
-SK_CLIENT_SECRET=your-client-secret
+SCALEKIT_ENVIRONMENT_URL=https://your-env.scalekit.com
+SCALEKIT_CLIENT_ID=your-client-id
+SCALEKIT_CLIENT_SECRET=your-client-secret
 EXPECTED_AUDIENCE=http://localhost:3002/
 PROTECTED_RESOURCE_METADATA={"authorization_servers":["https://your-env.scalekit.com/resources/your-resource-id"],"bearer_methods_supported":["header"],"resource":"http://localhost:3002/","resource_documentation":"https://your-docs-url.com","scopes_supported":["todo:read","todo:write"]}
 EOF
@@ -85,9 +85,9 @@ const app = express();
 const PORT = parseInt(process.env.PORT || '3002', 10);
 
 const scalekit = new ScalekitClient(
-  process.env.SK_ENV_URL!,
-  process.env.SK_CLIENT_ID!,
-  process.env.SK_CLIENT_SECRET!
+  process.env.SCALEKIT_ENVIRONMENT_URL!,
+  process.env.SCALEKIT_CLIENT_ID!,
+  process.env.SCALEKIT_CLIENT_SECRET!
 );
 
 const EXPECTED_AUDIENCE = process.env.EXPECTED_AUDIENCE!;
