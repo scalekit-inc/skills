@@ -83,7 +83,8 @@ class ScalekitClientWrapper:
 
     def get_authorization_url(self, state: str) -> str:
         from scalekit.common.scalekit import AuthorizationUrlOptions
-        options = AuthorizationUrlOptions(state=state)
+        options = AuthorizationUrlOptions()
+        options.state = state
         return self._client.get_authorization_url(
             redirect_uri=settings.scalekit_redirect_uri,
             options=options,
