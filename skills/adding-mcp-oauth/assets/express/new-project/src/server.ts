@@ -9,9 +9,9 @@ const app = express();
 const PORT = parseInt(process.env.PORT || '3002', 10);
 
 const scalekit = new ScalekitClient(
-  process.env.SK_ENV_URL!,
-  process.env.SK_CLIENT_ID!,
-  process.env.SK_CLIENT_SECRET!
+  process.env.SCALEKIT_ENVIRONMENT_URL!,
+  process.env.SCALEKIT_CLIENT_ID!,
+  process.env.SCALEKIT_CLIENT_SECRET!
 );
 
 const EXPECTED_AUDIENCE = process.env.EXPECTED_AUDIENCE!;

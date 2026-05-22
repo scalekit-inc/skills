@@ -29,7 +29,7 @@ Order matters:
 
 ## Inputs to collect (ask if missing)
 - PORT (default 3002)
-- SK_ENV_URL, SK_CLIENT_ID, SK_CLIENT_SECRET
+- SCALEKIT_ENVIRONMENT_URL, SCALEKIT_CLIENT_ID, SCALEKIT_CLIENT_SECRET
 - EXPECTED_AUDIENCE — must match the Server URL registered in Scalekit (with trailing slash, e.g. http://localhost:3002/)
 - PROTECTED_RESOURCE_METADATA JSON — copied from Scalekit dashboard MCP server page
 
@@ -40,7 +40,7 @@ Order matters:
    - Exempts /.well-known/oauth-protected-resource and /health
    - Extracts Authorization: Bearer <token>
    - On missing token → 401 + WWW-Authenticate header
-   - Validates via scalekit_client.validate_access_token(token, options=TokenValidationOptions(issuer=SK_ENV_URL, audience=[EXPECTED_AUDIENCE]))
+   - Validates via scalekit_client.validate_access_token(token, options=TokenValidationOptions(issuer=SCALEKIT_ENVIRONMENT_URL, audience=[EXPECTED_AUDIENCE]))
    - On invalid → 401 + WWW-Authenticate
 4. FastMCP mounted at / with lifespan=mcp_app.lifespan
 5. At least one @mcp.tool registered
@@ -92,9 +92,9 @@ Ask for the existing server entrypoint. Look for:
 
 ### 1. Add env vars
 ```env
-SK_ENV_URL=...
-SK_CLIENT_ID=...
-SK_CLIENT_SECRET=...
+SCALEKIT_ENVIRONMENT_URL=...
+SCALEKIT_CLIENT_ID=...
+SCALEKIT_CLIENT_SECRET=...
 EXPECTED_AUDIENCE=http://localhost:3002/
 PROTECTED_RESOURCE_METADATA='...'
 ```
@@ -115,9 +115,9 @@ WWW_HEADER = {
     "WWW-Authenticate": f'Bearer realm="OAuth", resource_metadata="{RESOURCE_METADATA_URL}"'
 }
 scalekit_client = ScalekitClient(
-    env_url=SK_ENV_URL,
-    client_id=SK_CLIENT_ID,
-    client_secret=SK_CLIENT_SECRET,
+    env_url=SCALEKIT_ENVIRONMENT_URL,
+    client_id=SCALEKIT_CLIENT_ID,
+    client_secret=SCALEKIT_CLIENT_SECRET,
 )
 ```
 
@@ -171,7 +171,7 @@ async def auth_middleware(request: Request, call_next):
         )
 
     token = auth_header.split("Bearer ", 1)[1].strip()
-    options = TokenValidationOptions(issuer=SK_ENV_URL, audience=[EXPECTED_AUDIENCE])
+    options = TokenValidationOptions(issuer=SCALEKIT_ENVIRONMENT_URL, audience=[EXPECTED_AUDIENCE])
 
     try:
         is_valid = scalekit_client.validate_access_token(token, options=options)
@@ -261,9 +261,9 @@ from scalekit import ScalekitClient
 from scalekit.common.scalekit import TokenValidationOptions
 
 scalekit_client = ScalekitClient(
-    env_url=SK_ENV_URL,
-    client_id=SK_CLIENT_ID,
-    client_secret=SK_CLIENT_SECRET,
+    env_url=SCALEKIT_ENVIRONMENT_URL,
+    client_id=SCALEKIT_CLIENT_ID,
+    client_secret=SCALEKIT_CLIENT_SECRET,
 )
 ```
 
@@ -274,7 +274,7 @@ async def auth_middleware(request: Request, call_next):
     token = extract_bearer_token(request)
 
     options = TokenValidationOptions(
-        issuer=SK_ENV_URL,
+        issuer=SCALEKIT_ENVIRONMENT_URL,
         audience=[EXPECTED_AUDIENCE]
     )
 
@@ -311,7 +311,7 @@ WWW_HEADER = {
 | **Token Validation** | Built-in provider | `validate_access_token()` | `validateToken()` |
 | **Audience Env Var** | `SCALEKIT_RESOURCE_ID` + `MCP_URL` | `EXPECTED_AUDIENCE` | `EXPECTED_AUDIENCE` |
 | **MCP Endpoint** | `/mcp` (auto) | `/` (mount path) | `/` (you define) |
-| **Client Secret** | Not required | Required (`SK_CLIENT_SECRET`) | Required (`SK_CLIENT_SECRET`) |
+| **Client Secret** | Not required | Required (`SCALEKIT_CLIENT_SECRET`) | Required (`SCALEKIT_CLIENT_SECRET`) |
 | **Use When** | Simple standalone MCP | Existing FastAPI app | Node.js/TypeScript |
 
 ### Choosing the Right Approach
@@ -471,9 +471,9 @@ Never commit credentials:
 
 ```python
 # Load from environment only
-SK_CLIENT_SECRET = os.getenv("SK_CLIENT_SECRET")
-if not SK_CLIENT_SECRET:
-    raise ValueError("SK_CLIENT_SECRET environment variable is required")
+SCALEKIT_CLIENT_SECRET = os.getenv("SCALEKIT_CLIENT_SECRET")
+if not SCALEKIT_CLIENT_SECRET:
+    raise ValueError("SCALEKIT_CLIENT_SECRET environment variable is required")
 ```
 
 ### Logging
@@ -658,20 +658,20 @@ async def auth_middleware(request: Request, call_next):
 EXPECTED_AUDIENCE=http://localhost:3002/  # Note trailing slash
 ```
 
-**Cause 2**: Missing `SK_CLIENT_SECRET`
+**Cause 2**: Missing `SCALEKIT_CLIENT_SECRET`
 - FastAPI + FastMCP requires client secret (unlike standalone FastMCP)
 
 **Solution**:
 ```env
-SK_CLIENT_SECRET=your-secret-from-scalekit-dashboard
+SCALEKIT_CLIENT_SECRET=your-secret-from-scalekit-dashboard
 ```
 
-**Cause 3**: Wrong issuer (`SK_ENV_URL`)
+**Cause 3**: Wrong issuer (`SCALEKIT_ENVIRONMENT_URL`)
 
 **Solution**:
 ```env
 # Must match Scalekit environment URL
-SK_ENV_URL=https://your-env.scalekit.com
+SCALEKIT_ENVIRONMENT_URL=https://your-env.scalekit.com
 ```
 
 ### WWW-Authenticate Header Missing
@@ -818,7 +818,7 @@ echo "<your-access-token>" | jq -R 'split(".") | .[1] | @base64d | fromjson'
 
 Check:
 - `aud`: Should match `EXPECTED_AUDIENCE`
-- `iss`: Should match `SK_ENV_URL`
+- `iss`: Should match `SCALEKIT_ENVIRONMENT_URL`
 - `exp`: Should not be expired
 - `scope`: Should include required scopes (if using scope checks)
 
@@ -846,9 +846,9 @@ Order should be:
 
 | Variable | Common Mistake | Correct Value |
 |----------|----------------|---------------|
-| `SK_ENV_URL` | Missing protocol | `https://your-env.scalekit.com` |
-| `SK_CLIENT_ID` | Wrong client ID | Copy from MCP Server page |
-| `SK_CLIENT_SECRET` | Missing (unlike FastMCP-standalone) | Copy from dashboard |
+| `SCALEKIT_ENVIRONMENT_URL` | Missing protocol | `https://your-env.scalekit.com` |
+| `SCALEKIT_CLIENT_ID` | Wrong client ID | Copy from MCP Server page |
+| `SCALEKIT_CLIENT_SECRET` | Missing (unlike FastMCP-standalone) | Copy from dashboard |
 | `EXPECTED_AUDIENCE` | Missing trailing slash | `http://localhost:3002/` |
 | `PROTECTED_RESOURCE_METADATA` | Not JSON-escaped | `'{"key":"value"}'` (quotes around JSON) |
 | `PORT` | Already in use | Choose unused port |
@@ -859,8 +859,8 @@ Order should be:
 **Symptom**: Using `SCALEKIT_RESOURCE_ID` and `MCP_URL` (FastMCP-standalone) instead of `EXPECTED_AUDIENCE` (FastAPI).
 
 **Solution**: Remember:
-- **FastAPI + FastMCP**: Uses Express-style env vars (`EXPECTED_AUDIENCE`, `SK_CLIENT_SECRET`)
-- **Standalone FastMCP**: Uses different env vars (`SCALEKIT_RESOURCE_ID`, `MCP_URL`, no `SK_CLIENT_SECRET`)
+- **FastAPI + FastMCP**: Uses Express-style env vars (`EXPECTED_AUDIENCE`, `SCALEKIT_CLIENT_SECRET`)
+- **Standalone FastMCP**: Uses different env vars (`SCALEKIT_RESOURCE_ID`, `MCP_URL`, no `SCALEKIT_CLIENT_SECRET`)
 
 Don't mix the approaches!
 

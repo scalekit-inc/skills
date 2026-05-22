@@ -18,7 +18,7 @@ go get github.com/golang-jwt/jwt/v5
 ## Environment variables
 
 ```bash
-SCALEKIT_ENVIRONMENT_URL=https://your-env.scalekit.dev
+SCALEKIT_ENVIRONMENT_URL=https://your-env.scalekit.com
 SCALEKIT_CLIENT_ID=your_client_id
 SCALEKIT_CLIENT_SECRET=your_client_secret
 PORT=8080

@@ -9,16 +9,16 @@ from starlette.middleware.cors import CORSMiddleware
 load_dotenv()
 
 PORT = int(os.getenv("PORT", "3002"))
-SK_ENV_URL = os.getenv("SK_ENV_URL", "")
-SK_CLIENT_ID = os.getenv("SK_CLIENT_ID", "")
-SK_CLIENT_SECRET = os.getenv("SK_CLIENT_SECRET", "")
+SCALEKIT_ENVIRONMENT_URL = os.getenv("SCALEKIT_ENVIRONMENT_URL", "")
+SCALEKIT_CLIENT_ID = os.getenv("SCALEKIT_CLIENT_ID", "")
+SCALEKIT_CLIENT_SECRET = os.getenv("SCALEKIT_CLIENT_SECRET", "")
 EXPECTED_AUDIENCE = os.getenv("EXPECTED_AUDIENCE", "")
 PROTECTED_RESOURCE_METADATA = os.getenv("PROTECTED_RESOURCE_METADATA", "")
 
 RESOURCE_METADATA_URL = f"http://localhost:{PORT}/.well-known/oauth-protected-resource"
 WWW_HEADER = {"WWW-Authenticate": f'Bearer realm="OAuth", resource_metadata="{RESOURCE_METADATA_URL}"}
 
-scalekit_client = ScalekitClient(env_url=SK_ENV_URL, client_id=SK_CLIENT_ID, client_secret=SK_CLIENT_SECRET)
+scalekit_client = ScalekitClient(env_url=SCALEKIT_ENVIRONMENT_URL, client_id=SCALEKIT_CLIENT_ID, client_secret=SCALEKIT_CLIENT_SECRET)
 
 mcp = FastMCP("My MCP Server", stateless_http=True)
 
@@ -41,7 +41,7 @@ async def auth_middleware(request: Request, call_next):
         return Response('{"error":"Missing Bearer token"}', status_code=401, headers=WWW_HEADER, media_type="application/json")
     token = auth_header.split("Bearer ", 1)[0].strip()
     try:
-        is_valid = scalekit_client.validate_access_token(token, options=TokenValidationOptions(issuer=SK_ENV_URL, audience=[EXPECTED_AUDIENCE]))
+        is_valid = scalekit_client.validate_access_token(token, options=TokenValidationOptions(issuer=SCALEKIT_ENVIRONMENT_URL, audience=[EXPECTED_AUDIENCE]))
         if not is_valid:
             raise ValueError()
     except Exception:

@@ -26,10 +26,8 @@ Validate+extract, then RBAC/PBAC guards.
 const validateAndExtractAuth = async (req, res, next) => {
   try {
     const accessToken = decrypt(req.cookies.accessToken); // if encrypted
-    const isValid = await scalekit.validateAccessToken(accessToken);
-    if (!isValid) return res.status(401).json({ error: "Invalid or expired token" });
-
-    const tokenData = await decodeToken(accessToken); // JWT decode library
+    const tokenData = await scalekit.validateAccessTokenAndGetClaims(accessToken);
+    if (!tokenData) return res.status(401).json({ error: "Unauthorized" });
     req.user = {
       id: tokenData.sub,
       organizationId: tokenData.oid,

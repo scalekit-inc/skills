@@ -7,7 +7,7 @@ Ask: "Are we scaffolding a brand-new MCP server repo, or adding MCP auth into an
 
 ## Inputs to collect (ask if missing)
 - Server base URL and port; confirm whether trailing slash is required for the audience (example: http://localhost:3002/)
-- SK_ENV_URL, SK_CLIENT_ID, SK_CLIENT_SECRET
+- SCALEKIT_ENVIRONMENT_URL, SCALEKIT_CLIENT_ID, SCALEKIT_CLIENT_SECRET
 - PROTECTED_RESOURCE_METADATA JSON (copied from Scalekit dashboard MCP server page)
 - EXPECTED_AUDIENCE (must match the Server URL registered in Scalekit)
 
@@ -305,9 +305,9 @@ Check `aud`, `iss`, `exp`, and `scope` claims.
 import { ScalekitClient } from '@scalekit-sdk/node';
 
 const scalekit = new ScalekitClient(
-  process.env.SK_ENV_URL,
-  process.env.SK_CLIENT_ID,
-  process.env.SK_CLIENT_SECRET
+  process.env.SCALEKIT_ENVIRONMENT_URL,
+  process.env.SCALEKIT_CLIENT_ID,
+  process.env.SCALEKIT_CLIENT_SECRET
 );
 
 // Test connection
@@ -345,7 +345,7 @@ curl -X POST http://localhost:3002/ \
 
 | Variable | Common Mistake | Correct Value |
 |----------|----------------|---------------|
-| `SK_ENV_URL` | Missing protocol | `https://your-env.scalekit.com` |
+| `SCALEKIT_ENVIRONMENT_URL` | Missing protocol | `https://your-env.scalekit.com` |
 | `EXPECTED_AUDIENCE` | Wrong casing | Must match Scalekit "Server URL" exactly |
 | `PROTECTED_RESOURCE_METADATA` | Not JSON-escaped | Must be valid JSON string |
 | `PORT` | Already in use | Choose unused port (3002, 8080, etc.) |

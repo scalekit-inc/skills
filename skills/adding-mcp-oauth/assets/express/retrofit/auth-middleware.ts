@@ -2,9 +2,9 @@ import { Request, Response, NextFunction } from 'express';
 import { ScalekitClient } from '@scalekit-sdk/node';
 
 const scalekit = new ScalekitClient(
-  process.env.SK_ENV_URL!,
-  process.env.SK_CLIENT_ID!,
-  process.env.SK_CLIENT_SECRET!
+  process.env.SCALEKIT_ENVIRONMENT_URL!,
+  process.env.SCALEKIT_CLIENT_ID!,
+  process.env.SCALEKIT_CLIENT_SECRET!
 );
 
 const EXPECTED_AUDIENCE = process.env.EXPECTED_AUDIENCE!;

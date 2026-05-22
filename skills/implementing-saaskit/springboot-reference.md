@@ -151,7 +151,7 @@ Key `OidcUser` accessors: `getFullName()`, `getEmail()`, `getSubject()`, `getCla
 ## Scalekit Dashboard setup checklist
 
 ```
-- [ ] Get Environment URL (e.g., https://your-env.scalekit.dev)
+- [ ] Get Environment URL (e.g., https://your-env.scalekit.com)
 - [ ] Get Client ID and Client Secret from Settings > API Credentials
 - [ ] Add allowed redirect URI: http://localhost:8080/login/oauth2/code/scalekit
 - [ ] Optionally add post-logout redirect: http://localhost:8080
