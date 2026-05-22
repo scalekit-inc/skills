@@ -30,7 +30,7 @@ from scalekit import ScalekitClient
 load_dotenv()
 
 sc = ScalekitClient(
-    env_url=os.getenv("SCALEKIT_ENV_URL"),
+    env_url=os.getenv("SCALEKIT_ENVIRONMENT_URL"),
     client_id=os.getenv("SCALEKIT_CLIENT_ID"),
     client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
 )
@@ -61,7 +61,7 @@ app = FastAPI()
 REDIRECT_URI = os.getenv("SCALEKIT_REDIRECT_URI", "http://localhost:8000/auth/callback")
 
 sc = ScalekitClient(
-    env_url=os.getenv("SCALEKIT_ENV_URL"),
+    env_url=os.getenv("SCALEKIT_ENVIRONMENT_URL"),
     client_id=os.getenv("SCALEKIT_CLIENT_ID"),
     client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
 )

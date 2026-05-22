@@ -7,12 +7,12 @@ Reference implementation: [scalekit-inc/scalekit-fastapi-auth-example](https://g
 ## Step 1 — Install dependencies
 
 ```bash
-pip install scalekit-sdk python-dotenv pydantic-settings starlette
+pip install scalekit-sdk-python python-dotenv pydantic-settings starlette
 ```
 
 Add to `requirements.txt`:
 ```
-scalekit-sdk>=0.1.0
+scalekit-sdk-python>=0.1.0
 python-dotenv
 pydantic-settings
 starlette
@@ -25,7 +25,7 @@ starlette
 Create `.env` (never commit this):
 
 ```env
-SCALEKIT_ENV_URL=https://your-env.scalekit.com
+SCALEKIT_ENVIRONMENT_URL=https://your-env.scalekit.com
 SCALEKIT_CLIENT_ID=your_client_id
 SCALEKIT_CLIENT_SECRET=your_client_secret
 SCALEKIT_REDIRECT_URI=http://localhost:8000/auth/callback
@@ -49,7 +49,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class Settings(BaseSettings):
-    scalekit_env_url: str = os.getenv('SCALEKIT_ENV_URL', '')
+    scalekit_env_url: str = os.getenv('SCALEKIT_ENVIRONMENT_URL', '')
     scalekit_client_id: str = os.getenv('SCALEKIT_CLIENT_ID', '')
     scalekit_client_secret: str = os.getenv('SCALEKIT_CLIENT_SECRET', '')
     scalekit_redirect_uri: str = os.getenv('SCALEKIT_REDIRECT_URI', 'http://localhost:8000/auth/callback')
@@ -98,7 +98,7 @@ class ScalekitClientWrapper:
         return self._client.get_user_info(access_token)
 
     def validate_token_and_get_claims(self, access_token: str) -> dict:
-        return self._client.validate_access_token(access_token)
+        return self._client.validate_access_token_and_get_claims(access_token)
 
     def refresh_access_token(self, refresh_token: str) -> dict:
         return self._client.refresh_token(refresh_token)

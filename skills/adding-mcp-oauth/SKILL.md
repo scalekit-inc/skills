@@ -101,9 +101,9 @@ Replace placeholders with actual values from Scalekit dashboard.
 
 **Node.js:**
 ```javascript
-import { Scalekit } from '@scalekit-sdk/node';
+import { ScalekitClient } from '@scalekit-sdk/node';
 
-const scalekit = new Scalekit(
+const scalekit = new ScalekitClient(
   process.env.SCALEKIT_ENVIRONMENT_URL,
   process.env.SCALEKIT_CLIENT_ID,
   process.env.SCALEKIT_CLIENT_SECRET
@@ -204,7 +204,7 @@ async def auth_middleware(request: Request, call_next):
             issuer=os.getenv("SCALEKIT_ENVIRONMENT_URL"),
             audience=[RESOURCE_ID]
         )
-        scalekit_client.validate_token(token, options=options)
+        scalekit_client.validate_access_token(token, options=options)
     except Exception:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

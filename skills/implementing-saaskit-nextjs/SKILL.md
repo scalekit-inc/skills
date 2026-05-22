@@ -26,7 +26,7 @@ lib/
 ## Environment variables
 
 ```env
-SCALEKIT_ENV_URL=https://your-env.scalekit.io
+SCALEKIT_ENVIRONMENT_URL=https://your-env.scalekit.com
 SCALEKIT_CLIENT_ID=your-client-id
 SCALEKIT_CLIENT_SECRET=your-client-secret
 SCALEKIT_REDIRECT_URI=http://localhost:3000/auth/callback

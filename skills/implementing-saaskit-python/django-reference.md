@@ -21,14 +21,14 @@ scalekit_django_auth/
 ## Environment variables
 
 ```env
-SCALEKIT_ENV_URL=https://your-env.scalekit.io
+SCALEKIT_ENVIRONMENT_URL=https://your-env.scalekit.com
 SCALEKIT_CLIENT_ID=your-client-id
 SCALEKIT_CLIENT_SECRET=your-client-secret
 SCALEKIT_REDIRECT_URI=http://localhost:8000/auth/callback
 # SCALEKIT_SCOPES is set directly in settings.py, not from env
 ```
 
-> `SCALEKIT_ENV_URL` also falls back to `SCALEKIT_DOMAIN` for backward compatibility.
+> `SCALEKIT_ENVIRONMENT_URL` also falls back to `SCALEKIT_DOMAIN` for backward compatibility.
 > `SCALEKIT_REDIRECT_URI` has no trailing slash — this avoids Django redirect issues.
 
 ## Django settings (`settings.py`)
@@ -59,7 +59,7 @@ SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = 'Lax'
 SESSION_SAVE_EVERY_REQUEST = True  # Required — ensures OAuth state persists across requests
 
-SCALEKIT_ENV_URL = os.getenv('SCALEKIT_ENV_URL', os.getenv('SCALEKIT_DOMAIN', ''))
+SCALEKIT_ENVIRONMENT_URL = os.getenv('SCALEKIT_ENVIRONMENT_URL', os.getenv('SCALEKIT_DOMAIN', ''))
 SCALEKIT_CLIENT_ID = os.getenv('SCALEKIT_CLIENT_ID', '')
 SCALEKIT_CLIENT_SECRET = os.getenv('SCALEKIT_CLIENT_SECRET', '')
 SCALEKIT_REDIRECT_URI = os.getenv('SCALEKIT_REDIRECT_URI', 'http://localhost:8000/auth/callback')
@@ -213,7 +213,7 @@ Use `reverse('auth_app:dashboard')` / `{% url 'auth_app:login' %}` in templates.
 ## Install
 
 ```bash
-pip install scalekit python-dotenv django
+pip install scalekit-sdk-python python-dotenv django
 python manage.py migrate   # Creates session table (db.sqlite3, zero-config)
 python manage.py runserver
 ```

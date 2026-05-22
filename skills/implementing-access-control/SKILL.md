@@ -10,7 +10,7 @@ After authentication is working and the app must authorize access to routes/acti
 
 ## Workflow
 1. Validate the access token (expiry, issuer/audience as applicable) and then decode it to extract `sub`, `oid`, `roles`, and `permissions`.
-2. Attach a normalized auth context to the request (ele: `req.user = { id, organizationId, roles, permissions }`) so downstream handlers can authorize consistently.
+2. Attach a normalized auth context to the request (e.g., `req.user = { id, organizationId, roles, permissions }`) so downstream handlers can authorize consistently.
 3. Enforce authorization at route boundaries using (a) role checks for broad access patterns and (b) permission checks for fine-grained actions (often `resource:action`).
 4. Combine checks when needed (examples: "admin bypass", "resource ownership", time-based restrictions for sensitive operations).
 5. Never rely on client-side authorization alone; enforce roles/permissions server-side.
@@ -68,10 +68,10 @@ def validate_and_extract_auth(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         access_token = decrypt(request.cookies.get("accessToken"))
-        if not scalekit_client.validate_access_token(access_token):
+        try:
+            token_data = scalekit_client.validate_access_token_and_get_claims(access_token)
+        except Exception:
             return jsonify({"error": "Invalid or expired token"}), 401
-
-        token_data = scalekit_client.decode_access_token(access_token)
         request.user = {
             "id": token_data.get("sub"),
             "organization_id": token_data.get("oid"),

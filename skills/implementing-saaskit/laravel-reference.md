@@ -29,7 +29,7 @@ routes/
 ## Environment variables
 
 ```env
-SCALEKIT_ENV_URL=https://your-env.scalekit.io
+SCALEKIT_ENVIRONMENT_URL=https://your-env.scalekit.com
 SCALEKIT_CLIENT_ID=your-client-id
 SCALEKIT_CLIENT_SECRET=your-client-secret
 SCALEKIT_REDIRECT_URI=http://localhost:8000/auth/callback
@@ -62,6 +62,8 @@ use App\Services\ScalekitClient;
 | `hasPermission($token, $permission)` | Decodes JWT, checks permission claim chain | — |
 | `logout($accessToken)` | Builds `{env_url}/oidc/logout?post_logout_redirect_uri=...` | None |
 | `isTokenExpired($expiresAt)` | `now()->addMinutes(5)->gt(Carbon::parse($expiresAt))` | — |
+
+> **Security warning:** the `validateTokenAndGetClaims` pattern above performs a manual base64 JWT decode and **does not verify the token signature**. This is acceptable only for local demos. For production, verify tokens against Scalekit's JWKS endpoint (`{env_url}/keys`) using a library such as [`firebase/php-jwt`](https://github.com/firebase/php-jwt) (`JWT::decode($token, JWK::parseKeySet($jwks), ['RS256'])`). Skipping signature verification means an attacker can forge claims by crafting any JWT with the expected `iss`/`aud`.
 
 Token exchange and refresh use `Http::asForm()->withBasicAuth(clientId, clientSecret)`. Both fall back to `expires_in = 3600` if the field is missing.
 

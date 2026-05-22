@@ -24,7 +24,7 @@ npm i -g @scalekit-inc/cli
 
 Confirm these environment variables are available:
 
-- `SCALEKIT_ENV_URL` — your Scalekit environment URL
+- `SCALEKIT_ENVIRONMENT_URL` — your Scalekit environment URL
 - `SCALEKIT_CLIENT_ID` — your client ID from app.scalekit.com > Settings
 
 ## Running the test
@@ -32,7 +32,7 @@ Confirm these environment variables are available:
 ### Full-stack auth (fsa)
 
 ```bash
-npx @scalekit-sdk/dryrun --env_url=$SCALEKIT_ENV_URL --client_id=$SCALEKIT_CLIENT_ID --mode=fsa
+npx @scalekit-sdk/dryrun --env_url=$SCALEKIT_ENVIRONMENT_URL --client_id=$SCALEKIT_CLIENT_ID --mode=fsa
 ```
 
 ### Enterprise SSO
@@ -40,7 +40,7 @@ npx @scalekit-sdk/dryrun --env_url=$SCALEKIT_ENV_URL --client_id=$SCALEKIT_CLIEN
 Requires an `organization_id` — ask for it if not provided.
 
 ```bash
-npx @scalekit-sdk/dryrun --env_url=$SCALEKIT_ENV_URL --client_id=$SCALEKIT_CLIENT_ID --mode=sso --organization_id=<organization_id>
+npx @scalekit-sdk/dryrun --env_url=$SCALEKIT_ENVIRONMENT_URL --client_id=$SCALEKIT_CLIENT_ID --mode=sso --organization_id=<organization_id>
 ```
 
 ## Choosing the mode

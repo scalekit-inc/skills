@@ -13,12 +13,12 @@ Work through each section in order — earlier sections are blockers for later o
 
 ```bash
 # Confirm production credentials are set (not dev/staging)
-echo $SCALEKIT_ENV_URL    # should be https://<subdomain>.scalekit.com (not .scalekit.dev)
+echo $SCALEKIT_ENVIRONMENT_URL    # should be https://<subdomain>.scalekit.com (not .scalekit.dev)
 echo $SCALEKIT_CLIENT_ID  # should be set
 echo $SCALEKIT_CLIENT_SECRET  # should be set
 
 # Verify token endpoint works
-curl -s -o /dev/null -w "%{http_code}" -X POST "$SCALEKIT_ENV_URL/oauth/token" \
+curl -s -o /dev/null -w "%{http_code}" -X POST "$SCALEKIT_ENVIRONMENT_URL/oauth/token" \
   -d "client_id=$SCALEKIT_CLIENT_ID&client_secret=$SCALEKIT_CLIENT_SECRET&grant_type=client_credentials"
 # Expected: 200
 ```

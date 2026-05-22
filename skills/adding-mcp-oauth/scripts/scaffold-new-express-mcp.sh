@@ -79,12 +79,12 @@ import express from 'express';
 import cors from 'cors';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
-import { Scalekit } from '@scalekit-sdk/node';
+import { ScalekitClient } from '@scalekit-sdk/node';
 
 const app = express();
 const PORT = parseInt(process.env.PORT || '3002', 10);
 
-const scalekit = new Scalekit(
+const scalekit = new ScalekitClient(
   process.env.SK_ENV_URL!,
   process.env.SK_CLIENT_ID!,
   process.env.SK_CLIENT_SECRET!

@@ -12,7 +12,7 @@ This file contains every correct SDK method signature and REST endpoint. Use it 
 import { ScalekitClient } from '@scalekit-sdk/node';
 
 const scalekit = new ScalekitClient(
-  process.env.SCALEKIT_ENV_URL!,       // string — environment URL
+  process.env.SCALEKIT_ENVIRONMENT_URL!,       // string — environment URL
   process.env.SCALEKIT_CLIENT_ID!,     // string — client ID
   process.env.SCALEKIT_CLIENT_SECRET!  // string — client secret
 );
@@ -24,19 +24,19 @@ const scalekit = new ScalekitClient(
 from scalekit import ScalekitClient
 
 scalekit_client = ScalekitClient(
-    os.environ.get('SCALEKIT_ENV_URL'),       # str — environment URL
+    os.environ.get('SCALEKIT_ENVIRONMENT_URL'),       # str — environment URL
     os.environ.get('SCALEKIT_CLIENT_ID'),     # str — client ID
     os.environ.get('SCALEKIT_CLIENT_SECRET')  # str — client secret
 )
 ```
 
-### Go (`github.com/scalekit-inc/scalekit-sdk-go`)
+### Go (`github.com/scalekit-inc/scalekit-sdk-go/v2`)
 
 ```go
 import scalekit "github.com/scalekit-inc/scalekit-sdk-go/v2"
 
 client := scalekit.NewScalekitClient(
-    os.Getenv("SCALEKIT_ENV_URL"),       // string — environment URL
+    os.Getenv("SCALEKIT_ENVIRONMENT_URL"),       // string — environment URL
     os.Getenv("SCALEKIT_CLIENT_ID"),     // string — client ID
     os.Getenv("SCALEKIT_CLIENT_SECRET"), // string — client secret
 )
@@ -48,7 +48,7 @@ client := scalekit.NewScalekitClient(
 import com.scalekit.ScalekitClient;
 
 ScalekitClient client = new ScalekitClient(
-    System.getenv("SCALEKIT_ENV_URL"),       // String — environment URL
+    System.getenv("SCALEKIT_ENVIRONMENT_URL"),       // String — environment URL
     System.getenv("SCALEKIT_CLIENT_ID"),     // String — client ID
     System.getenv("SCALEKIT_CLIENT_SECRET")  // String — client secret
 );
@@ -60,13 +60,13 @@ ScalekitClient client = new ScalekitClient(
 
 | Variable | Purpose | Format |
 |----------|---------|--------|
-| `SCALEKIT_ENV_URL` | Environment URL | `https://<subdomain>.scalekit.com` (prod) or `https://<subdomain>.scalekit.dev` (dev) |
+| `SCALEKIT_ENVIRONMENT_URL` | Environment URL | `https://<subdomain>.scalekit.com` (prod) or `https://<subdomain>.scalekit.dev` (dev) |
 | `SCALEKIT_CLIENT_ID` | Client ID | String from dashboard |
 | `SCALEKIT_CLIENT_SECRET` | Client secret | String from dashboard |
 | `SCALEKIT_REDIRECT_URI` | OAuth callback URL | Must exactly match dashboard config |
 | `SCALEKIT_WEBHOOK_SECRET` | Webhook signing secret | Format: `whsec_...` |
 
-Note: The REST API docs use `SCALEKIT_ENVIRONMENT_URL` in some examples. Both `SCALEKIT_ENV_URL` and `SCALEKIT_ENVIRONMENT_URL` are acceptable — just be consistent within a project.
+Note: `SCALEKIT_ENVIRONMENT_URL` is the canonical name — it matches the SDK constructor parameter name. Older docs/examples sometimes used `SCALEKIT_ENVIRONMENT_URL`; treat that as a deprecated alias and migrate to `SCALEKIT_ENVIRONMENT_URL`.
 
 ---
 
@@ -103,6 +103,7 @@ Note: The REST API docs use `SCALEKIT_ENVIRONMENT_URL` in some examples. Both `S
 | `authenticate_with_code` | `(code: str, redirect_uri: str, options?: CodeAuthenticationOptions) → dict` | Tokens + user info |
 | `get_idp_initiated_login_claims` | `(idp_initiated_login_token: str, options?: TokenValidationOptions) → IdpInitiatedLoginClaims` | IDP login claims |
 | `validate_access_token` | `(token: str, options?: TokenValidationOptions) → bool` | Boolean |
+| `validate_access_token_and_get_claims` | `(token: str, options?: TokenValidationOptions) → dict` | Decoded claims dict (raises on invalid/expired) — **canonical method when you need claims** |
 | `get_logout_url` | `(options?: LogoutUrlOptions) → str` | Logout URL string |
 | `refresh_access_token` | `(refresh_token: str) → dict` | New tokens |
 | `verify_webhook_payload` | `(secret: str, headers: Dict[str, str], payload: str\|bytes) → bool` | Boolean |

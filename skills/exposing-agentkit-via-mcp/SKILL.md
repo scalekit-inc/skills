@@ -18,7 +18,7 @@ Scalekit lets you configure MCP endpoints that manage authentication, create per
 
 ## Prerequisites
 
-- [ ] **Scalekit credentials**: [app.scalekit.com](https://app.scalekit.com) → Settings → Copy `SCALEKIT_CLIENT_ID`, `SCALEKIT_CLIENT_SECRET`, `SCALEKIT_ENV_URL`
+- [ ] **Scalekit credentials**: [app.scalekit.com](https://app.scalekit.com) → Settings → Copy `SCALEKIT_CLIENT_ID`, `SCALEKIT_CLIENT_SECRET`, `SCALEKIT_ENVIRONMENT_URL`
 - [ ] **OpenAI API key**: `OPENAI_API_KEY`
 
 > **Gmail is the only connector that does not require dashboard setup.** All other connectors (including Google Calendar) must be created in the Scalekit Dashboard before use:
@@ -44,7 +44,7 @@ Add these imports to `main.py`:
 import os
 import asyncio
 from dotenv import load_dotenv
-import scalekit.client
+from scalekit import ScalekitClient
 from scalekit.actions.models.mcp_config import McpConfigConnectionToolMapping
 from scalekit.actions.types import GetMcpInstanceAuthStateResponse
 from langgraph.prebuilt import create_react_agent
@@ -65,7 +65,7 @@ load_dotenv()
 scalekit = scalekit.client.ScalekitClient(
     client_id=os.getenv("SCALEKIT_CLIENT_ID"),
     client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
-    env_url=os.getenv("SCALEKIT_ENV_URL"),
+    env_url=os.getenv("SCALEKIT_ENVIRONMENT_URL"),
 )
 my_mcp = scalekit.actions.mcp
 ```

@@ -7,7 +7,7 @@ description: Integrates Scalekit AgentKit into a project so an agent can create 
 
 Scalekit handles the full OAuth lifecycle — authorization, token storage, and refresh — so agents can act on behalf of users in Gmail, Slack, Notion, Calendar, and other connectors.
 
-**Required env vars**: `SCALEKIT_CLIENT_ID`, `SCALEKIT_CLIENT_SECRET`, `SCALEKIT_ENV_URL`
+**Required env vars**: `SCALEKIT_CLIENT_ID`, `SCALEKIT_CLIENT_SECRET`, `SCALEKIT_ENVIRONMENT_URL`
 → Get from [app.scalekit.com](https://app.scalekit.com): Developers → Settings → API Credentials
 
 ## Setup
@@ -32,7 +32,7 @@ load_dotenv()
 scalekit = scalekit.client.ScalekitClient(
     client_id=os.getenv("SCALEKIT_CLIENT_ID"),
     client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
-    env_url=os.getenv("SCALEKIT_ENV_URL"),
+    env_url=os.getenv("SCALEKIT_ENVIRONMENT_URL"),
 )
 actions = scalekit.actions
 ```
@@ -46,7 +46,7 @@ import { ScalekitClient } from '@scalekit-sdk/node';
 import 'dotenv/config';
 
 const scalekitClient = new ScalekitClient(
-  process.env.SCALEKIT_ENV_URL!,
+  process.env.SCALEKIT_ENVIRONMENT_URL!,
   process.env.SCALEKIT_CLIENT_ID!,
   process.env.SCALEKIT_CLIENT_SECRET!
 );

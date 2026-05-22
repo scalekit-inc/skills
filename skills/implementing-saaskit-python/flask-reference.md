@@ -7,12 +7,12 @@ Reference implementation: [scalekit-inc/scalekit-flask-auth-example](https://git
 ## Step 1 — Install dependencies
 
 ```bash
-pip install scalekit-sdk python-dotenv flask
+pip install scalekit-sdk-python python-dotenv flask
 ```
 
 Add to `requirements.txt`:
 ```
-scalekit-sdk>=0.1.0
+scalekit-sdk-python>=0.1.0
 python-dotenv
 flask
 ```
@@ -24,7 +24,7 @@ flask
 Create `.env` (never commit this):
 
 ```env
-SCALEKIT_ENV_URL=https://your-env.scalekit.com
+SCALEKIT_ENVIRONMENT_URL=https://your-env.scalekit.com
 SCALEKIT_CLIENT_ID=your_client_id
 SCALEKIT_CLIENT_SECRET=your_client_secret
 SCALEKIT_REDIRECT_URI=http://localhost:5000/auth/callback
@@ -58,7 +58,7 @@ def create_app():
     app.config['PERMANENT_SESSION_LIFETIME'] = 3600
 
     # Scalekit config
-    app.config['SCALEKIT_ENV_URL'] = os.getenv('SCALEKIT_ENV_URL', '')
+    app.config['SCALEKIT_ENVIRONMENT_URL'] = os.getenv('SCALEKIT_ENVIRONMENT_URL', '')
     app.config['SCALEKIT_CLIENT_ID'] = os.getenv('SCALEKIT_CLIENT_ID', '')
     app.config['SCALEKIT_CLIENT_SECRET'] = os.getenv('SCALEKIT_CLIENT_SECRET', '')
     app.config['SCALEKIT_REDIRECT_URI'] = os.getenv('SCALEKIT_REDIRECT_URI', 'http://localhost:5000/auth/callback')
@@ -102,7 +102,7 @@ logger = logging.getLogger(__name__)
 
 class ScalekitClient:
     def __init__(self):
-        self.domain = current_app.config['SCALEKIT_ENV_URL']
+        self.domain = current_app.config['SCALEKIT_ENVIRONMENT_URL']
         self.client_id = current_app.config['SCALEKIT_CLIENT_ID']
         self.client_secret = current_app.config['SCALEKIT_CLIENT_SECRET']
         self.redirect_uri = current_app.config['SCALEKIT_REDIRECT_URI']

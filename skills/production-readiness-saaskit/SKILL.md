@@ -11,7 +11,7 @@ Work through in order — skip sections that don't apply. Earlier sections are b
 
 ```bash
 # Confirm production credentials are set (not dev/staging)
-echo $SCALEKIT_ENV_URL    # should be https://<subdomain>.scalekit.com (not .scalekit.dev)
+echo $SCALEKIT_ENVIRONMENT_URL    # should be https://<subdomain>.scalekit.com (not .scalekit.dev)
 echo $SCALEKIT_CLIENT_ID  # should be set
 echo $SCALEKIT_CLIENT_SECRET  # should be set
 ```
@@ -31,7 +31,7 @@ echo $SCALEKIT_CLIENT_SECRET  # should be set
 
 ```bash
 # Test token endpoint reachability
-curl -s -o /dev/null -w "%{http_code}" -X POST "$SCALEKIT_ENV_URL/oauth/token" \
+curl -s -o /dev/null -w "%{http_code}" -X POST "$SCALEKIT_ENVIRONMENT_URL/oauth/token" \
   -d "client_id=$SCALEKIT_CLIENT_ID&client_secret=$SCALEKIT_CLIENT_SECRET&grant_type=client_credentials"
 # Expected: 200
 ```
@@ -53,7 +53,7 @@ curl -s -o /dev/null -w "%{http_code}" -X POST "$SCALEKIT_ENV_URL/oauth/token" \
 # Generate an auth URL with organization_id to trigger SSO
 node -e "
 const { ScalekitClient } = require('@scalekit-sdk/node');
-const sc = new ScalekitClient(process.env.SCALEKIT_ENV_URL, process.env.SCALEKIT_CLIENT_ID, process.env.SCALEKIT_CLIENT_SECRET);
+const sc = new ScalekitClient(process.env.SCALEKIT_ENVIRONMENT_URL, process.env.SCALEKIT_CLIENT_ID, process.env.SCALEKIT_CLIENT_SECRET);
 console.log(sc.getAuthorizationUrl(process.env.SCALEKIT_REDIRECT_URI, { organizationId: '<org_id>' }));
 "
 # Open the URL — should redirect to the IdP login page

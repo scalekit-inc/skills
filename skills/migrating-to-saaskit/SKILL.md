@@ -133,12 +133,12 @@ Verify:
 
 ```bash
 # Verify token endpoint works with Scalekit credentials
-curl -s -o /dev/null -w "%{http_code}" -X POST "$SCALEKIT_ENV_URL/oauth/token" \
+curl -s -o /dev/null -w "%{http_code}" -X POST "$SCALEKIT_ENVIRONMENT_URL/oauth/token" \
   -d "client_id=$SCALEKIT_CLIENT_ID&client_secret=$SCALEKIT_CLIENT_SECRET&grant_type=client_credentials"
 # Expected: 200
 
 # Verify a migrated user can be looked up
-curl -s -H "Authorization: Bearer $TOKEN" "$SCALEKIT_ENV_URL/api/v1/organizations/<org_id>/users?email=migrated-user@example.com" | jq .
+curl -s -H "Authorization: Bearer $TOKEN" "$SCALEKIT_ENVIRONMENT_URL/api/v1/organizations/<org_id>/users?email=migrated-user@example.com" | jq .
 # Should return the user with correct external_id
 ```
 

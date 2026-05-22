@@ -17,7 +17,7 @@ Verify: `scalekit --version` should print a version number.
 
 | Plugin | Use case |
 |--------|----------|
-| `agentkit` | AI agent needs OAuth access to third-party services — connections, tool discovery, token vault |
+| `agentkit` | AI agent needs OAuth access to third-party services — connections, tool discovery, token storage / refresh |
 | `saaskit` | Web app needs login, sessions, SSO, SCIM, MCP server auth, RBAC, or API keys |
 
 ## Step 3 — Install for your tool
@@ -26,7 +26,7 @@ Verify: `scalekit --version` should print a version number.
 
 ```
 /plugin marketplace add scalekit-inc/claude-code-authstack
-/plugin install agentkit@scalekit-auth-stack   # or saaskit
+/plugin install agentkit@claude-code-authstack   # or saaskit
 ```
 
 Verify: restart Claude Code, then run `/plugin list` — the plugin should appear as enabled.

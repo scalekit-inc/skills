@@ -32,7 +32,7 @@ load_dotenv()
 client = scalekit.client.ScalekitClient(
     client_id=os.getenv("SCALEKIT_CLIENT_ID"),
     client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
-    env_url=os.getenv("SCALEKIT_ENV_URL"),
+    env_url=os.getenv("SCALEKIT_ENVIRONMENT_URL"),
 )
 
 # List all tools for a provider
@@ -54,7 +54,7 @@ import { ScalekitClient } from '@scalekit-sdk/node';
 import 'dotenv/config';
 
 const client = new ScalekitClient(
-  process.env.SCALEKIT_ENV_URL!,
+  process.env.SCALEKIT_ENVIRONMENT_URL!,
   process.env.SCALEKIT_CLIENT_ID!,
   process.env.SCALEKIT_CLIENT_SECRET!
 );
