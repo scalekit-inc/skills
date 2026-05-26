@@ -204,7 +204,7 @@ async def auth_middleware(request: Request, call_next):
             issuer=os.getenv("SCALEKIT_ENVIRONMENT_URL"),
             audience=[RESOURCE_ID]
         )
-        scalekit_client.validate_access_token(token, options=options)
+        scalekit_client.validate_access_token_and_get_claims(token, options=options)
     except Exception:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -240,7 +240,7 @@ try {
 **Python:**
 ```python
 try:
-    scalekit_client.validate_access_token(
+    scalekit_client.validate_access_token_and_get_claims(
         token,
         options=TokenValidationOptions(
             audience=[RESOURCE_ID],

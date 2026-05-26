@@ -285,4 +285,3 @@ For more examples and framework-specific patterns, see the [AgentKit code sample
 - Use `discovering-connector-tools` when the user needs the current tool catalog or schema.
 - Use the Scalekit MCP server (`https://mcp.scalekit.com`) to validate a tool call interactively.
 - Use `exposing-agentkit-via-mcp` when the user wants AgentKit tools exposed over MCP.
-- Use `sk-actions-custom-provider` to create custom connectors.

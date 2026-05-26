@@ -60,13 +60,13 @@ ScalekitClient client = new ScalekitClient(
 
 | Variable | Purpose | Format |
 |----------|---------|--------|
-| `SCALEKIT_ENVIRONMENT_URL` | Environment URL | `https://<subdomain>.scalekit.com` (prod) or `https://<subdomain>.scalekit.dev` (dev) |
+| `SCALEKIT_ENVIRONMENT_URL` | Environment URL | `https://<subdomain>.scalekit.com` (production) or `https://<subdomain>.scalekit.dev` (development only) |
 | `SCALEKIT_CLIENT_ID` | Client ID | String from dashboard |
 | `SCALEKIT_CLIENT_SECRET` | Client secret | String from dashboard |
 | `SCALEKIT_REDIRECT_URI` | OAuth callback URL | Must exactly match dashboard config |
 | `SCALEKIT_WEBHOOK_SECRET` | Webhook signing secret | Format: `whsec_...` |
 
-Note: `SCALEKIT_ENVIRONMENT_URL` is the canonical name — it matches the SDK constructor parameter name. Older docs/examples sometimes used `SCALEKIT_ENVIRONMENT_URL`; treat that as a deprecated alias and migrate to `SCALEKIT_ENVIRONMENT_URL`.
+Note: `SCALEKIT_ENVIRONMENT_URL` is the canonical name — it matches the SDK constructor parameter name. Older docs/examples sometimes used `SCALEKIT_ENV_URL` or `SK_ENV_URL`; treat those as deprecated aliases and migrate to `SCALEKIT_ENVIRONMENT_URL`.
 
 ---
 
@@ -370,7 +370,7 @@ Note: Java does NOT yet support Connected Accounts, Tools, or Actions in the pub
 
 ## REST API Endpoints
 
-Base URL: `https://<subdomain>.scalekit.com` (production) or `https://<subdomain>.scalekit.dev` (development)
+Base URL: `https://<subdomain>.scalekit.com` (production) or `https://<subdomain>.scalekit.dev` (development only — do not use in production)
 
 Authentication: Bearer token from `POST /oauth/token` with `client_credentials` grant.
 

@@ -39,11 +39,10 @@ skills/
 ### Developer Tools (1)
 - `scalekit-code-doctor` — generate and review Scalekit code with verified SDK signatures
 
-### AgentKit (5)
+### AgentKit (4)
 - `integrating-agentkit` — core integration
 - `exposing-agentkit-via-mcp` — MCP endpoint configuration
 - `discovering-connector-tools` — live tool discovery
-- `sk-actions-custom-provider` — custom connectors
 - `production-readiness-agentkit` — production checklist
 
 ### SaaSKit (12)

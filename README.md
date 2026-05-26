@@ -55,7 +55,6 @@ Skills for connecting AI agents to third-party services like Gmail, Slack, and N
 | `integrating-agentkit` | Integrate AgentKit for connections, authorization, tool discovery, and execution |
 | `exposing-agentkit-via-mcp` | Configure AgentKit MCP endpoints for LangChain/LangGraph agents |
 | `discovering-connector-tools` | Discover live tools and inspect input/output schemas for any connector |
-| `sk-actions-custom-provider` | Create custom connectors with OAuth, Basic, Bearer, or API Key auth |
 | `production-readiness-agentkit` | Production readiness checklist for AgentKit implementations |
 
 ### SaaSKit
