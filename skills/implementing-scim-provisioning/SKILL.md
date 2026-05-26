@@ -71,7 +71,7 @@ const scalekit = new ScalekitClient(
 **Python:**
 ```python
 from scalekit import ScalekitClient
-scalekit_client = ScalekitClient(
+scalekit = ScalekitClient(
     env_url=os.getenv("SCALEKIT_ENVIRONMENT_URL"),
     client_id=os.getenv("SCALEKIT_CLIENT_ID"),
     client_secret=os.getenv("SCALEKIT_CLIENT_SECRET")
@@ -103,8 +103,8 @@ for (const user of users) {
 ```python
 # Python
 # Note: returns the first directory; multi-directory orgs need an explicit directory ID.
-directory = scalekit_client.directory.list_directories(organization_id=org_id).directories[0]
-users = scalekit_client.directory.list_directory_users(org_id, directory.id)
+directory = scalekit.directory.list_directories(organization_id=org_id).directories[0]
+users = scalekit.directory.list_directory_users(org_id, directory.id)
 
 for user in users:
     upsert_user(email=user.email, name=user.name, org_id=org_id)
@@ -129,7 +129,8 @@ Add a new route to the existing HTTP server/router. Match the framework pattern 
 
 **ALWAYS verify the signature before processing. Return 400 on failure.**
 
-**Node.js (Express):**
+**Node.js (Express):** mount the route with `express.raw({ type: 'application/json' })` so `req.body` is the raw `Buffer` — signature verification must run on the exact bytes that were signed.
+
 ```javascript
 app.post('/webhooks/scalekit', express.raw({ type: 'application/json' }), async (req, res) => {
   const ok = await scalekit.verifyWebhookPayload(
@@ -149,12 +150,13 @@ app.post('/webhooks/scalekit', express.raw({ type: 'application/json' }), async 
 });
 ```
 
-**Python (FastAPI):**
+**Python (FastAPI):** read the raw body BEFORE parsing JSON so the bytes match exactly what Scalekit signed.
+
 ```python
 @app.post("/webhooks/scalekit")
 async def scalekit_webhook(request: Request):
     raw_body = await request.body()
-    valid = scalekit_client.verify_webhook_payload(
+    valid = scalekit.verify_webhook_payload(
         secret=os.getenv("SCALEKIT_WEBHOOK_SECRET"),
         headers=dict(request.headers),
         payload=raw_body,

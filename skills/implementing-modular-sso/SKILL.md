@@ -118,7 +118,7 @@ const authUrl = scalekit.getAuthorizationUrl(
 ```python
 from scalekit import ScalekitClient, AuthorizationUrlOptions
 
-scalekit_client = ScalekitClient(
+scalekit = ScalekitClient(
     os.getenv('SCALEKIT_ENVIRONMENT_URL'),
     os.getenv('SCALEKIT_CLIENT_ID'),
     os.getenv('SCALEKIT_CLIENT_SECRET')
@@ -127,7 +127,7 @@ scalekit_client = ScalekitClient(
 options = AuthorizationUrlOptions()
 options.organization_id = 'org_15421144869927830'
 
-auth_url = scalekit_client.get_authorization_url(
+auth_url = scalekit.get_authorization_url(
     redirect_uri='https://yourapp.com/auth/callback',
     options=options
 )
