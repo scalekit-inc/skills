@@ -2,7 +2,7 @@
 
 set -e
 
-PROJECT_NAME=${1:-express-mcp-server}
+PROJECT_NAME=${1:-scalekit-mcp-server}
 
 echo "Creating new Express MCP server: $PROJECT_NAME"
 
@@ -12,7 +12,7 @@ cd "$PROJECT_NAME"
 echo "Copying package.json..."
 cat > package.json << 'EOF'
 {
-  "name": "express-mcp-auth-server",
+  "name": "scalekit-mcp-server",
   "version": "1.0.0",
   "description": "Express.js MCP server with Scalekit OAuth authentication",
   "main": "dist/server.js",
@@ -137,7 +137,7 @@ const authMiddleware = async (req, res, next) => {
 };
 
 const server = new McpServer(
-  { name: 'express-mcp-server', version: '1.0.0' },
+  { name: 'scalekit-mcp-server', version: '1.0.0' },
   { capabilities: { tools: {} } }
 );
 

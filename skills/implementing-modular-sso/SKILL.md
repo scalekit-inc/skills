@@ -101,7 +101,7 @@ const scalekit = new ScalekitClient(
 );
 
 const options = {
-  organizationId: 'org_15421144869927830',  // OR
+  organizationId: 'org_XXXXX',  // OR
   connectionId: 'conn_15696105471768821',   // OR
   loginHint: 'user@example.com'
 };
@@ -125,7 +125,7 @@ scalekit = ScalekitClient(
 )
 
 options = AuthorizationUrlOptions()
-options.organization_id = 'org_15421144869927830'
+options.organization_id = 'org_XXXXX'
 
 auth_url = scalekit.get_authorization_url(
     redirect_uri='https://yourapp.com/auth/callback',

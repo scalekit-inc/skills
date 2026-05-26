@@ -3,7 +3,7 @@ name: implementing-access-control
 description: Implements server-side RBAC and permission checks by validating and decoding Scalekit access tokens, extracting roles/permissions, and enforcing them with middleware/decorators at route boundaries. Use when adding role-based access control, protecting routes or endpoints, building auth middleware, or checking JWT permissions with Scalekit tokens.
 ---
 
-# Implementing access control (Scalekit FSA)
+# Implementing access control (Scalekit SaaSKit)
 
 ## When to use
 After authentication is working and the app must authorize access to routes/actions by inspecting the user's access token for `roles` and `permissions`.
