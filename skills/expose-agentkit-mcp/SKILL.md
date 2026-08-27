@@ -43,7 +43,7 @@ Wait for the user to confirm the Calendar row. Do not invent that name.
 If env vars are missing, collect them from [app.scalekit.com](https://app.scalekit.com) → Developers → Settings → API Credentials. Put them in the project env file. Do not invent values.
 
 ```bash
-pip install scalekit-sdk-python langgraph>=0.6.5 langchain-mcp-adapters>=0.1.9 python-dotenv>=1.0.1 openai>=1.53.0
+pip install scalekit-sdk-python langgraph>=0.6.5 langchain langchain-openai langchain-mcp-adapters>=0.1.9 python-dotenv>=1.0.1
 ```
 
 ```python
