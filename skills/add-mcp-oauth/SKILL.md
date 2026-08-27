@@ -21,6 +21,7 @@ Put OAuth 2.1 on the user's MCP server. Then stop.
 - **MUST** keep `/.well-known/oauth-protected-resource` public.
 - **MUST** return 401 with `WWW-Authenticate` and `resource_metadata` on a missing or invalid token. A bare 401 is a host silent-fail.
 - **MUST** call `validateToken` with the dashboard Server URL as `audience`.
+- **MUST** register well-known, then Bearer middleware, then the MCP POST. A POST registered first never sees auth.
 
 ## Gotchas
 
@@ -28,20 +29,16 @@ Put OAuth 2.1 on the user's MCP server. Then stop.
 - Read `SCALEKIT_ENVIRONMENT_URL`, `SCALEKIT_CLIENT_ID`, `SCALEKIT_CLIENT_SECRET`. Never `SCALEKIT_ENV_URL`. Do not prepend `https://` — the env URL already has a scheme.
 - Audience must match the dashboard **Server URL** exactly, including a trailing slash when the dashboard has one. If Server URL is empty, use the generated resource id.
 - Paste the dashboard **Metadata JSON**. Do not build `authorization_servers` by adding a scheme onto `SCALEKIT_ENVIRONMENT_URL`.
-- This skill protects **the user's** MCP server. It does not expose AgentKit tools over MCP.
+- Reuse the existing Express `app` if the file has one. Do not create a second `express()` app.
 - Install `@scalekit-sdk/node` only when the repo has no Scalekit SDK yet. Always install Express and MCP packages the later steps import.
 
 ## Step 1 — Confirm Streamable HTTP
 
-stdio cannot do OAuth. The default path is Express + `StreamableHTTPServerTransport` from `@modelcontextprotocol/sdk/server/streamableHttp.js`.
-
-- FastAPI → open [references/fastapi.md](references/fastapi.md). Stay there.
-- FastMCP built-in provider → open [references/fastmcp.md](references/fastmcp.md). Stay there.
-- Anything else → stay here.
+stdio cannot do OAuth. The default path is Express + `StreamableHTTPServerTransport` from `@modelcontextprotocol/sdk/server/streamableHttp.js`. FastAPI or FastMCP → open the matching file under `references/` and stay there.
 
 Keep the user's tools. Do not invent a new MCP server if one already exists.
 
-**Done when:** this skill is the right path, and the MCP route uses Streamable HTTP (or Step 2 will add it).
+**Done when:** this skill is the right path, and the transport is Streamable HTTP (or Step 5 will add it).
 
 ## Step 2 — Install and init
 
@@ -66,23 +63,18 @@ const scalekit = new ScalekitClient(
   process.env.SCALEKIT_CLIENT_ID,
   process.env.SCALEKIT_CLIENT_SECRET
 );
+```
+
+Reuse the existing Express `app` if the file has one. If there is no `app` yet:
+
+```js
 const app = express();
 app.use(express.json());
 ```
 
-If the repo has no Streamable HTTP route yet, add one. Keep an existing path if the server already has one. Default is `POST /`.
+Do not register the MCP POST here. That route goes on after the Bearer middleware in Step 5.
 
-```js
-const server = new McpServer({ name: 'mcp-server', version: '1.0.0' });
-
-app.post('/', async (req, res) => {
-  const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
-  await server.connect(transport);
-  await transport.handleRequest(req, res, req.body);
-});
-```
-
-**Done when:** those packages are installed, the client initializes from those env vars, and a Streamable HTTP route exists.
+**Done when:** those packages are installed, and the client initializes from those env vars.
 
 ## Step 3 — Register the MCP server (user action)
 
@@ -116,32 +108,48 @@ If you must edit `authorization_servers`, join `SCALEKIT_ENVIRONMENT_URL` with `
 
 **Done when:** that path returns the dashboard JSON with no auth.
 
-## Step 5 — Bearer middleware
+## Step 5 — Bearer middleware, then MCP POST
 
-Mount after the well-known route. Skip `/.well-known`. Missing or invalid token → 401 + `WWW-Authenticate`.
+Register order: well-known → this `auth` → MCP POST. Express runs handlers in registration order.
 
 ```js
 const audience = 'http://localhost:3002/'; // dashboard Server URL
 const metadataUrl = `${audience.replace(/\/$/, '')}/.well-known/oauth-protected-resource`;
 const wwwAuthenticate = `Bearer realm="OAuth", resource_metadata="${metadataUrl}"`;
 
-app.use(async (req, res, next) => {
+async function auth(req, res, next) {
   if (req.path.includes('.well-known')) return next();
   const header = req.headers.authorization || '';
   const token = header.startsWith('Bearer ') ? header.slice(7).trim() : '';
-  if (!token) {
-    return res.status(401).set('WWW-Authenticate', wwwAuthenticate).end();
-  }
+  if (!token) return res.status(401).set('WWW-Authenticate', wwwAuthenticate).end();
   try {
     await scalekit.validateToken(token, { audience: [audience] });
     next();
   } catch {
     return res.status(401).set('WWW-Authenticate', wwwAuthenticate).end();
   }
+}
+
+app.use(auth);
+```
+
+If `POST /` (or the existing MCP path) is already on the stack, move it below `app.use(auth)`, or attach `auth` on that route: `app.post('/', auth, handler)`.
+
+If the repo has no Streamable HTTP route yet, add it now. Keep an existing path if the server already has one. Default is `POST /`.
+
+```js
+const server = new McpServer({ name: 'mcp-server', version: '1.0.0' });
+
+app.post('/', async (req, res) => {
+  const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
+  await server.connect(transport);
+  await transport.handleRequest(req, res, req.body);
 });
 ```
 
-**Done when:** a request without a token returns 401 with `WWW-Authenticate` and `resource_metadata`.
+If the file has no listener, add `app.listen(Number(process.env.PORT) || 3002)`. Reuse an existing listener.
+
+**Done when:** `auth` sits above the MCP POST, a request without a token returns 401 with `WWW-Authenticate` and `resource_metadata`, and a listener is on 3002 (or `PORT`).
 
 ## Step 6 — Optional scopes
 
@@ -161,11 +169,11 @@ Insufficient scope → 403 `insufficient_scope`.
 ## Step 7 — Verify
 
 ```bash
-curl -i http://localhost:3002/
+curl -i -X POST http://localhost:3002/
 curl -i http://localhost:3002/.well-known/oauth-protected-resource
 ```
 
-Use the real MCP path if it is not `/`. Expect 401 + `WWW-Authenticate` with `resource_metadata` on the MCP route. Expect JSON with `resource`, `authorization_servers`, and `scopes_supported` on the well-known route.
+Use the real MCP path if it is not `/`. Expect 401 + `WWW-Authenticate` with `resource_metadata` on the MCP POST, and JSON with `resource`, `authorization_servers`, and `scopes_supported` on well-known.
 
 **Done when:** both curls pass.
 
@@ -188,7 +196,4 @@ Do not write API keys. Do not expose AgentKit tools over MCP.
 
 - Docs index: https://docs.scalekit.com/llms.txt
 - MCP OAuth: https://docs.scalekit.com/authenticate/mcp/quickstart/
-- Express: https://docs.scalekit.com/authenticate/mcp/expressjs-quickstart/
-- FastAPI: https://docs.scalekit.com/authenticate/mcp/fastapi-fastmcp-quickstart/
-- FastMCP: https://docs.scalekit.com/authenticate/mcp/fastmcp-quickstart/
 - MCP: https://mcp.scalekit.com

@@ -39,11 +39,22 @@ Print this checklist. Wait. Do not invent dashboard clicks.
 5. Set **Server URL** to `http://localhost:3002/` (keep the trailing slash). FastMCP appends `/mcp`.
 6. **Save**. Copy `SCALEKIT_RESOURCE_ID` from the server page.
 
-**Done when:** the user confirmed the row and `SCALEKIT_RESOURCE_ID` is copied.
+Then collect these four names before any provider code. Put them in the project env file. Do not invent values.
+
+```sh
+SCALEKIT_ENVIRONMENT_URL=<from Developers → Settings → API Credentials>
+SCALEKIT_CLIENT_ID=<from API Credentials>
+SCALEKIT_RESOURCE_ID=<from the MCP server page>
+MCP_URL=http://localhost:3002/
+```
+
+`MCP_URL` must match the dashboard Server URL. Keep the trailing slash.
+
+**Done when:** those four env names exist, and `MCP_URL` matches the Server URL.
 
 ## Step 3 — Provider
 
-Put imports at the top of the file.
+Put imports at the top of the file. Read the four env names from Step 2.
 
 ```python
 import os

@@ -12,7 +12,7 @@ npm install cors zod
 
 ## Middleware order
 
-CORS → `express.json()` → well-known + health → Bearer middleware → MCP `POST`. Always `return` after a 401.
+CORS → `express.json()` → well-known + health → Bearer middleware → MCP `POST` → `app.listen`. Always `return` after a 401. If the file has no listener, bind `Number(process.env.PORT) || 3002` after the MCP POST.
 
 `EXPECTED_AUDIENCE` must match the dashboard Server URL exactly, including a trailing slash.
 
