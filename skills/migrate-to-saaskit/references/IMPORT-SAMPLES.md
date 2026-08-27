@@ -1,5 +1,7 @@
 # Import Code Samples
 
+Default path is Node in `SKILL.md`. Use `sendInvitationEmail: false`. Live Node `createOrganization` options are `externalId`, `logoUrl`, and `slug`.
+
 ## Python — Create organization
 ```python
 from scalekit.v1.organizations.organizations_pb2 import CreateOrganization
@@ -63,6 +65,24 @@ CreateUser createUser = CreateUser.newBuilder()
   .setUserProfile(CreateUserProfile.newBuilder().setFirstName("John").setLastName("Doe").build())
   .build();
 scalekitClient.users().createUserAndMembership("org_123", createUser);
+```
+
+## Node.js — Create organization
+```javascript
+const { organization } = await scalekit.organization.createOrganization(
+  "Megasoft Inc",
+  { externalId: "org_123" }
+);
+```
+
+## Node.js — Create user in organization
+```javascript
+const { user } = await scalekit.user.createUserAndMembership("org_scalekit_id", {
+  email: "user@example.com",
+  externalId: "usr_987",
+  sendInvitationEmail: false,
+  userProfile: { firstName: "John", lastName: "Doe" },
+});
 ```
 
 ## cURL — Create organization
