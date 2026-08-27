@@ -58,9 +58,9 @@ Skills for implementing complete authentication flows — login, signup, session
 
 | Skill | Description |
 |-------|-------------|
-| `implementing-scalekit-fsa` | Implement Scalekit FSA with sign-up, login, logout, and JWT session management |
+| `implement-saaskit` | Login, callback, session cookies, and logout |
 | `implementing-fsa-logout` | Complete logout flow clearing session cookies and invalidating sessions |
-| `managing-user-sessions` | Secure token storage, validation, and transparent token refresh in middleware |
+| `manage-saaskit-sessions` | Store, validate, refresh, and revoke a session |
 | `implementing-access-control` | Server-side RBAC with role/permission validation at route boundaries |
 | `implementing-admin-portal` | Admin portal for customer self-serve SSO and SCIM configuration |
 | `adding-api-key-auth` | Create, validate, list, and revoke long-lived API keys for bearer auth |
