@@ -25,7 +25,7 @@ After CLI install, English is the normal path. "Setup AgentKit in this project" 
 
 The invocation table lives in `scalekit-inc/authstack` `AGENTS.md`. Update that table when you add or rename a skill. Do not keep a second copy here.
 
-Folder names on disk still use the old gerunds until the later rename tickets land.
+Folder names on disk match the invocation table in `scalekit-inc/authstack` `AGENTS.md`.
 
 ## Writing bar
 

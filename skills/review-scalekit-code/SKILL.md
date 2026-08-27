@@ -95,7 +95,7 @@ Record pass or fail for:
 1. Env name is `SCALEKIT_ENVIRONMENT_URL`, never `SCALEKIT_ENV_URL`
 2. No `https://` prepended onto a value that already has a scheme
 3. Redirect URI matches the dashboard
-4. Domain is `https://<subdomain>.scalekit.com` or `.scalekit.dev`
+4. Domain is `https://<subdomain>.scalekit.com`, `.scalekit.dev`, or `https://app.<domain>` (self-hosted)
 
 **Done when:** all 4 rows have pass or fail.
 
