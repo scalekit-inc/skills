@@ -16,7 +16,7 @@ Give this project a dashboard connection, env credentials, and a first connector
 ## Guardrails
 
 - **MUST** wait for dashboard credential values. **MUST NOT** invent them.
-- **MUST** record the dashboard Connection Name.
+- **MUST** record the Connection Name (`gmail` when the dashboard has no Gmail row).
 - **MUST NOT** write app-code tool calls. Name `integrate-agentkit` instead.
 
 ## Gotchas
@@ -53,15 +53,17 @@ Put the three variables in the project's env file (`.env` or the existing env fi
 
 Ask which connector to start with only when the user has not named one. Default is Gmail.
 
+If the connector is Gmail and the dashboard has no Gmail row, record Connection Name `gmail`.
+
 If the connector is not Gmail, have the user create it:
 
 **Scalekit Dashboard → AgentKit → Connections → Add connection** → select the connector → set **Connection Name** → Save.
 
 For OAuth connectors that need a provider app, open the live guide: https://docs.scalekit.com/agentkit/connections/
 
-Record the **Connection Name** exactly as the dashboard shows it.
+If the dashboard already has a row for this connector, record that **Connection Name** exactly as shown.
 
-**Done when:** a connection exists for the chosen connector, and the Connection Name is written down.
+**Done when:** a Connection Name is written down. For Gmail with no dashboard row, that name is `gmail`. For every other connector, a dashboard connection exists.
 
 ## Step 4 — Record the first connector path
 

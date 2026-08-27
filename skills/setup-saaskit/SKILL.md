@@ -86,7 +86,7 @@ console.log(loginUrl);
 
 If the repo is Python, call `get_authorization_url` on `scalekit-sdk-python` with the same env names. Do not implement the callback or session here.
 
-The URL looks like `https://<SCALEKIT_ENVIRONMENT_URL>/oauth/authorize?...`.
+The URL looks like `<SCALEKIT_ENVIRONMENT_URL>/oauth/authorize?...`.
 
 **Done when:** that authorization URL is printed, or the user has a one-liner that prints it.
 

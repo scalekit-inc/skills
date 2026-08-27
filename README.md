@@ -30,7 +30,7 @@ Copy the `SKILL.md` file from any skill directory into your project's `.cursor/s
 
 ## Skills Catalog
 
-**35 skills** across 5 product categories.
+**37 skills** across 5 product categories.
 
 ### Getting Started
 

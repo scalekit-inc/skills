@@ -56,7 +56,7 @@ Skip this step when the plugin or skills pack is already installed.
 | Claude Code | Restart the session. `/plugin list` shows `agentkit` and/or `saaskit`. |
 | GitHub Copilot | `copilot plugin list` shows the plugin. |
 | Cursor / Codex | Re-open the tool. Authstack plugins or skills are available. |
-| Other (skills CLI) | `npx skills add scalekit-inc/skills --list` shows Scalekit skills. |
+| Other (skills CLI) | The chosen skill folder exists on disk (for example `setup-agentkit/SKILL.md` in the tool's skills directory). |
 
 ## Step 2 — Pick the kit
 
@@ -101,10 +101,10 @@ copilot plugin install agentkit@authstack
 ### Other agents
 
 ```bash
-npx skills add scalekit-inc/skills --list
-npx skills add scalekit-inc/skills --skill setup-agentkit
-npx skills add scalekit-inc/skills --skill setup-saaskit
+npx skills add scalekit-inc/skills --all
 ```
+
+`--all` puts the next named skill on disk, not only the two wizards.
 
 Codex and Cursor go through `npx @scalekit-inc/cli setup`.
 
