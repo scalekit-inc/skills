@@ -25,7 +25,7 @@ const scalekitClient = new ScalekitClient(
   process.env.SCALEKIT_CLIENT_ID!,
   process.env.SCALEKIT_CLIENT_SECRET!
 );
-const { connectedAccounts } = scalekitClient;
+const { actions } = scalekitClient;
 ```
 
 **Done when:** the client initializes from those three env vars, and source files do not hardcode the secret.
@@ -35,7 +35,7 @@ const { connectedAccounts } = scalekitClient;
 Replace `"user_123"` with the project's user id. Replace `"gmail"` with the recorded Connection Name.
 
 ```typescript
-const response = await connectedAccounts.getOrCreateConnectedAccount({
+const response = await actions.getOrCreateConnectedAccount({
   connectionName: 'gmail',
   identifier: 'user_123',
 });
@@ -48,11 +48,13 @@ const connectedAccount = response.connectedAccount;
 
 If `connectedAccount?.status` is `ACTIVE`, skip this step.
 
+Put the `readline` import at the top of the file.
+
 ```typescript
 import * as readline from 'node:readline/promises';
 
 if (connectedAccount?.status !== 'ACTIVE') {
-  const linkResponse = await connectedAccounts.getMagicLinkForConnectedAccount({
+  const linkResponse = await actions.getAuthorizationLink({
     connectionName: 'gmail',
     identifier: 'user_123',
   });
@@ -76,7 +78,7 @@ In a web app, redirect the browser to `linkResponse.link`.
 Re-fetch immediately. Do not reuse a token from Step 3.
 
 ```typescript
-const accountResponse = await connectedAccounts.getConnectedAccountByIdentifier({
+const accountResponse = await actions.getConnectedAccount({
   connectionName: 'gmail',
   identifier: 'user_123',
 });
