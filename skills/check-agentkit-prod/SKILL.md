@@ -27,6 +27,7 @@ Complete the AgentKit go-live record with PASS or WAIVE plus a reason on every i
 - Dashboard and browser OAuth steps are **user actions**. Run SDK and curl yourself. Pause when the user must open the dashboard or a browser.
 - A waiver needs a one-line reason. An empty result is a fail.
 - If the app re-fetches the connected account before each call, waive local token-store items with that reason. Do not add a local vault.
+- If Scalekit hosts OAuth (the `integrate-agentkit` path), waive app-callback, auth-code, and CSRF-`state` items with that reason. Do not add a local callback.
 - Use the SDK path from `integrate-agentkit` for smoke-test calls. Do not rewrite that skill here.
 - Prefer a non-customer test user. The host app may be local. Credentials must still be production AgentKit env vars.
 
@@ -50,10 +51,10 @@ echo $SCALEKIT_CLIENT_SECRET
 curl -s -o /dev/null -w "%{http_code}" -X POST "$SCALEKIT_ENVIRONMENT_URL/oauth/token" \
   -d "client_id=$SCALEKIT_CLIENT_ID&client_secret=$SCALEKIT_CLIENT_SECRET&grant_type=client_credentials"
 
-rg -n --hidden -g '!**/.git/**' -g '!**/node_modules/**' 'skc_|SCALEKIT_CLIENT_SECRET\s*=' . || true
+rg -n --hidden -g '!**/.git/**' -g '!**/node_modules/**' -g '!**/.env*' 'skc_|SCALEKIT_CLIENT_SECRET\s*=' . || true
 ```
 
-`SCALEKIT_ENVIRONMENT_URL` must be `https://<subdomain>.scalekit.com`. Token endpoint must return `200`. The search must find no real secrets.
+`SCALEKIT_ENVIRONMENT_URL` must be `https://<subdomain>.scalekit.com`. Token endpoint must return `200`. The search must find no real secrets committed — only env var names or placeholders.
 
 Record `PASS` or `WAIVE` plus a reason for:
 
@@ -63,7 +64,7 @@ Record `PASS` or `WAIVE` plus a reason for:
 4. Token endpoint returns 200
 5. HTTPS on every auth endpoint
 6. No hardcoded secrets in source
-7. Redirect URIs in Dashboard → Settings → Redirects match the app exactly (user verifies; compare code/env and tell the user what to register)
+7. Connection redirect URI on Dashboard → AgentKit → Connections matches the provider OAuth app (user verifies)
 
 **Done when:** all 7 rows have `PASS` or `WAIVE` plus a reason.
 
