@@ -71,7 +71,7 @@ Skills for implementing complete authentication flows — login, signup, session
 
 | Skill | Framework |
 |-------|-----------|
-| `implementing-scalekit-nextjs-auth` | Next.js (App Router) |
+| `implement-saaskit-nextjs` | Next.js (App Router) |
 | `implementing-scalekit-django-auth` | Django |
 | `implementing-scalekit-fastapi-auth` | FastAPI |
 | `implementing-scalekit-flask-auth` | Flask |
