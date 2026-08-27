@@ -34,7 +34,7 @@ const clientId = created.client.clientId;
 const plainSecret = created.plainSecret;
 ```
 
-Show `plainSecret` once. Store `clientId` (`skc_…`). Scalekit cannot return the secret later.
+Show `plainSecret` once. Store `clientId` (`m2morg_…`). Scalekit cannot return the secret later.
 
 **Done when:** the user saw `plainSecret` once, and the app stored `clientId`.
 

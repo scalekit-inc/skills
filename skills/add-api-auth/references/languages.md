@@ -8,6 +8,12 @@ Env names: `SCALEKIT_ENVIRONMENT_URL`, `SCALEKIT_CLIENT_ID`, `SCALEKIT_CLIENT_SE
 
 ## Python
 
+Install `scalekit-sdk-python` only when the repo has no Scalekit SDK yet:
+
+```sh
+pip install scalekit-sdk-python
+```
+
 Constructor arg is `env_url`. Env name is still `SCALEKIT_ENVIRONMENT_URL`. Client is `scalekit_client.tokens` (plural).
 
 ```python
@@ -45,6 +51,12 @@ User-scoped: pass `user_id=` from the dashboard, plus optional `custom_claims={"
 
 ## Go
 
+Install `scalekit-sdk-go/v2` only when the repo has no Scalekit SDK yet:
+
+```sh
+go get github.com/scalekit-inc/scalekit-sdk-go/v2
+```
+
 ```go
 scalekitClient := scalekit.NewScalekitClient(
   os.Getenv("SCALEKIT_ENVIRONMENT_URL"),
@@ -73,6 +85,15 @@ _ = scalekitClient.Token().InvalidateToken(ctx, tokenId)
 User-scoped: set `UserId` on `CreateTokenOptions`. Optional `CustomClaims`.
 
 ## Java
+
+Add `com.scalekit:scalekit-sdk-java` only when the repo has no Scalekit SDK yet:
+
+```xml
+<dependency>
+    <groupId>com.scalekit</groupId>
+    <artifactId>scalekit-sdk-java</artifactId>
+</dependency>
+```
 
 ```java
 ScalekitClient scalekitClient = new ScalekitClient(
