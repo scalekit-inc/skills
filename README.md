@@ -30,7 +30,7 @@ Copy the `SKILL.md` file from any skill directory into your project's `.cursor/s
 
 ## Skills Catalog
 
-**39 skills** across 5 product categories.
+**38 skills** across 5 product categories.
 
 ### Getting Started
 
@@ -63,8 +63,7 @@ Skills for implementing complete authentication flows — login, signup, session
 | `manage-saaskit-sessions` | Store, validate, refresh, and revoke a session |
 | `implementing-access-control` | Server-side RBAC with role/permission validation at route boundaries |
 | `implementing-admin-portal` | Admin portal for customer self-serve SSO and SCIM configuration |
-| `adding-api-key-auth` | Create, validate, list, and revoke long-lived API keys for bearer auth |
-| `adding-oauth2-to-apis` | OAuth 2.0 client-credentials authentication on API endpoints |
+| `add-api-auth` | API key or client-credentials auth to protect an API |
 | `migrating-to-scalekit-auth` | Incremental migration from existing auth systems to Scalekit |
 | `production-readiness-full-stack-auth` | Production readiness checklist for full-stack authentication |
 
