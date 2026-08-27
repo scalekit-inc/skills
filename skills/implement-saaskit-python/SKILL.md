@@ -14,7 +14,7 @@ description: >
 Add login, callback, an encrypted `sk_session` cookie, logout, and refresh in FastAPI. Then stop.
 
 ## Guardrails
-- **MUST** keep `redirect_uri` identical to the dashboard Redirect URI.
+- **MUST** keep `SCALEKIT_REDIRECT_URI`, the dashboard Redirect URI, and the process host:port the same string.
 - **MUST** call `auth.install(app)`. `app.include_router(auth.router)` alone skips the 302 handler.
 - **MUST** set `cookie_secure=False` on local HTTP. **MUST** set it `True` in production.
 - **MUST** treat `returnTo` as a relative path only (`/...`, not `//…`). The adapter already sanitizes it.
@@ -25,7 +25,7 @@ Add login, callback, an encrypted `sk_session` cookie, logout, and refresh in Fa
 - Also need `COOKIE_ENCRYPTION_SECRET` (`openssl rand -base64 32`). Keep it identical on every server.
 - Default path is FastAPI `ScalekitAuth`. Do not hand-roll `ScalekitClient` routes. Do not copy Express cookies from `manage-saaskit-sessions`.
 - Adapter defaults: GET `/login`, `/callback`, `/logout`. Cookie is `sk_session` (HttpOnly, SameSite=lax). CSRF cookie is `sk_oauth_state`.
-- If `SCALEKIT_REDIRECT_URI` already ends in `/auth/callback`, pass `callback_path="/auth/callback"` or change both the env and the dashboard to `/callback`.
+- If `SCALEKIT_REDIRECT_URI` already ends in `/auth/callback`, pass `callback_path="/auth/callback"` or change both the env and the dashboard to `/callback`. Keep that URI's host and port. Run the app on that port. Do not keep port 3000 in env and run FastAPI on 5001.
 - `user` from `requires_auth` is access-token claims. `sub` is always present.
 - `requires_auth` refreshes. Do not add `/auth/refresh`. Do not return a `Response` from a protected endpoint — that drops the refreshed cookie.
 - Register the Initiate Login URL and the Post Logout Redirect URI too.
@@ -38,7 +38,7 @@ Add login, callback, an encrypted `sk_session` cookie, logout, and refresh in Fa
 - Node or Express → name `implement-saaskit`. Stop.
 - Next.js App Router → name `implement-saaskit-nextjs`. Stop.
 
-If env is missing, collect the four Scalekit values from [app.scalekit.com](https://app.scalekit.com) → Developers → Settings → API Credentials. Register `SCALEKIT_REDIRECT_URI` under Authentication → Redirect URLs → Allowed callback URLs. Adapter default is `http://localhost:5001/callback`. Also register `http://localhost:5001/login` as Initiate Login URL and `http://localhost:5001/` as Post Logout Redirect URI. Generate `COOKIE_ENCRYPTION_SECRET`. Do not invent credential values.
+If env is missing, collect the four Scalekit values from [app.scalekit.com](https://app.scalekit.com) → Developers → Settings → API Credentials. Register `SCALEKIT_REDIRECT_URI` under Authentication → Redirect URLs → Allowed callback URLs. Use one origin for that URI, the dashboard, and the process. Do not mix setup's `localhost:3000` with adapter samples on `localhost:5001`. Also register that origin's `/login` as Initiate Login URL and `/` as Post Logout Redirect URI. Generate `COOKIE_ENCRYPTION_SECRET`. Do not invent credential values.
 
 **Done when:** this skill is the right path, the four Scalekit env names exist, and `COOKIE_ENCRYPTION_SECRET` exists.
 
@@ -84,7 +84,7 @@ Link to `/login`. Do not send the browser to Scalekit yourself.
 
 GET `/logout`. Link to `/logout`. `full_logout` defaults to True: `get_logout_url` with `id_token_hint` and `post_logout_redirect_uri`, then delete `sk_session`.
 
-Register that same origin as a Post Logout Redirect URI. Local default is `http://localhost:5001/`.
+Register that same origin as a Post Logout Redirect URI.
 
 **Done when:** `sk_session` is gone and the browser hits the logout URL.
 
