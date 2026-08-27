@@ -157,9 +157,9 @@ export async function POST() {
 }
 ```
 
-On a 401 from a protected page, `fetch('/auth/refresh', { method: 'POST' })`, then retry once. Failed refresh → `/auth/login`.
+Default path: if `expiresAt` is past, a Client Component runs `fetch('/auth/refresh', { method: 'POST' })` and retries. Failed → `/auth/login`. Keep 401 only for a later `/api` route.
 
-**Done when:** POST `/auth/refresh` rewrites `scalekit_session`, and a failed refresh returns 401.
+**Done when:** a past `expiresAt` POSTs `/auth/refresh`, and a failed refresh returns 401.
 
 ## Step 7 — Protect pages
 
@@ -178,9 +178,9 @@ export function middleware(request: NextRequest) {
 }
 ```
 
-Then re-check in every protected Server Component: `const session = await getSession(); if (!session?.accessToken) redirect('/auth/login');`
+Then re-check: `const session = await getSession(); if (!session?.accessToken) redirect('/auth/login');` If `session.expiresAt` is past, a Client Component POSTs `/auth/refresh` and retries.
 
-**Done when:** a missing cookie hits `/auth/login`, and the Server Component also reads `getSession()`.
+**Done when:** a missing cookie hits `/auth/login`, the Server Component reads `getSession()`, and a past `expiresAt` refreshes.
 
 ## Step 8 — Stop
 
