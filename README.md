@@ -102,7 +102,7 @@ Skills for adding enterprise SSO to existing applications without replacing your
 
 | Skill | Description |
 |-------|-------------|
-| `modular-sso` | Complete SSO/auth flows with IdP-initiated login and session management |
+| `implement-sso` | SAML/OIDC, IdP-initiated login, and the admin portal |
 | `production-readiness-sso` | Production readiness checklist for SSO implementations |
 
 ### Modular SCIM
