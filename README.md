@@ -30,7 +30,7 @@ Copy the `SKILL.md` file from any skill directory into your project's `.cursor/s
 
 ## Skills Catalog
 
-**38 skills** across 5 product categories.
+**36 skills** across 5 product categories.
 
 ### Getting Started
 
@@ -72,9 +72,7 @@ Skills for implementing complete authentication flows — login, signup, session
 | Skill | Framework |
 |-------|-----------|
 | `implement-saaskit-nextjs` | Next.js (App Router) |
-| `implementing-scalekit-django-auth` | Django |
-| `implementing-scalekit-fastapi-auth` | FastAPI |
-| `implementing-scalekit-flask-auth` | Flask |
+| `implement-saaskit-python` | Django, FastAPI, or Flask |
 | `implementing-scalekit-go-auth` | Go (Gin) |
 | `implementing-scalekit-laravel-auth` | Laravel |
 | `implementing-scalekit-springboot-auth` | Spring Boot 3.x |
