@@ -36,7 +36,9 @@ Copy the `SKILL.md` file from any skill directory into your project's `.cursor/s
 
 | Skill | Description |
 |-------|-------------|
-| `setup-scalekit` | Guided setup — detects your AI coding tool and walks through plugin installation and auth type selection |
+| `setup-scalekit` | Install the CLI/plugin and pick AgentKit or SaaSKit |
+| `setup-agentkit` | Dashboard connection, env credentials, and first connector path |
+| `setup-saaskit` | Env credentials, redirect URI, and first login URL |
 
 ### Agent Auth
 
