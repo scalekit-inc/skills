@@ -50,7 +50,7 @@ Skills for adding OAuth-based agent authentication — connect AI agents to thir
 | `discover-connectors` | Live catalog and MCP lookup for connector tools and schemas |
 | `expose-agentkit-mcp` | Expose AgentKit tools over MCP on a per-user instance URL |
 | `sk-actions-custom-provider` | Create custom Scalekit providers/connectors with OAuth, Basic, Bearer, or API Key auth |
-| `production-readiness-agent-auth` | Production readiness checklist for agent authentication |
+| `check-agentkit-prod` | AgentKit go-live: every item PASS or WAIVE with a reason |
 
 ### Full-Stack Auth
 
