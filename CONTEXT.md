@@ -1,6 +1,6 @@
 # CONTEXT.md
 
-Same tokens as [scalekit-inc/authstack](https://github.com/scalekit-inc/authstack).
+Same tokens as [scalekit-inc/authstack](https://github.com/scalekit-inc/authstack). Define them only here in this repo.
 
 | Token | Means |
 |-------|--------|
