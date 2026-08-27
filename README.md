@@ -13,7 +13,7 @@ Skills work with any agent that supports the [Agent Skills spec](https://agentsk
 npx skills add scalekit-inc/skills --skill setup-scalekit
 
 # Browse and install specific skills
-npx skills add scalekit-inc/skills --skill adding-mcp-oauth
+npx skills add scalekit-inc/skills --skill add-mcp-oauth
 
 # List all available skills
 npx skills add scalekit-inc/skills --list
@@ -22,7 +22,7 @@ npx skills add scalekit-inc/skills --list
 npx skills add scalekit-inc/skills --all --global
 ```
 
-After installing, just describe what you want — Claude will automatically activate the relevant skill. For example: *"Add OAuth to my MCP server using Scalekit"* will trigger the `adding-mcp-oauth` skill.
+After installing, just describe what you want — Claude will automatically activate the relevant skill. For example: *"Add OAuth to my MCP server using Scalekit"* will trigger the `add-mcp-oauth` skill.
 
 ### Cursor / Windsurf
 
@@ -85,7 +85,7 @@ Skills for securing MCP (Model Context Protocol) servers with OAuth 2.1 — prot
 
 | Skill | Description |
 |-------|-------------|
-| `adding-mcp-oauth` | Add OAuth 2.1 to MCP servers for Claude Desktop, Cursor, and VS Code |
+| `add-mcp-oauth` | Add OAuth 2.1 to MCP servers for Claude Desktop, Cursor, and VS Code |
 | `mcp-oauth-fastmcp` | OAuth 2.1 authorization for FastMCP servers using Scalekit provider |
 | `mcp-oauth21-scalekit` | Production OAuth 2.1 with .well-known discovery and Bearer token validation |
 | `mcp-auth-expressjs-scalekit` | Scalekit OAuth in Express.js MCP server with middleware and transport |
