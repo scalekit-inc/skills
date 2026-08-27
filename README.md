@@ -30,7 +30,7 @@ Copy the `SKILL.md` file from any skill directory into your project's `.cursor/s
 
 ## Skills Catalog
 
-**37 skills** across 5 product categories.
+**39 skills** across 5 product categories.
 
 ### Getting Started
 
@@ -47,7 +47,8 @@ Skills for adding OAuth-based agent authentication — connect AI agents to thir
 | Skill | Description |
 |-------|-------------|
 | `integrate-agentkit` | Connected account, authorization link, token, and one downstream API call |
-| `building-agent-mcp-server` | Create MCP servers with authenticated tool access for LangChain/LangGraph agents |
+| `discover-connectors` | Live catalog and MCP lookup for connector tools and schemas |
+| `expose-agentkit-mcp` | Expose AgentKit tools over MCP on a per-user instance URL |
 | `sk-actions-custom-provider` | Create custom Scalekit providers/connectors with OAuth, Basic, Bearer, or API Key auth |
 | `production-readiness-agent-auth` | Production readiness checklist for agent authentication |
 
