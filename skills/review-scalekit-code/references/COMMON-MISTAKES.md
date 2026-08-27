@@ -1,6 +1,6 @@
 # Common Mistakes in Scalekit Code
 
-This file catalogs known anti-patterns, hallucinated methods, and security issues found in Scalekit integrations. Each entry shows the wrong pattern and the correct fix. Use this as a lookup during both generation and review. 11 categories.
+This file catalogs known anti-patterns, hallucinated methods, and security issues found in Scalekit integrations. Each entry shows the wrong pattern and the correct fix. Use this as a lookup during both generation and review. 10 categories.
 
 ---
 
@@ -15,14 +15,12 @@ import { ScalekitClient } from 'scalekit';               // wrong package name
 import { ScalekitClient } from 'scalekit-sdk-node';      // wrong package name
 ```
 
-**Correct (either works):**
+**Correct:**
 ```typescript
 import { ScalekitClient } from '@scalekit-sdk/node';
-// OR
-import { Scalekit } from '@scalekit-sdk/node';  // official alias, also valid
 ```
 
-Both `ScalekitClient` and `Scalekit` are valid named exports from `@scalekit-sdk/node`. The SDK source exports both. Use whichever is consistent with your codebase.
+Only `ScalekitClient` is the canonical named export from `@scalekit-sdk/node`. Older docs sometimes show `Scalekit` as an alias — treat that as deprecated/wrong; the runtime export is `ScalekitClient`. Always use `ScalekitClient`.
 
 ### Python
 
@@ -335,7 +333,7 @@ const scalekit = new ScalekitClient(
 **Correct:**
 ```typescript
 const scalekit = new ScalekitClient(
-  process.env.SCALEKIT_ENV_URL!,
+  process.env.SCALEKIT_ENVIRONMENT_URL!,
   process.env.SCALEKIT_CLIENT_ID!,
   process.env.SCALEKIT_CLIENT_SECRET!
 );
@@ -394,7 +392,7 @@ OAuth redirects are full HTTP redirects to an external domain (Scalekit/IdP). Cl
 
 | Wrong | Correct | Issue |
 |-------|---------|-------|
-| `SCALEKIT_URL` | `SCALEKIT_ENV_URL` | Missing `ENV_` |
+| `SCALEKIT_URL` | `SCALEKIT_ENVIRONMENT_URL` | Missing `ENV_` |
 | `SCALEKIT_SECRET` | `SCALEKIT_CLIENT_SECRET` | Missing `CLIENT_` |
 | `SCALEKIT_ID` | `SCALEKIT_CLIENT_ID` | Missing `CLIENT_` |
 | `SCALEKIT_CALLBACK_URL` | `SCALEKIT_REDIRECT_URI` | Wrong name entirely |
@@ -419,7 +417,7 @@ app.get('/api/data', async (req, res) => {
 ```typescript
 // Module-level singleton
 const scalekit = new ScalekitClient(
-  process.env.SCALEKIT_ENV_URL!,
+  process.env.SCALEKIT_ENVIRONMENT_URL!,
   process.env.SCALEKIT_CLIENT_ID!,
   process.env.SCALEKIT_CLIENT_SECRET!
 );
@@ -479,202 +477,3 @@ const authUrl = scalekit.getAuthorizationUrl(redirectUri, {
 ```
 
 Without `offline_access`, the authorization server won't issue a refresh token.
-
----
-
-## 11. AgentKit Tool-Calling Mistakes
-
-### `toolInput` vs `params` — wrong parameter name on `tools.executeTool`
-
-The most common AgentKit bug. `client.tools.executeTool` and `client.actions.executeTool` use **different parameter names** for tool input data.
-
-**Wrong (Node):**
-```typescript
-// Using 'toolInput' on the tools client — this param doesn't exist, args are silently dropped
-const result = await sk.tools.executeTool({
-  toolName: "github_pull_requests_list",
-  identifier: "user_123",
-  toolInput: { owner: "acme", repo: "app" },  // WRONG — silently ignored
-});
-// Error: "path templating failed: missing value for input.owner"
-```
-
-**Correct (Node):**
-```typescript
-// Option A: Use 'params' on client.tools
-const result = await sk.tools.executeTool({
-  toolName: "github_pull_requests_list",
-  identifier: "user_123",
-  params: { owner: "acme", repo: "app" },     // CORRECT
-});
-
-// Option B: Use 'toolInput' on client.actions (the facade)
-const result = await sk.actions.executeTool({
-  toolName: "github_pull_requests_list",
-  identifier: "user_123",
-  toolInput: { owner: "acme", repo: "app" },  // CORRECT — actions maps this to params
-});
-```
-
-**Wrong (Python):**
-```python
-# Using 'params' on the actions client — positional arg is tool_input
-result = client.actions.execute_tool(
-    params={"owner": "acme", "repo": "app"},  # WRONG — 'params' doesn't exist here
-    tool_name="github_pull_requests_list",
-    identifier="user_123",
-)
-```
-
-**Correct (Python):**
-```python
-# Option A: Use tool_input on client.actions
-result = client.actions.execute_tool(
-    tool_input={"owner": "acme", "repo": "app"},  # CORRECT
-    tool_name="github_pull_requests_list",
-    identifier="user_123",
-)
-
-# Option B: Use params on client.tools
-result = client.tools.execute_tool(
-    tool_name="github_pull_requests_list",
-    identifier="user_123",
-    params={"owner": "acme", "repo": "app"},       # CORRECT
-)
-```
-
-| Client | Parameter name | Language |
-|--------|---------------|----------|
-| `client.tools.executeTool` | `params` | Node |
-| `client.actions.executeTool` | `toolInput` | Node |
-| `client.tools.execute_tool` | `params` | Python |
-| `client.actions.execute_tool` | `tool_input` | Python |
-
-### LangChain `DynamicStructuredTool` — raw JSON Schema instead of Zod (Node)
-
-Scalekit tool definitions return `input_schema` as a JSON Schema object. LangChain's `DynamicStructuredTool` in Node requires a **Zod schema**, not raw JSON Schema. LangChain silently accepts the wrong type at construction time but input validation fails or is skipped at runtime.
-
-**Wrong:**
-```typescript
-import { DynamicStructuredTool } from "@langchain/core/tools";
-
-const lcTools = tools.map((t) => new DynamicStructuredTool({
-  name: t.tool.definition.name,
-  description: t.tool.definition.description,
-  schema: t.tool.definition.input_schema,  // WRONG — raw JSON Schema, not Zod
-  func: async (args) => { /* ... */ },
-}));
-```
-
-**Correct:**
-```typescript
-import { DynamicStructuredTool } from "@langchain/core/tools";
-import { z } from "zod";
-
-// Convert JSON Schema to Zod (minimal converter for Scalekit tool schemas)
-function jsonSchemaToZod(schema) {
-  if (!schema || schema.type !== "object") return z.record(z.any());
-  const shape = {};
-  const required = new Set(schema.required ?? []);
-  for (const [key, prop] of Object.entries(schema.properties ?? {})) {
-    const types = Array.isArray(prop.type) ? prop.type : [prop.type];
-    const base = types.find((t) => t !== "null") ?? "string";
-    let field = base === "number" || base === "integer" ? z.number()
-      : base === "boolean" ? z.boolean()
-      : base === "object" ? jsonSchemaToZod(prop)
-      : prop.enum ? z.enum(prop.enum) : z.string();
-    if (prop.description) field = field.describe(prop.description);
-    if (types.includes("null")) field = field.nullable();
-    if (!required.has(key)) field = field.optional();
-    shape[key] = field;
-  }
-  return z.object(shape);
-}
-
-const lcTools = tools.map((t) => new DynamicStructuredTool({
-  name: t.tool.definition.name,
-  description: t.tool.definition.description,
-  schema: jsonSchemaToZod(t.tool.definition.input_schema),  // CORRECT — Zod schema
-  func: async (args) => { /* ... */ },
-}));
-```
-
-Note: The Python SDK has a built-in `client.actions.langchain.get_tools()` that handles schema conversion automatically. Prefer that over manual construction.
-
-### `DynamicStructuredTool.func` must return a string (Node)
-
-LangChain expects `func` to return a `string`. Returning the raw `ExecuteToolResponse` object produces `[object Object]` in the agent's context.
-
-**Wrong:**
-```typescript
-func: async (args) => sk.tools.executeTool({
-  toolName: name, identifier: "user_123", params: args,
-}),
-// Agent sees: "[object Object]"
-```
-
-**Correct:**
-```typescript
-func: async (args) => {
-  const res = await sk.tools.executeTool({
-    toolName: name, identifier: "user_123", params: args,
-  });
-  return JSON.stringify(res.data);  // Return stringified data
-},
-```
-
-### Using Python's built-in LangChain helper instead of manual wiring
-
-The Python SDK has a built-in LangChain integration that handles schema conversion, func wiring, and error formatting. Don't reinvent it.
-
-**Manual (unnecessary):**
-```python
-from langchain_core.tools import StructuredTool
-tools_response = client.tools.list_scoped_tools(identifier="user_123", ...)
-# ... 30 lines of manual tool conversion ...
-```
-
-**Use the built-in helper:**
-```python
-scalekit_tools = client.actions.langchain.get_tools(
-    identifier="user_123",
-    connection_names=["github"],
-    page_size=100,
-)
-# scalekit_tools is a List[StructuredTool] ready for LangChain agents
-```
-
-### Executing tools against inactive connected accounts
-
-Connected accounts can expire (status 3). Executing a tool against an inactive account fails with `[invalid_argument] connected account is not active`. Always check account status or handle the error.
-
-**Wrong:**
-```typescript
-// Assumes the account is always active
-const result = await sk.tools.executeTool({
-  toolName: "gmail_messages_list",
-  identifier: "user_123",
-  params: { maxResults: 10 },
-});
-```
-
-**Correct:**
-```typescript
-try {
-  const result = await sk.tools.executeTool({
-    toolName: "gmail_messages_list",
-    identifier: "user_123",
-    params: { maxResults: 10 },
-  });
-} catch (err) {
-  if (err.message?.includes("not active")) {
-    // Re-authorize: generate a new magic link
-    const link = await sk.actions.getAuthorizationLink({
-      connectionName: "gmail",
-      identifier: "user_123",
-    });
-    // Redirect user to link.link to re-authorize
-  }
-  throw err;
-}
-```

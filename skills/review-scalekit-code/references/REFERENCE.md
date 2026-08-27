@@ -1,6 +1,6 @@
 # Scalekit API Reference — Compact Lookup
 
-This file contains every correct SDK method signature and REST endpoint. Use it as ground truth when generating or reviewing Scalekit code. If a method isn't listed here, do NOT assume it exists — verify against the live SDK source or `https://docs.scalekit.com/apis.md`.
+This file contains every correct SDK method signature and REST endpoint. Use it as ground truth when generating or reviewing Scalekit code. If a method isn't listed here, do NOT assume it exists — verify against the live SDK source or `https://docs.scalekit.com/apis`.
 
 ---
 
@@ -12,7 +12,7 @@ This file contains every correct SDK method signature and REST endpoint. Use it 
 import { ScalekitClient } from '@scalekit-sdk/node';
 
 const scalekit = new ScalekitClient(
-  process.env.SCALEKIT_ENV_URL!,       // string — environment URL
+  process.env.SCALEKIT_ENVIRONMENT_URL!,       // string — environment URL
   process.env.SCALEKIT_CLIENT_ID!,     // string — client ID
   process.env.SCALEKIT_CLIENT_SECRET!  // string — client secret
 );
@@ -24,19 +24,19 @@ const scalekit = new ScalekitClient(
 from scalekit import ScalekitClient
 
 scalekit_client = ScalekitClient(
-    os.environ.get('SCALEKIT_ENV_URL'),       # str — environment URL
+    os.environ.get('SCALEKIT_ENVIRONMENT_URL'),       # str — environment URL
     os.environ.get('SCALEKIT_CLIENT_ID'),     # str — client ID
     os.environ.get('SCALEKIT_CLIENT_SECRET')  # str — client secret
 )
 ```
 
-### Go (`github.com/scalekit-inc/scalekit-sdk-go`)
+### Go (`github.com/scalekit-inc/scalekit-sdk-go/v2`)
 
 ```go
 import scalekit "github.com/scalekit-inc/scalekit-sdk-go/v2"
 
 client := scalekit.NewScalekitClient(
-    os.Getenv("SCALEKIT_ENV_URL"),       // string — environment URL
+    os.Getenv("SCALEKIT_ENVIRONMENT_URL"),       // string — environment URL
     os.Getenv("SCALEKIT_CLIENT_ID"),     // string — client ID
     os.Getenv("SCALEKIT_CLIENT_SECRET"), // string — client secret
 )
@@ -48,7 +48,7 @@ client := scalekit.NewScalekitClient(
 import com.scalekit.ScalekitClient;
 
 ScalekitClient client = new ScalekitClient(
-    System.getenv("SCALEKIT_ENV_URL"),       // String — environment URL
+    System.getenv("SCALEKIT_ENVIRONMENT_URL"),       // String — environment URL
     System.getenv("SCALEKIT_CLIENT_ID"),     // String — client ID
     System.getenv("SCALEKIT_CLIENT_SECRET")  // String — client secret
 );
@@ -60,13 +60,13 @@ ScalekitClient client = new ScalekitClient(
 
 | Variable | Purpose | Format |
 |----------|---------|--------|
-| `SCALEKIT_ENV_URL` | Environment URL | `https://<subdomain>.scalekit.com` (prod) or `https://<subdomain>.scalekit.dev` (dev) |
+| `SCALEKIT_ENVIRONMENT_URL` | Environment URL | `https://<subdomain>.scalekit.com` (prod) or `https://<subdomain>.scalekit.dev` (dev) |
 | `SCALEKIT_CLIENT_ID` | Client ID | String from dashboard |
 | `SCALEKIT_CLIENT_SECRET` | Client secret | String from dashboard |
 | `SCALEKIT_REDIRECT_URI` | OAuth callback URL | Must exactly match dashboard config |
 | `SCALEKIT_WEBHOOK_SECRET` | Webhook signing secret | Format: `whsec_...` |
 
-Note: The REST API docs use `SCALEKIT_ENVIRONMENT_URL` in some examples. Both `SCALEKIT_ENV_URL` and `SCALEKIT_ENVIRONMENT_URL` are acceptable — just be consistent within a project.
+Note: The REST API docs use `SCALEKIT_ENVIRONMENT_URL` in some examples. Both `SCALEKIT_ENVIRONMENT_URL` and `SCALEKIT_ENVIRONMENT_URL` are acceptable — just be consistent within a project.
 
 ---
 
@@ -103,6 +103,7 @@ Note: The REST API docs use `SCALEKIT_ENVIRONMENT_URL` in some examples. Both `S
 | `authenticate_with_code` | `(code: str, redirect_uri: str, options?: CodeAuthenticationOptions) → dict` | Tokens + user info |
 | `get_idp_initiated_login_claims` | `(idp_initiated_login_token: str, options?: TokenValidationOptions) → IdpInitiatedLoginClaims` | IDP login claims |
 | `validate_access_token` | `(token: str, options?: TokenValidationOptions) → bool` | Boolean |
+| `validate_access_token_and_get_claims` | `(token: str, options?: TokenValidationOptions) → dict` | Decoded claims dict (raises on invalid/expired) — **canonical method when you need claims** |
 | `get_logout_url` | `(options?: LogoutUrlOptions) → str` | Logout URL string |
 | `refresh_access_token` | `(refresh_token: str) → dict` | New tokens |
 | `verify_webhook_payload` | `(secret: str, headers: Dict[str, str], payload: str\|bytes) → bool` | Boolean |
@@ -225,52 +226,15 @@ Note: Go methods take `context.Context` as the first parameter for network calls
 | Method | Signature |
 |--------|-----------|
 | `listConnectedAccounts` | `(options?) → Promise<ListConnectedAccountsResponse>` |
-| `createConnectedAccount` | `(params) → Promise<CreateConnectedAccountResponse>` |
-| `getOrCreateConnectedAccount` | `(params) → Promise<CreateConnectedAccountResponse>` |
-| `updateConnectedAccount` | `(params) → Promise<UpdateConnectedAccountResponse>` |
-| `deleteConnectedAccount` | `(params) → Promise<DeleteConnectedAccountResponse>` |
-| `getMagicLinkForConnectedAccount` | `(params) → Promise<GetMagicLinkForConnectedAccountResponse>` |
-| `getConnectedAccountByIdentifier` | `(params) → Promise<GetConnectedAccountByIdentifierResponse>` |
-| `verifyConnectedAccountUser` | `(params) → Promise<VerifyConnectedAccountUserResponse>` |
-
-`listConnectedAccounts` options: `organizationId?`, `userId?`, `connector?`, `identifier?`, `provider?`, `pageSize?`, `pageToken?`, `query?`.
-`createConnectedAccount` / `getOrCreateConnectedAccount` params: `connector` (required), `identifier` (required), `connectedAccount` (auth details), `organizationId?`, `userId?`.
-`deleteConnectedAccount` / `getConnectedAccountByIdentifier` params: `connector?`, `identifier?`, `connectedAccountId?`, `organizationId?`, `userId?` — provide either `connectedAccountId` or both `connector` + `identifier`.
+| `getConnectedAccountAuth` | `(options) → Promise<GetConnectedAccountAuthResponse>` |
+| `createConnectedAccount` | `(request) → Promise<CreateConnectedAccountResponse>` |
+| `updateConnectedAccount` | `(request) → Promise<UpdateConnectedAccountResponse>` |
+| `deleteConnectedAccount` | `(request) → Promise<void>` |
 
 **client.tools**
 | Method | Signature |
 |--------|-----------|
-| `listTools` | `(options?) → Promise<ListToolsResponse>` |
-| `listScopedTools` | `(identifier: string, options) → Promise<ListScopedToolsResponse>` |
-| `listAvailableTools` | `(identifier: string, options?) → Promise<ListAvailableToolsResponse>` |
-| `executeTool` | `(params) → Promise<ExecuteToolResponse>` |
-
-`listTools` options: `filter?` (`{ summary?, provider?, identifier?, toolName?: string[], query?, connector?, organizationId?, userId?, connectedAccountId? }`), `pageSize?`, `pageToken?`.
-`listScopedTools` options: `filter` (required — `{ providers?: string[], toolNames?: string[], connectionNames?: string[] }`), `pageSize?`, `pageToken?`. Returns `{ tools: ScopedTool[], totalSize, nextPageToken }` where each `ScopedTool` has `{ tool: Tool, identifier: string, connectedAccountId: string }` and `Tool.definition` is a `JsonObject` containing `name`, `description`, `input_schema`, etc.
-`listAvailableTools` options: `pageSize?`, `pageToken?`.
-`executeTool` params: `toolName` (required), `identifier?`, `params?` (Record — the tool input data), `connectedAccountId?`, `connector?`, `organizationId?`, `userId?`. Provide either `connectedAccountId` or `identifier` for account resolution. Returns `{ data: JsonObject, executionId: string }`.
-
-> **Critical**: On `client.tools.executeTool`, the parameter for tool input data is called **`params`**, not `toolInput`. The `toolInput` name only exists on `client.actions.executeTool` (the facade). Mixing them up causes tool args to be silently dropped.
-
-**client.actions** (facade over `tools` + `connectedAccounts` with ergonomic names)
-| Method | Signature |
-|--------|-----------|
-| `executeTool` | `(params) → Promise<ExecuteToolResponse>` |
-| `getAuthorizationLink` | `(params) → Promise<GetMagicLinkForConnectedAccountResponse>` |
-| `verifyConnectedAccountUser` | `(params) → Promise<VerifyConnectedAccountUserResponse>` |
-| `listConnectedAccounts` | `(params?) → Promise<ListConnectedAccountsResponse>` |
-| `deleteConnectedAccount` | `(params) → Promise<DeleteConnectedAccountResponse>` |
-| `getConnectedAccount` | `(params) → Promise<GetConnectedAccountByIdentifierResponse>` |
-| `createConnectedAccount` | `(params) → Promise<CreateConnectedAccountResponse>` |
-| `getOrCreateConnectedAccount` | `(params) → Promise<CreateConnectedAccountResponse>` |
-| `updateConnectedAccount` | `(params) → Promise<UpdateConnectedAccountResponse>` |
-| `request` | `(params) → Promise<AxiosResponse>` |
-
-`actions.executeTool` params: `toolName` (required), **`toolInput`** (Record — the tool input data), `identifier?`, `connectedAccountId?`, `connector?`, `organizationId?`, `userId?`.
-`actions.getAuthorizationLink` params: `connectionName?`, `identifier?`, `connectedAccountId?`, `organizationId?`, `userId?`, `state?`, `userVerifyUrl?`.
-`actions.request` params: `connectionName` (required), `identifier` (required), `path` (required), `method?` (default `'GET'`), `queryParams?`, `body?`, `formData?`, `headers?`, `timeoutMs?`.
-
-> **Key difference**: `actions.executeTool` accepts `toolInput` (mapped internally to `params`). `tools.executeTool` accepts `params` directly. Actions also uses `connectionName` where tools/connectedAccounts uses `connector`.
+| `executeTool` | `(request) → Promise<ExecuteToolResponse>` |
 
 ### Python sub-clients (accessed via `client.<subclient>.<method>`)
 
@@ -328,37 +292,6 @@ Additional Python-only methods on client:
 - `client.generate_client_token(client_id, client_secret, scopes?) → str` — M2M token generation
 - `client.get_client_access_token() → str` — M2M token using stored credentials
 - `client.verify_interceptor_payload(secret, headers, payload) → bool` — interceptor signature verification
-
-**client.tools** (Python)
-- `client.tools.list_tools(filter?, page_size?, page_token?) → ListToolsResponse`
-- `client.tools.list_scoped_tools(identifier, filter?, page_size?, page_token?) → ListScopedToolsResponse`
-- `client.tools.execute_tool(tool_name, identifier, params?, connected_account_id?, connection_name?) → ExecuteToolResponse`
-
-`filter` for `list_scoped_tools` is a `ScopedToolFilter(providers=[], tool_names=[], connection_names=[])`.
-`params` in `execute_tool` is a `dict` (converted to protobuf Struct internally).
-
-**client.actions** (Python — facade over tools + connected_accounts)
-- `client.actions.execute_tool(tool_input, tool_name, identifier?, tool_request?, connected_account_id?, connection_name?) → ExecuteToolResponse`
-- `client.actions.get_authorization_link(identifier?, connection_name?, connected_account_id?, state?, user_verify_url?) → MagicLinkResponse`
-- `client.actions.verify_connected_account_user(auth_request_id, identifier) → VerifyConnectedAccountUserResponse`
-- `client.actions.list_connected_accounts(connection_name?, identifier?, ...) → ListConnectedAccountsResponse`
-- `client.actions.delete_connected_account(connection_name?, identifier?, connected_account_id?) → DeleteConnectedAccountResponse`
-- `client.actions.get_connected_account(connection_name?, identifier?, connected_account_id?) → GetConnectedAccountAuthResponse`
-- `client.actions.create_connected_account(connection_name, identifier, ...) → CreateConnectedAccountResponse`
-- `client.actions.get_or_create_connected_account(connection_name, identifier, ...) → CreateConnectedAccountResponse`
-- `client.actions.update_connected_account(connection_name, identifier, ...) → UpdateConnectedAccountResponse`
-
-> **Critical (Python)**: `actions.execute_tool` takes `tool_input` as the first positional arg. `tools.execute_tool` takes `params` as a keyword arg. Mixing them up silently drops tool input.
-
-**client.actions.langchain** (Python — built-in LangChain integration)
-- `client.actions.langchain.get_tools(identifier, providers?, tool_names?, connection_names?, page_size?, page_token?) → List[StructuredTool]`
-
-Returns ready-to-use LangChain `StructuredTool` instances. Requires `pip install langchain-core`. This handles schema conversion and `func` wiring automatically — prefer this over manual `DynamicStructuredTool` construction.
-
-**client.actions.google** (Python — built-in Google ADK integration)
-- `client.actions.google.get_tools(identifier, ...) → List[Tool]`
-
-Returns Google ADK `Tool` instances. Requires `pip install google-adk`.
 
 Note: Python connection/domain/directory methods often require `organization_id` as the first parameter, unlike Node which uses option objects.
 

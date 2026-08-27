@@ -30,7 +30,7 @@ Copy the `SKILL.md` file from any skill directory into your project's `.cursor/s
 
 ## Skills Catalog
 
-**37 skills** across 5 product categories.
+**38 skills** across 6 product categories.
 
 ### Getting Started
 
@@ -67,6 +67,7 @@ Skills for implementing complete authentication flows — login, signup, session
 | `migrate-to-saaskit` | Audit existing auth and import it to SaaSKit |
 | `run-dryrun` | Test a SaaSKit auth setup with the dryrun CLI |
 | `check-saaskit-prod` | SaaSKit go-live: every item PASS or WAIVE with a reason |
+| `review-scalekit-code` | Review a Scalekit snippet. Do not generate login |
 
 **Framework guides:**
 
@@ -112,6 +113,12 @@ Skills for implementing SCIM directory sync — automated user provisioning and 
 | `implement-scim` | Directory webhooks and a user/group map |
 | `implementing-admin-portal-scim` | Admin portal for customer self-serve SCIM and SSO configuration |
 | `production-readiness-scim` | Production readiness checklist for SCIM provisioning |
+
+### Self-hosted
+
+| Skill | Description |
+|-------|-------------|
+| `deploy-self-hosted` | Helm or on-prem Scalekit |
 
 ## Skill Structure
 
