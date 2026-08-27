@@ -46,7 +46,7 @@ Skills for adding OAuth-based agent authentication — connect AI agents to thir
 
 | Skill | Description |
 |-------|-------------|
-| `integrating-agent-auth` | Integrate Scalekit Agent Auth for OAuth flows, token storage, and token refresh |
+| `integrate-agentkit` | Connected account, authorization link, token, and one downstream API call |
 | `building-agent-mcp-server` | Create MCP servers with authenticated tool access for LangChain/LangGraph agents |
 | `sk-actions-custom-provider` | Create custom Scalekit providers/connectors with OAuth, Basic, Bearer, or API Key auth |
 | `production-readiness-agent-auth` | Production readiness checklist for agent authentication |
