@@ -155,7 +155,7 @@ res.json({ portalUrl: portalLink.location });
 <iframe src="${portalUrl}" width="100%" height="600" frameborder="0" allow="clipboard-write"></iframe>
 ```
 
-On `PORTAL_SESSION_EXPIRY` or `SESSION_EXPIRED`, generate a new link and set `iframe.src`.
+On `message`, if `event.data.event_type` is `PORTAL_SESSION_EXPIRY`, generate a new link and set `iframe.src`. Do the same for `PORTAL_LOAD_FAILURE` when `data.error_code` is `SESSION_EXPIRED`.
 
 **Done when:** a shareable link can be generated, and the iframe uses a fresh `portalLink.location`.
 
