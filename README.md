@@ -61,7 +61,7 @@ Skills for implementing complete authentication flows — login, signup, session
 | `implement-saaskit` | Login, callback, session cookies, and logout |
 | `implementing-fsa-logout` | Complete logout flow clearing session cookies and invalidating sessions |
 | `manage-saaskit-sessions` | Store, validate, refresh, and revoke a session |
-| `implementing-access-control` | Server-side RBAC with role/permission validation at route boundaries |
+| `implement-access-control` | Roles and permissions at a route |
 | `implementing-admin-portal` | Admin portal for customer self-serve SSO and SCIM configuration |
 | `add-api-auth` | API key or client-credentials auth to protect an API |
 | `migrating-to-scalekit-auth` | Incremental migration from existing auth systems to Scalekit |
@@ -108,7 +108,7 @@ Skills for implementing SCIM directory sync — automated user provisioning and 
 
 | Skill | Description |
 |-------|-------------|
-| `implementing-scim-provisioning` | SCIM user provisioning using Scalekit Directory API and webhooks |
+| `implement-scim` | Directory webhooks and a user/group map |
 | `implementing-admin-portal-scim` | Admin portal for customer self-serve SCIM and SSO configuration |
 | `production-readiness-scim` | Production readiness checklist for SCIM provisioning |
 
