@@ -29,9 +29,12 @@ Add login, callback, session cookies, and logout. Then stop.
 - Next.js App Router → name `implement-saaskit-nextjs` and stop.
 - Django, FastAPI, or Flask → name `implement-saaskit-python` and stop.
 - Go, Java, or Laravel → stay on this Node path. Open [references/go.md](references/go.md), [references/java.md](references/java.md), or [references/laravel.md](references/laravel.md) only when the repo is that stack.
+- Mount `cookieParser()` before the auth routes. Logout reads `req.cookies.idToken`.
 - Cookies: `HttpOnly`, `Secure` in production, `sameSite: 'lax'`. `strict` breaks the OAuth callback.
 - Path-scope access to `/api` and refresh to `/auth/refresh` if you set both.
+- `/dashboard` does not receive the access cookie. Protect `/api/*` only. The page calls `/api`.
 - `getLogoutUrl` takes one object: `{ idTokenHint, postLogoutRedirectUri }`. The URL is one-time.
+- Register that same post-logout URL in the dashboard: Authentication → Redirect URLs → Post logout URLs.
 
 ## Step 1 — Pick the path
 
@@ -45,10 +48,11 @@ If env is missing, collect the four values from [app.scalekit.com](https://app.s
 
 ## Step 2 — Init the SDK
 
-Install `@scalekit-sdk/node` only when the repo has no Scalekit SDK yet.
+Install `@scalekit-sdk/node` only when the repo has no Scalekit SDK yet. Install `cookie-parser` if Express has no cookie parser yet.
 
 ```js
 import { ScalekitClient } from '@scalekit-sdk/node';
+import cookieParser from 'cookie-parser';
 
 const scalekit = new ScalekitClient(
   process.env.SCALEKIT_ENVIRONMENT_URL,
@@ -56,6 +60,7 @@ const scalekit = new ScalekitClient(
   process.env.SCALEKIT_CLIENT_SECRET
 );
 const redirectUri = process.env.SCALEKIT_REDIRECT_URI;
+app.use(cookieParser());
 ```
 
 **Done when:** the client initializes from those env vars.
@@ -118,7 +123,7 @@ Do not validate or refresh here. That is `manage-saaskit-sessions`.
 
 ## Step 5 — Logout
 
-Clear the cookies from Step 5, then redirect to Scalekit. The logout URL is one-time.
+Clear the cookies from Step 4, then redirect to Scalekit. The logout URL is one-time.
 
 ```js
 app.get('/auth/logout', (req, res) => {
@@ -126,15 +131,16 @@ app.get('/auth/logout', (req, res) => {
   res.clearCookie('accessToken', { path: '/api' });
   res.clearCookie('refreshToken', { path: '/auth/refresh' });
   res.clearCookie('idToken', { path: '/' });
+  const postLogoutRedirectUri = `${req.protocol}://${req.get('host')}`;
   const logoutUrl = scalekit.getLogoutUrl({
     idTokenHint,
-    postLogoutRedirectUri: 'http://localhost:3000',
+    postLogoutRedirectUri,
   });
   res.redirect(logoutUrl);
 });
 ```
 
-Use the app home URL for `postLogoutRedirectUri`.
+Register that same origin as a Post logout URL. Local default is `http://localhost:3000`.
 
 **Done when:** cookies are gone and the browser hits the logout URL.
 

@@ -25,36 +25,22 @@ Store, validate, refresh, and revoke a session. Then stop.
 - Default language is Node. Same client as `implement-saaskit`.
 - Traditional web: HttpOnly cookies. SPA: access token in memory + `Authorization: Bearer`; refresh in an HttpOnly cookie or a secure store.
 - Cookies: `HttpOnly`, `Secure` in production, `sameSite: 'lax'`. Path-scope access to `/api` and refresh to `/auth/refresh`.
-- `encrypt` and `decrypt` in the snippets are app-owned helpers, not Scalekit SDK methods.
+- Default store is the cookies `implement-saaskit` already set. Read them as-is.
+- `encrypt` / `decrypt` are app-owned helpers, not Scalekit SDK methods. Optional only. If you add them, rewrite those same cookies.
 - `refreshAccessToken` returns `{ accessToken, refreshToken }` only. Reuse a short access-cookie lifetime.
+- `verifySession` returns 401. It does not call `/auth/refresh`. The page does.
 - Remote revoke uses `scalekit.session.*`. That is not the logout redirect.
 - Dashboard session timeouts live at https://docs.scalekit.com/authenticate/fsa/sessions/. Do not cache that page.
 
-## Step 1 — Store tokens
+## Step 1 — Confirm the store
 
-After `implement-saaskit` has tokens, persist them.
+`implement-saaskit` already set `accessToken` (`path: '/api'`), `refreshToken` (`path: '/auth/refresh'`), and `idToken` (`path: '/'`). Use those values as-is.
 
-Traditional web:
-
-```js
-res.cookie('accessToken', encrypt(accessToken), {
-  maxAge: (expiresIn - 60) * 1000,
-  httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
-  sameSite: 'lax',
-  path: '/api',
-});
-res.cookie('refreshToken', encrypt(refreshToken), {
-  httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
-  sameSite: 'lax',
-  path: '/auth/refresh',
-});
-```
+Encrypt is optional. If you add it, rewrite those same cookies. Do not add a second store.
 
 SPA: keep the access token in memory. Send `Authorization: Bearer`. Store the refresh token in an HttpOnly cookie or a secure store.
 
-**Done when:** tokens are stored by app type.
+**Done when:** the app reads the cookies that skill already set, or an SPA memory store is in place.
 
 ## Step 2 — Validate on every protected request
 
@@ -72,15 +58,15 @@ export async function verifySession(req, res, next) {
   if (!accessCookie) {
     return res.status(401).json({ error: 'Authentication required' });
   }
-  const isValid = await scalekit.validateAccessToken(decrypt(accessCookie));
+  const isValid = await scalekit.validateAccessToken(accessCookie);
   if (isValid) return next();
   return res.status(401).json({ error: 'Session expired' });
 }
 ```
 
-SPA: read the Bearer token from `Authorization`. Do not read an access-token cookie.
+Mount this on `/api/*` only. SPA: read the Bearer token from `Authorization`. Do not read an access-token cookie.
 
-**Done when:** a protected route calls `validateAccessToken` before the handler.
+**Done when:** a protected `/api` route calls `validateAccessToken` before the handler.
 
 ## Step 3 — Refresh at `/auth/refresh`
 
@@ -93,15 +79,15 @@ app.post('/auth/refresh', async (req, res) => {
     return res.status(401).json({ error: 'Session expired. Please sign in again.' });
   }
   try {
-    const authResult = await scalekit.refreshAccessToken(decrypt(refreshCookie));
-    res.cookie('accessToken', encrypt(authResult.accessToken), {
+    const authResult = await scalekit.refreshAccessToken(refreshCookie);
+    res.cookie('accessToken', authResult.accessToken, {
       maxAge: 4 * 60 * 1000,
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       path: '/api',
     });
-    res.cookie('refreshToken', encrypt(authResult.refreshToken), {
+    res.cookie('refreshToken', authResult.refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
@@ -114,9 +100,20 @@ app.post('/auth/refresh', async (req, res) => {
 });
 ```
 
-SPA: return `{ accessToken: authResult.accessToken }` in the JSON body. The client updates memory. Do not set an access-token cookie.
+On 401 from `/api`, the page calls refresh, then retries once:
 
-**Done when:** a failed access token can refresh here, and a failed refresh returns 401.
+```js
+const refreshed = await fetch('/auth/refresh', {
+  method: 'POST',
+  credentials: 'include',
+});
+if (!refreshed.ok) location.href = '/auth/login';
+// retry the /api request once
+```
+
+SPA: same call. Return `{ accessToken: authResult.accessToken }` from the route, store it in memory, and retry. Do not set an access-token cookie.
+
+**Done when:** a 401 from `/api` calls `/auth/refresh` then retries, and a failed refresh returns 401.
 
 ## Step 4 — Revoke remotely
 
