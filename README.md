@@ -42,7 +42,7 @@ npx @scalekit-inc/cli setup copilot
 
 ## Skills Catalog
 
-**21 skills.**
+**22 skills.**
 
 ### Getting Started
 
@@ -59,6 +59,7 @@ Skills for adding OAuth-based agent authentication — connect AI agents to thir
 | Skill | Description |
 |-------|-------------|
 | `integrate-agentkit` | Connected account, authorization link, token, and one downstream API call |
+| `integrate-agentkit-host` | Wire OpenClaw or Hermes so the host acts as a named user |
 | `discover-connectors` | Live catalog and MCP lookup for connector tools and schemas |
 | `expose-agentkit-mcp` | Expose AgentKit tools over MCP on a per-user instance URL |
 | `check-agentkit-prod` | AgentKit go-live: every item PASS or WAIVE with a reason |
