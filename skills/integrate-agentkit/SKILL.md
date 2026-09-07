@@ -6,7 +6,7 @@ description: >
   Use when the user wants AgentKit in app code, a Gmail/Slack/Notion
   connected account, or an authorization link.
   It does not list connectors (that's `discover-connectors`)
-  or expose tools over MCP (that's `expose-agentkit-mcp`).
+  or wire an always-on host (that's `integrate-agentkit-host`).
 ---
 
 # Integrate AgentKit
@@ -152,6 +152,7 @@ For a non-Gmail connector, keep the same token path. Change only this HTTP call.
 
 - `setup-agentkit` if the connection or env is missing
 - `discover-connectors` for the live tool catalog
+- `integrate-agentkit-host` for OpenClaw or Hermes
 - `expose-agentkit-mcp` to expose tools over MCP
 - [references/node.md](references/node.md) for the Node SDK path
 - [references/frameworks.md](references/frameworks.md) for LangChain and Google ADK

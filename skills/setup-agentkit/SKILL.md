@@ -77,16 +77,19 @@ Keep these three items for the next skill:
 
 ## Step 5 — Name the next skill and stop
 
-Name `integrate-agentkit`. That skill creates a connected account, an authorization link, and one downstream call.
+If the user asked for OpenClaw, Hermes, or an always-on host, name `integrate-agentkit-host`.
+
+Otherwise name `integrate-agentkit`. That skill creates a connected account, an authorization link, and one downstream call.
 
 Do not write those app-code calls here.
 
-**Done when:** `integrate-agentkit` is named, and this skill has stopped.
+**Done when:** `integrate-agentkit` or `integrate-agentkit-host` is named, and this skill has stopped.
 
 ## Reach for
 
 - `setup-scalekit` if the plugin is missing
 - `discover-connectors` for the live tool catalog
+- `integrate-agentkit-host` for OpenClaw or Hermes
 - `setup-saaskit` if the user wanted app login
 
 ## Live lookups

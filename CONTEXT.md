@@ -9,6 +9,7 @@ Same tokens as [scalekit-inc/authstack](https://github.com/scalekit-inc/authstac
 | **connection** | Dashboard connector config. |
 | **connected account** | One user authorized on one connection. |
 | **dryrun** | Live auth check via the Scalekit CLI. |
+| **host** | Long-lived agent process (OpenClaw or Hermes). Not this git repo. |
 
 Connector index: https://docs.scalekit.com/agentkit/connectors.md
 LLM docs index: https://docs.scalekit.com/llms.txt
