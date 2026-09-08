@@ -11,10 +11,10 @@ Usage:
     python connect.py --get-tool --tool-name googlesheets_get_values
     python connect.py --get-tool --provider GOOGLE --page-size 5
 
-Required environment variables:
-    TOOL_CLIENT_ID      - Scalekit OAuth client ID
-    TOOL_CLIENT_SECRET  - Scalekit OAuth client secret
-    TOOL_ENV_URL        - Scalekit environment URL (e.g. https://your-env.scalekit.cloud)
+Required environment variables (SCALEKIT_* preferred, TOOL_* accepted):
+    SCALEKIT_CLIENT_ID / TOOL_CLIENT_ID
+    SCALEKIT_CLIENT_SECRET / TOOL_CLIENT_SECRET
+    SCALEKIT_ENVIRONMENT_URL / TOOL_ENV_URL
 """
 
 import argparse
@@ -554,9 +554,9 @@ Examples:
   python connect.py --get-tool --page-size 5 --page-token <token>
 
 Required environment variables:
-  TOOL_CLIENT_ID      Scalekit OAuth client ID
-  TOOL_CLIENT_SECRET  Scalekit OAuth client secret
-  TOOL_ENV_URL        Scalekit environment URL
+  SCALEKIT_CLIENT_ID / TOOL_CLIENT_ID
+  SCALEKIT_CLIENT_SECRET / TOOL_CLIENT_SECRET
+  SCALEKIT_ENVIRONMENT_URL / TOOL_ENV_URL
         """
     )
 
@@ -665,13 +665,13 @@ Required environment variables:
 
     # Validate environment variables
     if not TOOL_CLIENT_ID:
-        print(f"{RED}❌ Error: TOOL_CLIENT_ID environment variable is required{RESET}")
+        print(f"{RED}❌ Error: SCALEKIT_CLIENT_ID (or TOOL_CLIENT_ID) is required{RESET}")
         _exit(1)
     if not TOOL_CLIENT_SECRET:
-        print(f"{RED}❌ Error: TOOL_CLIENT_SECRET environment variable is required{RESET}")
+        print(f"{RED}❌ Error: SCALEKIT_CLIENT_SECRET (or TOOL_CLIENT_SECRET) is required{RESET}")
         _exit(1)
     if not TOOL_ENV_URL:
-        print(f"{RED}❌ Error: TOOL_ENV_URL environment variable is required{RESET}")
+        print(f"{RED}❌ Error: SCALEKIT_ENVIRONMENT_URL (or TOOL_ENV_URL) is required{RESET}")
         _exit(1)
 
     # Resolve identifier: env var → CLI arg → error

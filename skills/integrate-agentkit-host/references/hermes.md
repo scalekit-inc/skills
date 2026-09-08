@@ -19,9 +19,11 @@ Wire Hermes so it can act as a named user through AgentKit. Then stop.
 
 ## Step 1 — Copy the runtime skill
 
-From this skill directory:
+Clone the public repo, then copy from the skill directory:
 
 ```bash
+git clone --depth 1 https://github.com/scalekit-inc/authstack.git
+cd authstack/kits/agentkit/skills/integrate-agentkit-host
 DEST="${HERMES_HOME:-$HOME/.hermes}/skills/scalekit-agent-auth"
 mkdir -p "$DEST/scripts"
 cp references/runtime-skill.md "$DEST/SKILL.md"
@@ -29,7 +31,7 @@ cp scripts/tool_exec.py scripts/pyproject.toml "$DEST/scripts/"
 cd "$DEST/scripts" && uv sync
 ```
 
-The on-host folder name stays `scalekit-agent-auth` so it matches the shipped OpenClaw slug.
+The on-host folder name stays `scalekit-agent-auth` so it matches the shipped ClawHub **install slug**. The ClawHub listing frontmatter `name` is `openclaw-tool-executor`. That is slug parity, not skill-name parity.
 
 **Done when:** `hermes skills list` shows `scalekit-agent-auth`.
 
