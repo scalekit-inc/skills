@@ -1,3 +1,12 @@
+> [!WARNING]
+> **This repository is archived and no longer maintained.** Scalekit's skills now live in [scalekit-inc/authstack](https://github.com/scalekit-inc/authstack). Install them with:
+>
+> ```bash
+> npx skills add scalekit-inc/authstack --list
+> ```
+>
+> Or set up the plugin for your coding agent with `npx @scalekit-inc/cli setup`. The skills below are out of date; follow [docs.scalekit.com](https://docs.scalekit.com) instead.
+
 # Scalekit Skills
 
 [Agent Skills](https://agentskills.io) that teach AI coding agents how to integrate [Scalekit](https://scalekit.com) authentication into your applications. Each skill contains step-by-step instructions, code patterns, and reference material for a specific integration task — from adding OAuth to an MCP server to implementing full-stack auth with session management.
